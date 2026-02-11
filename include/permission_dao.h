@@ -43,6 +43,48 @@ public:
                                           const std::string& user_id);
     
     // 管理接口（根据需要添加）
+    bool createRole(const std::string& app_code,
+                    const std::string& role_name,
+                    const std::string& role_key,
+                    const std::string& description,
+                    bool is_default = false);
+
+    bool createPermission(const std::string& app_code,
+                          const std::string& perm_name,
+                          const std::string& perm_key,
+                          const std::string& description);
+
+    bool updateRole(const std::string& app_code,
+                    const std::string& role_key,
+                    const std::string* role_name,
+                    const std::string* description,
+                    const bool* is_default);
+
+    bool updatePermission(const std::string& app_code,
+                          const std::string& perm_key,
+                          const std::string* perm_name,
+                          const std::string* description);
+
+    bool deleteRole(const std::string& app_code, const std::string& role_key);
+    bool deletePermission(const std::string& app_code, const std::string& perm_key);
+
+    struct RoleInfo {
+        int64_t id;
+        std::string role_name;
+        std::string role_key;
+        std::string description;
+        bool is_default;
+    };
+    std::vector<RoleInfo> listRoles(const std::string& app_code);
+
+    struct PermInfo {
+        int64_t id;
+        std::string perm_name;
+        std::string perm_key;
+        std::string description;
+    };
+    std::vector<PermInfo> listPermissions(const std::string& app_code);
+
     bool assignRoleToUser(const std::string& app_code,
                           const std::string& user_id,
                           const std::string& role_key);
@@ -50,6 +92,27 @@ public:
     bool removeRoleFromUser(const std::string& app_code,
                             const std::string& user_id,
                             const std::string& role_key);
+
+    // 角色-权限管理
+    bool addPermissionToRole(const std::string& app_code,
+                             const std::string& role_key,
+                             const std::string& perm_key);
+                             
+    bool removePermissionFromRole(const std::string& app_code,
+                                  const std::string& role_key,
+                                  const std::string& perm_key);
+
+    // 审计日志
+    bool createAuditLog(int64_t operator_id, 
+                        const std::string& operator_name,
+                        const std::string& app_code,
+                        const std::string& action,
+                        const std::string& target_type,
+                        const std::string& target_id,
+                        const std::string& target_name = "",
+                        const std::string& object_type = "",
+                        const std::string& object_id = "",
+                        const std::string& object_name = "");
     
     // 状态检查
     bool isConnected() const;

@@ -20,23 +20,28 @@
 ## 项目结构
 
 ```
-siqi_auth/                   # 项目根目录
-├── build/                   # 编译输出目录
-├── conf/                    # 配置文件目录
-├── include/                 # 头文件目录
-│   ├── auth.pb.h            # [自动生成] Protobuf 生成的 C++ 头文件
-│   ├── auth_service_impl.h  # 鉴权服务接口实现类定义
-│   └── permission_dao.h     # 数据访问层（DAO）接口定义，负责数据库交互
-├── proto/                   # RPC 接口定义目录
-│   └── auth.proto           # Protobuf 文件，定义服务接口（Check, BatchCheck）与消息结构
-├── src/                     # 源代码目录
-│   ├── auth.pb.cc           # [自动生成] Protobuf 生成的 C++ 源文件
-│   ├── auth_service_impl.cpp # 鉴权服务具体逻辑实现
-│   ├── client_example.cpp   # 客户端 SDK 调用示例代码
-│   ├── permission_dao.cpp   # 数据库操作具体实现（CRUD）
-│   └── server_main.cpp      # 服务端主入口，负责初始化与启动 bRPC 服务
-├── CMakeLists.txt           # CMake 构建脚本，定义依赖与编译规则
-└── README.md                # 项目说明文档
+siqi_auth/                      # 项目根目录
+├── build/                      # 编译输出目录
+├── conf/                       # 配置文件目录
+├── include/                    # 头文件目录
+│   ├── admin_service_impl.h    # 管理服务接口实现类定义
+│   ├── auth.pb.h               # [自动生成] Protobuf 生成的 C++ 头文件
+│   ├── auth_service_impl.h     # 鉴权服务接口实现类定义
+│   └── permission_dao.h        # 数据访问层（DAO）接口定义，负责数据库交互
+├── proto/                      # RPC 接口定义目录
+│   └── auth.proto              # Protobuf 文件，定义服务接口（Check, BatchCheck）与消息结构
+├── scripts/                    # 辅助脚本目录
+│   └── init.sql                # 初始化数据库脚本，创建所需表与初始数据
+├── src/                        # 源代码目录
+|   ├── admin_service_impl.cpp  # 管理服务具体逻辑实现
+|   ├── admin_tool.cpp          # CLI 管理工具
+│   ├── auth.pb.cc              # [自动生成] Protobuf 生成的 C++ 源文件
+│   ├── auth_service_impl.cpp   # 鉴权服务具体逻辑实现
+│   ├── client_example.cpp      # 客户端 SDK 调用示例代码
+│   ├── permission_dao.cpp      # 数据库操作具体实现（CRUD）
+│   └── server_main.cpp         # 服务端主入口，负责初始化与启动 bRPC 服务
+├── CMakeLists.txt              # CMake 构建脚本，定义依赖与编译规则
+└── README.md                   # 项目说明文档
 ```
 
 ## 环境准备 (Ubuntu 22.04)
@@ -55,6 +60,7 @@ sudo apt install -y libmysqlcppconn-dev
 ```
 
 bRPC 安装（参考[brpc的安装与使用介绍以及channel的封装](https://blog.csdn.net/m0_74189279/article/details/149484082)）：
+
 ```bash
 git clone
 cd brpc/
@@ -87,6 +93,13 @@ make -C build/ -j`nproc`
 
 ```bash
 sudo mysql < scripts/init.sql
+```
+
+### 连接到数据库
+
+```bash
+mysql -u siqi_dev -p siqi_auth
+# 输入密码: siqi123
 ```
 
 ## 运行服务
@@ -126,7 +139,7 @@ sudo mysql < scripts/init.sql
 当接口文件发生变更时，请重新生成对应的 C++ 代码：
 
 ```bash
-protoc --proto_path=proto --cpp_out=src proto/auth.proto && mv src/auth.pb.h include/
+protoc --proto_path=proto --experimental_allow_proto3_optional --cpp_out=src proto/auth.proto && mv src/auth.pb.h include/
 ```
 
 

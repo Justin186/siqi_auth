@@ -4,6 +4,24 @@ package siqi.auth;
 
 option cc_generic_services = true;
 
+// =========================================================================
+// 1. 核心鉴权服务 (AuthService)
+//    运行时服务，供业务系统调用，高性能、低延迟
+// =========================================================================
+service AuthService {
+    // 单次权限检查
+    rpc Check(CheckRequest) returns (CheckResponse);
+    
+    // 批量权限检查（高性能，推荐使用）
+    rpc BatchCheck(BatchCheckRequest) returns (BatchCheckResponse);
+    
+    // 获取用户所有权限
+    rpc GetUserPermissions(GetUserPermissionsRequest) returns (GetUserPermissionsResponse);
+    
+    // 获取用户所有角色
+    rpc GetUserRoles(GetUserRolesRequest) returns (GetUserRolesResponse);
+}
+
 // 权限检查请求
 message CheckRequest {
     string app_code = 1; // 应用代码，如"qq_bot"
@@ -19,7 +37,7 @@ message CheckResponse {
     string suggest_role = 3; // 建议角色（如果需要升级）
 }
 
-// 批量权限检查
+// 批量权限检查请求
 message BatchCheckRequest {
     message CheckItem {
         string user_id = 1;
@@ -30,6 +48,7 @@ message BatchCheckRequest {
     repeated CheckItem items = 2;
 }
 
+// 批量权限检查响应
 message BatchCheckResponse {
     message ResultItem {
         string user_id = 1;
@@ -40,11 +59,326 @@ message BatchCheckResponse {
     repeated ResultItem results = 1;
 }
 
-// 权限服务定义
-service AuthService {
-    // 单次权限检查
-    rpc Check(CheckRequest) returns (CheckResponse);
+// 获取用户权限请求
+message GetUserPermissionsRequest {
+    string app_code = 1;
+    string user_id = 2;
+}
+
+// 获取用户权限响应
+message GetUserPermissionsResponse {
+    repeated string perm_keys = 1; // 用户拥有的所有权限代码
+}
+
+// 获取用户角色请求
+message GetUserRolesRequest {
+    string app_code = 1;
+    string user_id = 2;
+}
+
+// 获取用户角色响应
+message GetUserRolesResponse {
+    repeated string role_keys = 1; // 用户拥有的所有角色代码
+}
+
+// =========================================================================
+// 2. 管理服务 (AdminService)
+//    后台管理服务，供运营后台、CLI工具调用，操作数据库
+// =========================================================================
+service AdminService {
+    // ------------------------- 应用管理 -------------------------
+    // 创建新应用
+    rpc CreateApp(CreateAppRequest) returns (AdminResponse);
+    // 更新应用信息
+    rpc UpdateApp(UpdateAppRequest) returns (AdminResponse);
+    // 删除应用（软删除）
+    rpc DeleteApp(DeleteAppRequest) returns (AdminResponse);
+    // 获取应用详情
+    rpc GetApp(GetAppRequest) returns (GetAppResponse);
+    // 获取应用列表
+    rpc ListApps(ListAppsRequest) returns (ListAppsResponse);
     
-    // 批量权限检查（高性能）
-    rpc BatchCheck(BatchCheckRequest) returns (BatchCheckResponse);
+    // ------------------------- 权限管理 -------------------------
+    // 创建新权限
+    rpc CreatePermission(CreatePermissionRequest) returns (AdminResponse);
+    // 更新权限信息
+    rpc UpdatePermission(UpdatePermissionRequest) returns (AdminResponse);
+    // 删除权限
+    rpc DeletePermission(DeletePermissionRequest) returns (AdminResponse);
+    // 获取权限列表
+    rpc ListPermissions(ListPermissionsRequest) returns (ListPermissionsResponse);
+    
+    // ------------------------- 角色管理 -------------------------
+    // 创建新角色
+    rpc CreateRole(CreateRoleRequest) returns (AdminResponse);
+    // 更新角色信息
+    rpc UpdateRole(UpdateRoleRequest) returns (AdminResponse);
+    // 删除角色
+    rpc DeleteRole(DeleteRoleRequest) returns (AdminResponse);
+    // 获取角色列表
+    rpc ListRoles(ListRolesRequest) returns (ListRolesResponse);
+    
+    // ------------------------- 角色-权限绑定 -------------------------
+    // 给角色添加权限
+    rpc AddPermissionToRole(AddPermissionToRoleRequest) returns (AdminResponse);
+    // 移除角色的权限
+    rpc RemovePermissionFromRole(RemovePermissionFromRoleRequest) returns (AdminResponse);
+    // 获取角色的所有权限
+    rpc GetRolePermissions(GetRolePermissionsRequest) returns (GetRolePermissionsResponse);
+    
+    // ------------------------- 用户-角色授权 -------------------------
+    // 给用户授予角色
+    rpc GrantRoleToUser(GrantRoleToUserRequest) returns (AdminResponse);
+    // 撤销用户的角色
+    rpc RevokeRoleFromUser(RevokeRoleFromUserRequest) returns (AdminResponse);
+    // 获取拥有某角色的所有用户
+    rpc GetRoleUsers(GetRoleUsersRequest) returns (GetRoleUsersResponse);
+    
+    // ------------------------- 审计日志 -------------------------
+    // 查询审计日志
+    rpc ListAuditLogs(ListAuditLogsRequest) returns (ListAuditLogsResponse);
+}
+
+// ------------------------- 应用管理消息定义 -------------------------
+message CreateAppRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_name = 2; // 系统名称 例:课程群bot
+    string app_code = 3; // 应用代号 例:course_bot
+    string description = 4; // 描述
+}
+
+message UpdateAppRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    optional string app_name = 3;    // 系统名称
+    optional string description = 4; // 描述
+    optional int32 status = 5;       // 状态 1启用 0禁用
+}
+
+message DeleteAppRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号（软删除：status=0）
+}
+
+message GetAppRequest {
+    string app_code = 1;
+}
+
+message GetAppResponse {
+    int64 id = 1;
+    string app_name = 2;
+    string app_code = 3;
+    string app_secret = 4;
+    string description = 5;
+    int32 status = 6;
+    string created_at = 7;
+    string updated_at = 8;
+}
+
+message ListAppsRequest {
+    int32 page = 1;
+    int32 page_size = 2;
+    optional string app_name = 3;
+    optional int32 status = 4;
+}
+
+message ListAppsResponse {
+    repeated GetAppResponse apps = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+// ------------------------- 权限管理消息定义 -------------------------
+message CreatePermissionRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string perm_name = 3; // 权限名称 例:踢人
+    string perm_key = 4; // 权限标识 例:member:kick
+    string description = 5; // 描述
+}
+
+message UpdatePermissionRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string perm_key = 3; // 权限标识
+    optional string perm_name = 4; // 权限名称
+    optional string description = 5; // 描述
+}
+
+message DeletePermissionRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string perm_key = 3; // 权限标识
+}
+
+message ListPermissionsRequest {
+    string app_code = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+    optional string perm_name = 4;
+    optional string perm_key = 5;
+}
+
+message ListPermissionsResponse {
+    message Permission {
+        int64 id = 1;
+        string perm_name = 2;
+        string perm_key = 3;
+        string description = 4;
+        string created_at = 5;
+        string updated_at = 6;
+    }
+    repeated Permission permissions = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+// ------------------------- 角色管理消息定义 -------------------------
+message CreateRoleRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string role_name = 3; // 角色名称 例:管理员
+    string role_key = 4; // 角色标识 例:admin
+    string description = 5; // 描述
+    bool is_default = 6; // 是否默认角色
+}
+
+message UpdateRoleRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string role_key = 3; // 角色标识
+    optional string role_name = 4; // 角色名称
+    optional string description = 5; // 描述
+    optional bool is_default = 6;   // 是否默认角色
+}
+
+message DeleteRoleRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string role_key = 3; // 角色标识
+}
+
+message ListRolesRequest {
+    string app_code = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+    optional string role_name = 4;
+    optional string role_key = 5;
+    optional bool is_default = 6;
+}
+
+message ListRolesResponse {
+    message Role {
+        int64 id = 1;
+        string role_name = 2;
+        string role_key = 3;
+        string description = 4;
+        bool is_default = 5;
+        string created_at = 6;
+        string updated_at = 7;
+    }
+    repeated Role roles = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+// ------------------------- 角色-权限绑定消息定义 -------------------------
+message AddPermissionToRoleRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string role_key = 3; // 角色标识
+    string perm_key = 4; // 权限标识
+}
+
+message RemovePermissionFromRoleRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string role_key = 3; // 角色标识
+    string perm_key = 4; // 权限标识
+}
+
+message GetRolePermissionsRequest {
+    string app_code = 1;
+    string role_key = 2;
+}
+
+message GetRolePermissionsResponse {
+    repeated string perm_keys = 1; // 角色拥有的权限代码列表
+}
+
+// ------------------------- 用户-角色授权消息定义 -------------------------
+message GrantRoleToUserRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string user_id = 3; // 业务系统用户ID
+    string role_key = 4; // 角色标识
+}
+
+message RevokeRoleFromUserRequest {
+    string operator_id = 1; // 操作管理员ID
+    string app_code = 2; // 应用代号
+    string user_id = 3; // 业务系统用户ID
+    string role_key = 4; // 角色标识
+}
+
+message GetRoleUsersRequest {
+    string app_code = 1;
+    string role_key = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+message GetRoleUsersResponse {
+    message User {
+        string user_id = 1;
+        string created_at = 2;
+    }
+    repeated User users = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+// ------------------------- 审计日志消息定义 -------------------------
+message ListAuditLogsRequest {
+    int32 page = 1;
+    int32 page_size = 2;
+    optional string operator_id = 3;    // 按操作员筛选
+    optional string app_code = 4;       // 按应用筛选
+    optional string action = 5;        // 按动作类型筛选
+    optional string target_id = 6;     // 按目标对象筛选
+    optional int64 start_time = 7;     // 开始时间戳
+    optional int64 end_time = 8;       // 结束时间戳
+}
+
+message ListAuditLogsResponse {
+    message AuditLog {
+        int64 id = 1;
+        int64 operator_id = 2;
+        string operator_name = 3;
+        string app_code = 4;
+        string action = 5;
+        string target_type = 6;
+        string target_id = 7;
+        string target_name = 8;
+        string object_type = 9;
+        string object_id = 10;
+        string object_name = 11;
+        string created_at = 12;
+    }
+    repeated AuditLog logs = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+// ------------------------- 通用响应结构 -------------------------
+message AdminResponse {
+    bool success = 1; // 是否成功
+    int32 code = 2; // 错误码: 0成功, >0业务错误, <0系统错误
+    string message = 3; // 提示信息
+    optional string app_secret = 4; // 仅CreateApp时返回
 }

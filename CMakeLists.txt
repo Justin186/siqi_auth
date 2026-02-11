@@ -19,13 +19,17 @@ if (NOT MYSQL_INCLUDE_DIR OR NOT MYSQL_LIBRARY)
     message(FATAL_ERROR "MySQL Connector/C++ (libmysqlcppconn) not found")
 endif()
 
-# 生成protobuf代码
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS proto/auth.proto)
+# 生成protobuf代码（如果你想手动生成，请注释掉下面这行）
+# protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS proto/auth.proto)
+
+# 手动添加已生成的源文件（需确保已执行过 protoc 命令）
+set(PROTO_SRCS src/auth.pb.cc)
 
 # 可执行文件：权限服务器
 add_executable(auth_server 
     src/server_main.cpp
     src/auth_service_impl.cpp
+    src/admin_service_impl.cpp
     src/permission_dao.cpp
     ${PROTO_SRCS}
 )
@@ -63,6 +67,30 @@ target_include_directories(test_client PRIVATE
 )
 
 target_link_libraries(test_client
+    ${PROTOBUF_LIBRARY}
+    ${BRPC_LIBRARIES}
+    pthread
+    dl
+    z
+    ssl
+    crypto
+    leveldb
+    gflags
+)
+# 可执行文件：管理工具 CLI
+add_executable(admin_tool
+    src/admin_tool.cpp
+    ${PROTO_SRCS}
+)
+
+target_include_directories(admin_tool PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${PROTOBUF_INCLUDE_DIR}
+    ${BRPC_INCLUDE_DIRS}
+    include
+)
+
+target_link_libraries(admin_tool
     ${PROTOBUF_LIBRARY}
     ${BRPC_LIBRARIES}
     pthread
