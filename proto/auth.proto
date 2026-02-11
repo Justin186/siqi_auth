@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package siqi.auth;
+
+option cc_generic_services = true;
+
+// 权限检查请求
+message CheckRequest {
+    string app_code = 1; // 应用代码，如"qq_bot"
+    string user_id = 2; // 用户ID，如QQ号"123456"
+    string perm_key = 3; // 权限代码，如"member:kick"
+    string resource_id = 4; // 资源ID（可选）
+}
+
+// 权限检查响应
+message CheckResponse {
+    bool allowed = 1; // 是否允许
+    string reason = 2; // 原因（如果拒绝）
+    string suggest_role = 3; // 建议角色（如果需要升级）
+}
+
+// 批量权限检查
+message BatchCheckRequest {
+    message CheckItem {
+        string user_id = 1;
+        string perm_key = 2;
+        string resource_id = 3;
+    }
+    string app_code = 1;
+    repeated CheckItem items = 2;
+}
+
+message BatchCheckResponse {
+    message ResultItem {
+        string user_id = 1;
+        string perm_key = 2;
+        bool allowed = 3;
+        string reason = 4;
+    }
+    repeated ResultItem results = 1;
+}
+
+// 权限服务定义
+service AuthService {
+    // 单次权限检查
+    rpc Check(CheckRequest) returns (CheckResponse);
+    
+    // 批量权限检查（高性能）
+    rpc BatchCheck(BatchCheckRequest) returns (BatchCheckResponse);
+}
