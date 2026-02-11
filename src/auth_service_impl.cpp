@@ -2,11 +2,12 @@
 #include <brpc/controller.h>
 #include <errno.h>
 
-AuthServiceImpl::AuthServiceImpl(const std::string& host,
+AuthServiceImpl::AuthServiceImpl(std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache,
+                                 const std::string& host,
                                  const std::string& user,
                                  const std::string& password,
                                  const std::string& database)
-    : dao_(host, user, password, database) {
+    : dao_(host, user, password, database), cache_(cache) {
     
     if (!dao_.isConnected()) {
         LOG(ERROR) << "数据库连接失败，服务启动可能受影响";
@@ -23,55 +24,65 @@ void AuthServiceImpl::Check(google::protobuf::RpcController* cntl,
     // 确保done会被调用（RAII方式）
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* bcntl = static_cast<brpc::Controller*>(cntl);
-    
-    // 1. 参数验证
-    if (request->app_code().empty() || 
-        request->user_id().empty() || 
-        request->perm_key().empty()) {
-        
+
+    // 1. Params Validation
+    if (request->app_code().empty() || request->user_id().empty() || request->perm_key().empty()) {
         response->set_allowed(false);
         response->set_reason("参数不完整");
-        bcntl->SetFailed(EINVAL, "参数不完整");
         return;
     }
+
+    // 2. Cache Lookup
+    std::string cache_key = request->app_code() + ":" + request->user_id();
+    std::unordered_set<std::string> user_perms;
     
-    // 2. 执行权限检查
-    bool allowed = false;
-    LOG(INFO) << "Querying DB...";
+    bool cache_hit = false;
+    if (cache_) {
+        cache_hit = cache_->Get(cache_key, user_perms);
+    }
+    
+    if (cache_hit) {
+        // Cache Hit logic
+        bool allowed = (user_perms.count(request->perm_key()) > 0);
+        response->set_allowed(allowed);
+        if (!allowed) {
+             response->set_reason("用户没有该权限 (Cache)");
+        }
+        LOG(INFO) << "Check " << request->user_id() << " -> " << request->perm_key() 
+                  << (allowed ? " [ALLOW]" : " [DENY]") << " (Hit)";
+        return;
+    }
+
+    // 3. Cache Miss - Load from DB
     try {
-        allowed = dao_.checkPermission(
-            request->app_code(),
-            request->user_id(),
-            request->perm_key(),
-            request->resource_id()
-        );
+        // Here we assume getUserPermissions gets all effective permissions for the user
+        // This avoids complex SQL in AuthServiceImpl and leverages DAO
+        auto perms = dao_.getUserPermissions(request->app_code(), request->user_id());
+        user_perms.clear();
+        for (const auto& p : perms) {
+            user_perms.insert(p.first); // Use perm_key (first), not perm_name (second)
+        }
     } catch (const std::exception& e) {
-        LOG(ERROR) << "权限检查异常: " << e.what();
-        response->set_allowed(false);
-        response->set_reason("系统内部错误");
-        bcntl->SetFailed(brpc::EINTERNAL, "系统内部错误");
-        return;
+         LOG(ERROR) << "DB Error: " << e.what();
+         response->set_allowed(false);
+         response->set_reason("系统错误");
+         return;
     }
     
-    // 3. 设置响应
+    // 4. Update Cache (TTL 60 seconds)
+    if (cache_) {
+        cache_->Put(cache_key, user_perms, 60);
+    }
+
+    // 5. Final Check
+    bool allowed = (user_perms.count(request->perm_key()) > 0);
     response->set_allowed(allowed);
     if (!allowed) {
         response->set_reason("用户没有该权限");
-        
-        // 可以添加建议角色（高级功能）
-        auto roles = dao_.getUserRoles(request->app_code(), request->user_id());
-        if (roles.empty()) {
-            response->set_suggest_role("user");  // 默认角色
-        }
     }
     
-    // 4. 记录访问日志（生产环境需要）
-    LOG(INFO) << "[AuthCheck] app=" << request->app_code()
-              << " user=" << request->user_id()
-              << " perm=" << request->perm_key()
-              << " resource=" << request->resource_id()
-              << " result=" << (allowed ? "ALLOW" : "DENY")
-              << " latency=" << bcntl->latency_us() << "us";
+    LOG(INFO) << "Check " << request->user_id() << " -> " << request->perm_key() 
+              << (allowed ? " [ALLOW]" : " [DENY]") << (cache_hit ? " (Hit)" : " (Miss)");
 }
 
 void AuthServiceImpl::BatchCheck(google::protobuf::RpcController* cntl,

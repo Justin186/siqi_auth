@@ -1,6 +1,13 @@
 #include <brpc/channel.h>
+#include <gflags/gflags.h>
 #include "auth.pb.h"
 #include <memory>
+#include <iostream>
+
+DEFINE_string(server, "127.0.0.1:8888", "Server Address");
+DEFINE_string(app, "qq_bot", "App code");
+DEFINE_string(user, "123456", "User ID");
+DEFINE_string(perm, "member:kick", "Permission Key");
 
 class AuthClient {
 private:
@@ -35,28 +42,33 @@ public:
         stub_->Check(&cntl, &request, &response, NULL);
         
         if (cntl.Failed()) {
-            // 降级策略：如果权限系统不可用，默认允许还是拒绝？
-            // 根据业务决定，这里先记录日志
-            LOG(WARNING) << "权限系统不可用: " << cntl.ErrorText();
-            return false;  // 安全起见，拒绝访问
+            std::cerr << "RPC Failed: " << cntl.ErrorText() << std::endl;
+            return false;
         }
         
+        if (!response.reason().empty()) {
+            std::cout << "Reason: " << response.reason() << std::endl;
+        }
+
         return response.allowed();
     }
 };
 
-// QQ Bot中这样使用：
-int main() {
-    // 初始化权限客户端
-    AuthClient auth_client("localhost:8888");
+int main(int argc, char* argv[]) {
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
     
-    // 用户尝试踢人时
-    if (auth_client.Check("qq_bot", "123456", "member:kick")) {
-        std::cout << "允许踢人" << std::endl;
-        // 执行踢人操作
-    } else {
-        std::cout << "没有踢人权限" << std::endl;
-        // 提示用户没有权限
+    try {
+        AuthClient client(FLAGS_server);
+        bool allowed = client.Check(FLAGS_app, FLAGS_user, FLAGS_perm);
+        
+        if (allowed) {
+            std::cout << "✅ 允许访问 [ALLOWED]" << std::endl;
+        } else {
+            std::cout << "❌ 拒绝访问 [DENIED]" << std::endl;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
     }
     
     return 0;

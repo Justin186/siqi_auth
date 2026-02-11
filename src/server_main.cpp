@@ -1,11 +1,16 @@
 #include <brpc/server.h>
 #include "auth_service_impl.h"
 #include "admin_service_impl.h"
+#include "local_cache.h"
+#include <unordered_set>
 
 int main(int argc, char* argv[]) {
+    // 0. 创建共享缓存 (Key: app:user, Value: Set<Perm>)
+    auto cache = std::make_shared<LocalCache<std::unordered_set<std::string>>>();
+
     // 1. 创建服务实例
-    AuthServiceImpl auth_service;
-    AdminServiceImpl admin_service;
+    AuthServiceImpl auth_service(cache);
+    AdminServiceImpl admin_service(cache);
     
     // 2. 创建brpc服务器
     brpc::Server server;

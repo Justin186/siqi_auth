@@ -2,11 +2,12 @@
 #include <brpc/controller.h>
 #include <gflags/gflags.h>
 
-AdminServiceImpl::AdminServiceImpl(const std::string& host,
+AdminServiceImpl::AdminServiceImpl(std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache,
+                                   const std::string& host,
                                    const std::string& user,
                                    const std::string& password,
                                    const std::string& database)
-    : dao_(host, user, password, database) {
+    : dao_(host, user, password, database), cache_(cache) {
 }
 
 void AdminServiceImpl::GrantRoleToUser(google::protobuf::RpcController* cntl_base,
@@ -16,6 +17,9 @@ void AdminServiceImpl::GrantRoleToUser(google::protobuf::RpcController* cntl_bas
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    // 缓存失效处理
+    if (cache_) cache_->Invalidate(request->app_code() + ":" + request->user_id());
+
     // 参数校验
     if (request->operator_id().empty() || request->app_code().empty() || 
         request->user_id().empty() || request->role_key().empty()) {
@@ -58,6 +62,9 @@ void AdminServiceImpl::RevokeRoleFromUser(google::protobuf::RpcController* cntl_
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    // 缓存失效处理
+    if (cache_) cache_->Invalidate(request->app_code() + ":" + request->user_id());
+
     if (request->operator_id().empty() || request->app_code().empty() || 
         request->user_id().empty() || request->role_key().empty()) {
         response->set_success(false);
@@ -89,6 +96,12 @@ void AdminServiceImpl::AddPermissionToRole(google::protobuf::RpcController* cntl
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    // 缓存失效处理:
+    // 角色权限变更会影响所有拥有该角色的用户。
+    // 由于我们无法反向查找哪些用户拥有此角色，因此失效该 App 下的所有用户缓存。
+    // 这种操作频率较低（仅在管理员配置时），因此 O(N) 的遍历清理是可以接受的。
+    if (cache_) cache_->InvalidatePrefix(request->app_code() + ":");
+
     if (request->app_code().empty() || request->role_key().empty() || request->perm_key().empty()) {
         response->set_success(false);
         response->set_message("缺少必要参数");
@@ -119,6 +132,9 @@ void AdminServiceImpl::RemovePermissionFromRole(google::protobuf::RpcController*
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    // 缓存失效处理（同上）：清理该应用下的所有缓存
+    if (cache_) cache_->InvalidatePrefix(request->app_code() + ":");
+
     if (request->app_code().empty() || request->role_key().empty() || request->perm_key().empty()) {
         response->set_success(false);
         response->set_message("缺少必要参数");

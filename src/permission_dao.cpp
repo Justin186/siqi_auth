@@ -136,7 +136,31 @@ std::vector<std::string> PermissionDAO::getUserRoles(const std::string& app_code
 std::vector<std::pair<std::string, std::string>> 
 PermissionDAO::getUserPermissions(const std::string& app_code,
                        const std::string& user_id) {
-     return {}; // Stub
+    std::vector<std::pair<std::string, std::string>> perms;
+    if (!reconnectIfNeeded()) return perms;
+
+    try {
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            connection_->prepareStatement(
+                "SELECT p.perm_key, p.perm_name "
+                "FROM sys_user_roles ur "
+                "JOIN sys_apps a ON ur.app_id = a.id "
+                "JOIN sys_role_permissions rp ON ur.role_id = rp.role_id "
+                "JOIN sys_permissions p ON rp.perm_id = p.id "
+                "WHERE a.app_code = ? AND ur.app_user_id = ?"
+            )
+        );
+        pstmt->setString(1, app_code);
+        pstmt->setString(2, user_id);
+        
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        while (res->next()) {
+            perms.emplace_back(res->getString("perm_key"), res->getString("perm_name"));
+        }
+    } catch (const sql::SQLException& e) {
+        last_error_ = "获取用户权限失败: " + std::string(e.what());
+    }
+    return perms;
 }
 
 int64_t PermissionDAO::getAppId(const std::string& app_code) {

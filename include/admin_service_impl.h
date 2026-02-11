@@ -3,15 +3,19 @@
 
 #include "permission_dao.h"
 #include "auth.pb.h"
+#include "local_cache.h"
 #include <brpc/server.h>
 #include <butil/logging.h>
+#include <unordered_set>
 
 class AdminServiceImpl : public siqi::auth::AdminService {
 private:
     PermissionDAO dao_;
+    std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache_;
     
 public:
-    AdminServiceImpl(const std::string& host = "localhost",
+    AdminServiceImpl(std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache,
+                     const std::string& host = "localhost",
                      const std::string& user = "siqi_dev",
                      const std::string& password = "siqi123",
                      const std::string& database = "siqi_auth");
