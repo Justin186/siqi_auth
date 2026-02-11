@@ -60,7 +60,7 @@ bool PermissionDAO::checkPermission(const std::string& app_code,
                 "SELECT COUNT(*) as cnt "
                 "FROM sys_user_roles ur "
                 "JOIN sys_apps a ON ur.app_id = a.id "
-                "JOIN sys_role_permissions rp ON ur.role_id = rp.role_id AND ur.app_id = rp.app_id "
+                "JOIN sys_role_permissions rp ON ur.role_id = rp.role_id "
                 "JOIN sys_permissions p ON rp.perm_id = p.id "
                 "WHERE a.app_code = ? "
                 "  AND ur.app_user_id = ? "

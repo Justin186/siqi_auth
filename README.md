@@ -86,7 +86,7 @@ make -C build/ -j`nproc`
 ### 初始化数据库
 
 ```bash
-mysql -u siqi_dev -p siqi_auth < init.sql
+sudo mysql < scripts/init.sql
 ```
 
 ## 运行服务
