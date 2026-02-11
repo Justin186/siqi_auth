@@ -3,18 +3,33 @@
 #include <iostream>
 #include "auth.pb.h"
 
-DEFINE_string(server, "127.0.0.1:8888", "IP Address of server");
-DEFINE_string(op, "", "Operation: grant_role, revoke_role, add_perm, remove_perm");
-DEFINE_string(app, "qq_bot", "App code");
-DEFINE_string(user, "", "User ID");
-DEFINE_string(role, "", "Role Key");
-DEFINE_string(perm, "", "Permission Key");
-DEFINE_string(operator_id, "1", "Operator ID (Admin ID)");
-DEFINE_string(name, "", "Name for role or permission");
-DEFINE_string(desc, "", "Description");
-DEFINE_bool(is_default, false, "Is default role");
+DEFINE_string(server, "127.0.0.1:8888", "服务器地址 (默认 127.0.0.1:8888)");
+DEFINE_string(op, "", "操作指令: \n"
+                      "    [角色管理] create_role, update_role, delete_role, list_roles\n"
+                      "    [权限管理] create_perm, update_perm, delete_perm, list_perms\n"
+                      "    [授权管理] grant_role, revoke_role, add_perm, remove_perm");
+DEFINE_string(app, "qq_bot", "应用代号 (App Code)");
+DEFINE_string(user, "", "用户 ID (User ID)");
+DEFINE_string(role, "", "角色标识 Key (Role Key)");
+DEFINE_string(perm, "", "权限标识 Key (Permission Key)");
+DEFINE_string(operator_id, "1", "操作管理员 ID");
+DEFINE_string(name, "", "名称 (角色名或权限名)");
+DEFINE_string(desc, "", "描述信息");
+DEFINE_bool(is_default, false, "是否为默认角色");
 
 int main(int argc, char* argv[]) {
+    std::string usage_msg = 
+        "\nSiqi Auth 管理工具 (Admin Tool)\n"
+        "用途: 管理权限系统的角色、权限定义以及用户授权关系。\n\n"
+        "常见用法示例:\n"
+        "  1. 创建角色: ./admin_tool --op=create_role --role=admin --name=管理员 --desc=超级管理\n"
+        "  2. 创建权限: ./admin_tool --op=create_perm --perm=user:del --name=删用户\n"
+        "  3. 角色绑定: ./admin_tool --op=add_perm --role=admin --perm=user:del\n"
+        "  4. 用户授权: ./admin_tool --op=grant_role --user=10086 --role=admin\n"
+        "  5. 查看列表: ./admin_tool --op=list_roles\n\n"
+        "提示: 若只想查看本工具的参数说明，请使用: ./admin_tool --helpon=admin_tool";
+    
+    gflags::SetUsageMessage(usage_msg);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     
     brpc::Channel channel;
@@ -66,6 +81,18 @@ int main(int argc, char* argv[]) {
         request.set_perm_key(FLAGS_perm);
         
         stub.AddPermissionToRole(&cntl, &request, &response, NULL);
+    } else if (FLAGS_op == "remove_perm") {
+         if (FLAGS_role.empty() || FLAGS_perm.empty()) {
+            std::cerr << "Missing --role or --perm" << std::endl;
+            return -1;
+        }
+        siqi::auth::RemovePermissionFromRoleRequest request;
+        request.set_operator_id(FLAGS_operator_id);
+        request.set_app_code(FLAGS_app);
+        request.set_role_key(FLAGS_role);
+        request.set_perm_key(FLAGS_perm);
+        
+        stub.RemovePermissionFromRole(&cntl, &request, &response, NULL);
     } else if (FLAGS_op == "create_role") {
         if (FLAGS_role.empty() || FLAGS_name.empty()) {
             std::cerr << "Missing --role or --name" << std::endl;
