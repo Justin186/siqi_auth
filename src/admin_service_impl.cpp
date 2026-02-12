@@ -1,6 +1,11 @@
 #include "admin_service_impl.h"
 #include <brpc/controller.h>
 #include <gflags/gflags.h>
+#include <unistd.h>
+#include <crypt.h>
+#include <random>
+#include <sstream>
+#include <iomanip>
 
 AdminServiceImpl::AdminServiceImpl(std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache,
                                    const std::string& host,
@@ -10,6 +15,28 @@ AdminServiceImpl::AdminServiceImpl(std::shared_ptr<LocalCache<std::unordered_set
     : dao_(host, user, password, database), cache_(cache) {
 }
 
+bool AdminServiceImpl::ValidateToken(brpc::Controller* cntl, SessionInfo& session) {
+    const std::string* auth_header = cntl->http_request().GetHeader("Authorization");
+    if (!auth_header) {
+        // 如果是浏览器直接访问，可能没有 Authorization 头
+        // 但 CLI 工具应该带上
+        return false;
+    }
+    
+    std::string header_val = *auth_header;
+    if (header_val.find("Bearer ") != 0) {
+        return false;
+    }
+    
+    std::string token = header_val.substr(7);
+    bool found = session_cache_.Get(token, session);
+    
+    if (!found || session.username.empty()) {
+        return false;
+    }
+    return true;
+}
+
 void AdminServiceImpl::GrantRoleToUser(google::protobuf::RpcController* cntl_base,
                                        const siqi::auth::GrantRoleToUserRequest* request,
                                        siqi::auth::AdminResponse* response,
@@ -17,11 +44,18 @@ void AdminServiceImpl::GrantRoleToUser(google::protobuf::RpcController* cntl_bas
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
     // 缓存失效处理
     if (cache_) cache_->Invalidate(request->app_code() + ":" + request->user_id());
 
     // 参数校验
-    if (request->operator_id().empty() || request->app_code().empty() || 
+    if (request->app_code().empty() || 
         request->user_id().empty() || request->role_key().empty()) {
         response->set_success(false);
         response->set_code(EINVAL);
@@ -36,14 +70,8 @@ void AdminServiceImpl::GrantRoleToUser(google::protobuf::RpcController* cntl_bas
         response->set_message("授权成功");
         
         // 审计日志
-        // 注意：这里operator_id实际上应该是个ID，但proto里是string。
-        // 这里只是示例，实际需要根据业务转换。暂定operator_id转int64，或者你可以修改createAuditLog接受string
-        // 假设operator_id是数字字符串:
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, 
-                            "Admin", // 暂时拿不到名字，可以改Proto加operator_name或者查表
+        dao_.createAuditLog(session.user_id, 
+                            session.real_name,
                             request->app_code(), 
                             "USER_GRANT_ROLE", 
                             "USER", request->user_id(), "", 
@@ -62,10 +90,17 @@ void AdminServiceImpl::RevokeRoleFromUser(google::protobuf::RpcController* cntl_
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
     // 缓存失效处理
     if (cache_) cache_->Invalidate(request->app_code() + ":" + request->user_id());
 
-    if (request->operator_id().empty() || request->app_code().empty() || 
+    if (request->app_code().empty() || 
         request->user_id().empty() || request->role_key().empty()) {
         response->set_success(false);
         response->set_message("缺少必要参数");
@@ -76,10 +111,7 @@ void AdminServiceImpl::RevokeRoleFromUser(google::protobuf::RpcController* cntl_
         response->set_success(true);
         response->set_message("撤销成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "USER_REVOKE_ROLE", 
                             "USER", request->user_id(), "", 
                             "ROLE", request->role_key(), "");
@@ -95,6 +127,13 @@ void AdminServiceImpl::AddPermissionToRole(google::protobuf::RpcController* cntl
                                            google::protobuf::Closure* done) {
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
     
     // 缓存失效处理:
     // 角色权限变更会影响所有拥有该角色的用户。
@@ -112,10 +151,7 @@ void AdminServiceImpl::AddPermissionToRole(google::protobuf::RpcController* cntl
         response->set_success(true);
         response->set_message("绑定成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "ROLE_ADD_PERM", 
                             "ROLE", request->role_key(), "", 
                             "PERM", request->perm_key(), "");
@@ -132,6 +168,13 @@ void AdminServiceImpl::RemovePermissionFromRole(google::protobuf::RpcController*
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
     // 缓存失效处理（同上）：清理该应用下的所有缓存
     if (cache_) cache_->InvalidatePrefix(request->app_code() + ":");
 
@@ -145,10 +188,7 @@ void AdminServiceImpl::RemovePermissionFromRole(google::protobuf::RpcController*
         response->set_success(true);
         response->set_message("解绑成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "ROLE_REMOVE_PERM", 
                             "ROLE", request->role_key(), "", 
                             "PERM", request->perm_key(), "");
@@ -165,6 +205,13 @@ void AdminServiceImpl::CreateRole(google::protobuf::RpcController* cntl_base,
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
     if (request->app_code().empty() || request->role_key().empty() || request->role_name().empty()) {
         response->set_success(false);
         response->set_message("缺少必要参数");
@@ -178,10 +225,7 @@ void AdminServiceImpl::CreateRole(google::protobuf::RpcController* cntl_base,
         response->set_success(true);
         response->set_message("创建角色成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "CREATE_ROLE", 
                             "ROLE", request->role_key(), request->role_name());
     } else {
@@ -197,6 +241,13 @@ void AdminServiceImpl::CreatePermission(google::protobuf::RpcController* cntl_ba
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
     if (request->app_code().empty() || request->perm_key().empty() || request->perm_name().empty()) {
         response->set_success(false);
         response->set_message("缺少必要参数");
@@ -207,10 +258,7 @@ void AdminServiceImpl::CreatePermission(google::protobuf::RpcController* cntl_ba
         response->set_success(true);
         response->set_message("创建权限成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "CREATE_PERM", 
                             "PERM", request->perm_key(), request->perm_name());
     } else {
@@ -226,6 +274,13 @@ void AdminServiceImpl::DeleteRole(google::protobuf::RpcController* cntl_base,
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
     if (request->app_code().empty() || request->role_key().empty()) {
         response->set_success(false);
         response->set_message("缺少必要参数");
@@ -236,10 +291,7 @@ void AdminServiceImpl::DeleteRole(google::protobuf::RpcController* cntl_base,
         response->set_success(true);
         response->set_message("删除角色成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "DELETE_ROLE", 
                             "ROLE", request->role_key());
     } else {
@@ -255,6 +307,13 @@ void AdminServiceImpl::DeletePermission(google::protobuf::RpcController* cntl_ba
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
     if (request->app_code().empty() || request->perm_key().empty()) {
         response->set_success(false);
         response->set_message("缺少必要参数");
@@ -265,10 +324,7 @@ void AdminServiceImpl::DeletePermission(google::protobuf::RpcController* cntl_ba
         response->set_success(true);
         response->set_message("删除权限成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "DELETE_PERM", 
                             "PERM", request->perm_key());
     } else {
@@ -283,6 +339,12 @@ void AdminServiceImpl::ListRoles(google::protobuf::RpcController* cntl_base,
                                  google::protobuf::Closure* done) {
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        cntl->SetFailed(EPERM, "Unauthorized: Login required");
+        return;
+    }
     
     auto roles = dao_.listRoles(request->app_code());
     for (const auto& r : roles) {
@@ -303,6 +365,12 @@ void AdminServiceImpl::ListPermissions(google::protobuf::RpcController* cntl_bas
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        cntl->SetFailed(EPERM, "Unauthorized: Login required");
+        return;
+    }
+    
     auto perms = dao_.listPermissions(request->app_code());
     for (const auto& p : perms) {
         auto* perm_pb = response->add_permissions();
@@ -320,6 +388,13 @@ void AdminServiceImpl::UpdateRole(google::protobuf::RpcController* cntl_base,
                                   google::protobuf::Closure* done) {
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
     
     if (request->app_code().empty() || request->role_key().empty()) {
         response->set_success(false);
@@ -341,10 +416,7 @@ void AdminServiceImpl::UpdateRole(google::protobuf::RpcController* cntl_base,
         response->set_success(true);
         response->set_message("更新角色成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "UPDATE_ROLE", 
                             "ROLE", request->role_key());
     } else {
@@ -360,6 +432,13 @@ void AdminServiceImpl::UpdatePermission(google::protobuf::RpcController* cntl_ba
     brpc::ClosureGuard done_guard(done);
     brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
     
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
     if (request->app_code().empty() || request->perm_key().empty()) {
         response->set_success(false);
         response->set_message("缺少必要参数");
@@ -373,14 +452,72 @@ void AdminServiceImpl::UpdatePermission(google::protobuf::RpcController* cntl_ba
         response->set_success(true);
         response->set_message("更新权限成功");
         
-        int64_t op_id = 0;
-        try { op_id = std::stoll(request->operator_id()); } catch (...) {}
-        
-        dao_.createAuditLog(op_id, "Admin", request->app_code(), 
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
                             "UPDATE_PERM", 
                             "PERM", request->perm_key());
     } else {
         response->set_success(false);
         response->set_message(dao_.getLastError());
     }
+}
+
+void AdminServiceImpl::Login(google::protobuf::RpcController* cntl_base,
+                             const siqi::auth::LoginRequest* request,
+                             siqi::auth::LoginResponse* response,
+                             google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    
+    std::string username = request->username();
+    std::string password = request->password();
+    
+    if (username.empty() || password.empty()) {
+        response->set_success(false);
+        response->set_message("用户名或密码为空");
+        return;
+    }
+    
+    // 1. Get User from DB
+    auto user_info = dao_.getConsoleUser(username);
+    if (user_info.id == -1) {
+        response->set_success(false);
+        response->set_message("用户不存在或密码错误");
+        return;
+    }
+    
+    std::string db_hash = user_info.password_hash;
+    
+    // 2. Verify Password using crypt
+    // crypt(key, salt) -> hash
+    // The salt is embedded in the hash itself (a$...)
+    char* calc_hash = crypt(password.c_str(), db_hash.c_str());
+    if (calc_hash == NULL || db_hash != calc_hash) {
+        response->set_success(false);
+        response->set_message("用户不存在或密码错误");
+        return;
+    }
+    
+    // 3. Generate Simple Token (UUID-like)
+    // In production use proper session management / JWT
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(0, 15);
+    std::stringstream ss;
+    for (int i = 0; i < 32; i++) {
+        const char* hex = "0123456789abcdef";
+        ss << hex[dis(gen)];
+    }
+    std::string token = ss.str();
+    
+    // 4. Store Session (TTL 1 Hour)
+    SessionInfo session;
+    session.user_id = user_info.id;
+    session.username = user_info.username;
+    session.real_name = user_info.real_name;
+    session_cache_.Put(token, session, 3600);
+    
+    response->set_success(true);
+    response->set_message("登录成功");
+    response->set_token(token);
+    
+    LOG(INFO) << "User Logged In: " << username << " (ID: " << user_info.id << ") Token: " << token;
 }

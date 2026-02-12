@@ -610,3 +610,29 @@ bool PermissionDAO::updatePermission(const std::string& app_code,
         return false;
     }
 }
+
+PermissionDAO::ConsoleUser PermissionDAO::getConsoleUser(const std::string& username) {
+    ConsoleUser user;
+    if (!reconnectIfNeeded()) return user;
+    try {
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            connection_->prepareStatement("SELECT id, username, password_hash, real_name FROM sys_console_users WHERE username = ?")
+        );
+        pstmt->setString(1, username);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        if (res->next()) {
+            user.id = res->getInt64("id");
+            user.username = res->getString("username");
+            user.password_hash = res->getString("password_hash");
+            user.real_name = res->getString("real_name");
+        }
+    } catch (const sql::SQLException& e) {
+        last_error_ = "查询用户失败: " + std::string(e.what());
+    }
+    return user;
+}
+
+std::string PermissionDAO::getConsoleUserHash(const std::string& username) {
+    auto user = getConsoleUser(username);
+    return user.password_hash;
+}

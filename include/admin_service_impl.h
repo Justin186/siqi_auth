@@ -82,10 +82,24 @@ public:
                           const siqi::auth::UpdatePermissionRequest* request,
                           siqi::auth::AdminResponse* response,
                           google::protobuf::Closure* done) override;
-                                  
-    // TODO: Implement other methods (CreateApp, ListApps, etc.)
-    // For now, we only implement the prioritized ones to get started.
-    // The others can return "Unimplemented" error by default or be added later.
+
+    // 登录
+    void Login(google::protobuf::RpcController* cntl,
+               const siqi::auth::LoginRequest* request,
+               siqi::auth::LoginResponse* response,
+               google::protobuf::Closure* done) override;    
+
+    struct SessionInfo {
+        int64_t user_id;
+        std::string username;
+        std::string real_name;
+    };
+
+private:
+   // Validate token and return session info. Returns false if invalid.
+   bool ValidateToken(brpc::Controller* cntl, SessionInfo& session);
+   
+   LocalCache<SessionInfo> session_cache_;
 };
 
 #endif // ADMIN_SERVICE_IMPL_H

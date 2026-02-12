@@ -5,8 +5,9 @@
 ## 核心特性
 
 - **高性能 RPC**：基于百度 bRPC 框架，支持高并发低延迟调用。
-- **RBAC 模型**：支持 用户 -> 角色 -> 权限 的标准模型。
-- **Protobuf 接口**：使用 Protocol Buffers 定义接口，跨语言支持友好。
+- **安全鉴权**：基于 Token 的管理员登录与会话管理，杜绝身份伪造。
+- **本地缓存**：权限数据本地缓存，提升权限检查性能，减少数据库访问压力。
+- **审计日志**：自动记录所有管理操作，追踪到具体操作人，保障系统安全。
 - **持久化存储**：使用 MySQL 存储权限数据。
 - **易于集成**：提供简单的客户端 SDK 示例。
 
@@ -25,18 +26,19 @@ siqi_auth/                      # 项目根目录
 ├── conf/                       # 配置文件目录
 ├── include/                    # 头文件目录
 │   ├── admin_service_impl.h    # 管理服务接口实现类定义
-│   ├── auth.pb.h               # [自动生成] Protobuf 生成的 C++ 头文件
 │   ├── auth_service_impl.h     # 鉴权服务接口实现类定义
+│   ├── auth.pb.h               # [自动生成] Protobuf 生成的 C++ 头文件
+│   ├── local_cache.h           # 本地缓存实现，提升权限检查性能
 │   └── permission_dao.h        # 数据访问层（DAO）接口定义，负责数据库交互
 ├── proto/                      # RPC 接口定义目录
 │   └── auth.proto              # Protobuf 文件，定义服务接口（Check, BatchCheck）与消息结构
 ├── scripts/                    # 辅助脚本目录
 │   └── init.sql                # 初始化数据库脚本，创建所需表与初始数据
 ├── src/                        # 源代码目录
-|   ├── admin_service_impl.cpp  # 管理服务具体逻辑实现
-|   ├── admin_tool.cpp          # CLI 管理工具
-│   ├── auth.pb.cc              # [自动生成] Protobuf 生成的 C++ 源文件
+│   ├── admin_service_impl.cpp  # 管理服务具体逻辑实现
+│   ├── admin_tool.cpp          # CLI 管理工具
 │   ├── auth_service_impl.cpp   # 鉴权服务具体逻辑实现
+│   ├── auth.pb.cc              # [自动生成] Protobuf 生成的 C++ 源文件
 │   ├── client_example.cpp      # 客户端 SDK 调用示例代码
 │   ├── permission_dao.cpp      # 数据库操作具体实现（CRUD）
 │   └── server_main.cpp         # 服务端主入口，负责初始化与启动 bRPC 服务
@@ -113,10 +115,26 @@ mysql -u siqi_dev -p siqi_auth
 
 服务器默认监听端口 **8888**。
 
-日志输出示例：
+启动输出示例：
 ```
-司契权限系统启动成功，监听端口: 8888
-其他系统可以通过 brpc://localhost:8888 调用
+I0212 20:47:43.613006 20766     0 /home/justin/siqi_auth/src/auth_service_impl.cpp:15 AuthServiceImpl] 数据库连接成功
+I0212 20:47:43.629907 20766     0 /home/justin/brpc/src/brpc/server.cpp:1232 StartInternal] Server[AuthServiceImpl+AdminServiceImpl] is serving on port=8888.
+I0212 20:47:43.630029 20766     0 /home/justin/brpc/src/brpc/server.cpp:1235 StartInternal] Check out http://justin-Inspiron:8888 in web browser.
+I0212 20:47:43.630126 20766     0 /home/justin/siqi_auth/src/server_main.cpp:36 main] 司契权限系统启动成功，监听端口: 8888
+I0212 20:47:43.630136 20766     0 /home/justin/siqi_auth/src/server_main.cpp:37 main] 其他系统可以通过 brpc://localhost:8888 调用
+```
+
+## CLI 管理工具
+
+使用 `admin_tool` 进行管理操作（如创建应用、管理用户等）。操作前必须先登录：
+
+```bash
+# 1. 管理员登录 (获取 Token)
+./build/admin_tool --op=login --user=admin --password=admin123
+
+# 2. 执行管理操作 (自动携带 Token)
+./build/admin_tool --op=list_roles
+./build/admin_tool --op=create_perm --perm=user:del --name="删除用户" --desc="危险操作"
 ```
 
 ## 测试客户端
@@ -148,10 +166,7 @@ protoc --proto_path=proto --experimental_allow_proto3_optional --cpp_out=src pro
 
 | 功能 | 当前 | 完整方案二需要 |
 |------|-----------|---------------|
-| **多语言SDK** | C++版 | C++、Java、Python、Go... |
-| **客户端缓存** | ❌ 无 | ✅ 本地缓存策略 |
-| **连接池** | ❌ 简单连接 | ✅ 连接池管理 |
+| **多语言SDK** | 仅有C++客户端示例，没有SDK | C++、Java、Python、Go... |
 | **熔断降级** | ❌ 无 | ✅ 熔断器机制 |
 | **配置管理** | ❌ 硬编码 | ✅ 配置文件支持 |
-| **监控指标** | ❌ 基础日志 | ✅ 详细指标收集 |
 

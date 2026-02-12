@@ -48,7 +48,7 @@ struct TableStruct_auth_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[42]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[44]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -168,6 +168,12 @@ extern ListRolesResponseDefaultTypeInternal _ListRolesResponse_default_instance_
 class ListRolesResponse_Role;
 class ListRolesResponse_RoleDefaultTypeInternal;
 extern ListRolesResponse_RoleDefaultTypeInternal _ListRolesResponse_Role_default_instance_;
+class LoginRequest;
+class LoginRequestDefaultTypeInternal;
+extern LoginRequestDefaultTypeInternal _LoginRequest_default_instance_;
+class LoginResponse;
+class LoginResponseDefaultTypeInternal;
+extern LoginResponseDefaultTypeInternal _LoginResponse_default_instance_;
 class RemovePermissionFromRoleRequest;
 class RemovePermissionFromRoleRequestDefaultTypeInternal;
 extern RemovePermissionFromRoleRequestDefaultTypeInternal _RemovePermissionFromRoleRequest_default_instance_;
@@ -223,6 +229,8 @@ template<> ::siqi::auth::ListPermissionsResponse_Permission* Arena::CreateMaybeM
 template<> ::siqi::auth::ListRolesRequest* Arena::CreateMaybeMessage<::siqi::auth::ListRolesRequest>(Arena*);
 template<> ::siqi::auth::ListRolesResponse* Arena::CreateMaybeMessage<::siqi::auth::ListRolesResponse>(Arena*);
 template<> ::siqi::auth::ListRolesResponse_Role* Arena::CreateMaybeMessage<::siqi::auth::ListRolesResponse_Role>(Arena*);
+template<> ::siqi::auth::LoginRequest* Arena::CreateMaybeMessage<::siqi::auth::LoginRequest>(Arena*);
+template<> ::siqi::auth::LoginResponse* Arena::CreateMaybeMessage<::siqi::auth::LoginResponse>(Arena*);
 template<> ::siqi::auth::RemovePermissionFromRoleRequest* Arena::CreateMaybeMessage<::siqi::auth::RemovePermissionFromRoleRequest>(Arena*);
 template<> ::siqi::auth::RevokeRoleFromUserRequest* Arena::CreateMaybeMessage<::siqi::auth::RevokeRoleFromUserRequest>(Arena*);
 template<> ::siqi::auth::UpdateAppRequest* Arena::CreateMaybeMessage<::siqi::auth::UpdateAppRequest>(Arena*);
@@ -2184,36 +2192,10 @@ class CreateAppRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppNameFieldNumber = 2,
     kAppCodeFieldNumber = 3,
     kDescriptionFieldNumber = 4,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_name = 2;
   void clear_app_name();
   const std::string& app_name() const;
@@ -2296,7 +2278,6 @@ class CreateAppRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr description_;
@@ -2418,37 +2399,11 @@ class UpdateAppRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kAppNameFieldNumber = 3,
     kDescriptionFieldNumber = 4,
     kStatusFieldNumber = 5,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -2554,7 +2509,6 @@ class UpdateAppRequest PROTOBUF_FINAL :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr description_;
@@ -2676,34 +2630,8 @@ class DeleteAppRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -2736,7 +2664,6 @@ class DeleteAppRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_auth_2eproto;
@@ -3693,37 +3620,11 @@ class CreatePermissionRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kPermNameFieldNumber = 3,
     kPermKeyFieldNumber = 4,
     kDescriptionFieldNumber = 5,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -3831,7 +3732,6 @@ class CreatePermissionRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr perm_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr perm_key_;
@@ -3954,37 +3854,11 @@ class UpdatePermissionRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kPermKeyFieldNumber = 3,
     kPermNameFieldNumber = 4,
     kDescriptionFieldNumber = 5,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -4102,7 +3976,6 @@ class UpdatePermissionRequest PROTOBUF_FINAL :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr perm_key_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr perm_name_;
@@ -4224,35 +4097,9 @@ class DeletePermissionRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kPermKeyFieldNumber = 3,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -4310,7 +4157,6 @@ class DeletePermissionRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr perm_key_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -5122,38 +4968,12 @@ class CreateRoleRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kRoleNameFieldNumber = 3,
     kRoleKeyFieldNumber = 4,
     kDescriptionFieldNumber = 5,
     kIsDefaultFieldNumber = 6,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -5270,7 +5090,6 @@ class CreateRoleRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_key_;
@@ -5394,38 +5213,12 @@ class UpdateRoleRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kRoleKeyFieldNumber = 3,
     kRoleNameFieldNumber = 4,
     kDescriptionFieldNumber = 5,
     kIsDefaultFieldNumber = 6,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -5556,7 +5349,6 @@ class UpdateRoleRequest PROTOBUF_FINAL :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_key_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_name_;
@@ -5679,35 +5471,9 @@ class DeleteRoleRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kRoleKeyFieldNumber = 3,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -5765,7 +5531,6 @@ class DeleteRoleRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_key_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -6603,36 +6368,10 @@ class AddPermissionToRoleRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kRoleKeyFieldNumber = 3,
     kPermKeyFieldNumber = 4,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -6715,7 +6454,6 @@ class AddPermissionToRoleRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_key_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr perm_key_;
@@ -6837,36 +6575,10 @@ class RemovePermissionFromRoleRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kRoleKeyFieldNumber = 3,
     kPermKeyFieldNumber = 4,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -6949,7 +6661,6 @@ class RemovePermissionFromRoleRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_key_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr perm_key_;
@@ -7403,36 +7114,10 @@ class GrantRoleToUserRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kUserIdFieldNumber = 3,
     kRoleKeyFieldNumber = 4,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -7515,7 +7200,6 @@ class GrantRoleToUserRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr user_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_key_;
@@ -7637,36 +7321,10 @@ class RevokeRoleFromUserRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOperatorIdFieldNumber = 1,
     kAppCodeFieldNumber = 2,
     kUserIdFieldNumber = 3,
     kRoleKeyFieldNumber = 4,
   };
-  // string operator_id = 1;
-  void clear_operator_id();
-  const std::string& operator_id() const;
-  void set_operator_id(const std::string& value);
-  void set_operator_id(std::string&& value);
-  void set_operator_id(const char* value);
-  void set_operator_id(const char* value, size_t size);
-  std::string* mutable_operator_id();
-  std::string* release_operator_id();
-  void set_allocated_operator_id(std::string* operator_id);
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  std::string* unsafe_arena_release_operator_id();
-  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
-  "    string fields are deprecated and will be removed in a"
-  "    future release.")
-  void unsafe_arena_set_allocated_operator_id(
-      std::string* operator_id);
-  private:
-  const std::string& _internal_operator_id() const;
-  void _internal_set_operator_id(const std::string& value);
-  std::string* _internal_mutable_operator_id();
-  public:
-
   // string app_code = 2;
   void clear_app_code();
   const std::string& app_code() const;
@@ -7749,7 +7407,6 @@ class RevokeRoleFromUserRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr operator_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr user_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_key_;
@@ -9428,6 +9085,377 @@ class AdminResponse PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::int32 code_;
   friend struct ::TableStruct_auth_2eproto;
 };
+// -------------------------------------------------------------------
+
+class LoginRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:siqi.auth.LoginRequest) */ {
+ public:
+  inline LoginRequest() : LoginRequest(nullptr) {};
+  virtual ~LoginRequest();
+
+  LoginRequest(const LoginRequest& from);
+  LoginRequest(LoginRequest&& from) noexcept
+    : LoginRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginRequest& operator=(const LoginRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LoginRequest& operator=(LoginRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const LoginRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const LoginRequest* internal_default_instance() {
+    return reinterpret_cast<const LoginRequest*>(
+               &_LoginRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    42;
+
+  friend void swap(LoginRequest& a, LoginRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LoginRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LoginRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline LoginRequest* New() const final {
+    return CreateMaybeMessage<LoginRequest>(nullptr);
+  }
+
+  LoginRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<LoginRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const LoginRequest& from);
+  void MergeFrom(const LoginRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "siqi.auth.LoginRequest";
+  }
+  protected:
+  explicit LoginRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_auth_2eproto);
+    return ::descriptor_table_auth_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUsernameFieldNumber = 1,
+    kPasswordFieldNumber = 2,
+  };
+  // string username = 1;
+  void clear_username();
+  const std::string& username() const;
+  void set_username(const std::string& value);
+  void set_username(std::string&& value);
+  void set_username(const char* value);
+  void set_username(const char* value, size_t size);
+  std::string* mutable_username();
+  std::string* release_username();
+  void set_allocated_username(std::string* username);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_username();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_username(
+      std::string* username);
+  private:
+  const std::string& _internal_username() const;
+  void _internal_set_username(const std::string& value);
+  std::string* _internal_mutable_username();
+  public:
+
+  // string password = 2;
+  void clear_password();
+  const std::string& password() const;
+  void set_password(const std::string& value);
+  void set_password(std::string&& value);
+  void set_password(const char* value);
+  void set_password(const char* value, size_t size);
+  std::string* mutable_password();
+  std::string* release_password();
+  void set_allocated_password(std::string* password);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_password();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_password(
+      std::string* password);
+  private:
+  const std::string& _internal_password() const;
+  void _internal_set_password(const std::string& value);
+  std::string* _internal_mutable_password();
+  public:
+
+  // @@protoc_insertion_point(class_scope:siqi.auth.LoginRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr username_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr password_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_auth_2eproto;
+};
+// -------------------------------------------------------------------
+
+class LoginResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:siqi.auth.LoginResponse) */ {
+ public:
+  inline LoginResponse() : LoginResponse(nullptr) {};
+  virtual ~LoginResponse();
+
+  LoginResponse(const LoginResponse& from);
+  LoginResponse(LoginResponse&& from) noexcept
+    : LoginResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginResponse& operator=(const LoginResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LoginResponse& operator=(LoginResponse&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const LoginResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const LoginResponse* internal_default_instance() {
+    return reinterpret_cast<const LoginResponse*>(
+               &_LoginResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    43;
+
+  friend void swap(LoginResponse& a, LoginResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LoginResponse* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LoginResponse* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline LoginResponse* New() const final {
+    return CreateMaybeMessage<LoginResponse>(nullptr);
+  }
+
+  LoginResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<LoginResponse>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const LoginResponse& from);
+  void MergeFrom(const LoginResponse& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginResponse* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "siqi.auth.LoginResponse";
+  }
+  protected:
+  explicit LoginResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_auth_2eproto);
+    return ::descriptor_table_auth_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kMessageFieldNumber = 2,
+    kTokenFieldNumber = 3,
+    kSuccessFieldNumber = 1,
+  };
+  // string message = 2;
+  void clear_message();
+  const std::string& message() const;
+  void set_message(const std::string& value);
+  void set_message(std::string&& value);
+  void set_message(const char* value);
+  void set_message(const char* value, size_t size);
+  std::string* mutable_message();
+  std::string* release_message();
+  void set_allocated_message(std::string* message);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_message();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_message(
+      std::string* message);
+  private:
+  const std::string& _internal_message() const;
+  void _internal_set_message(const std::string& value);
+  std::string* _internal_mutable_message();
+  public:
+
+  // string token = 3;
+  void clear_token();
+  const std::string& token() const;
+  void set_token(const std::string& value);
+  void set_token(std::string&& value);
+  void set_token(const char* value);
+  void set_token(const char* value, size_t size);
+  std::string* mutable_token();
+  std::string* release_token();
+  void set_allocated_token(std::string* token);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_token();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_token(
+      std::string* token);
+  private:
+  const std::string& _internal_token() const;
+  void _internal_set_token(const std::string& value);
+  std::string* _internal_mutable_token();
+  public:
+
+  // bool success = 1;
+  void clear_success();
+  bool success() const;
+  void set_success(bool value);
+  private:
+  bool _internal_success() const;
+  void _internal_set_success(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:siqi.auth.LoginResponse)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr message_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr token_;
+  bool success_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_auth_2eproto;
+};
 // ===================================================================
 
 class AuthService_Stub;
@@ -9546,6 +9574,10 @@ class AdminService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        const ::siqi::auth::ListAppsRequest* request,
                        ::siqi::auth::ListAppsResponse* response,
                        ::google::protobuf::Closure* done);
+  virtual void Login(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::siqi::auth::LoginRequest* request,
+                       ::siqi::auth::LoginResponse* response,
+                       ::google::protobuf::Closure* done);
   virtual void CreatePermission(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::siqi::auth::CreatePermissionRequest* request,
                        ::siqi::auth::AdminResponse* response,
@@ -9654,6 +9686,10 @@ class AdminService_Stub : public AdminService {
   void ListApps(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::siqi::auth::ListAppsRequest* request,
                        ::siqi::auth::ListAppsResponse* response,
+                       ::google::protobuf::Closure* done);
+  void Login(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::siqi::auth::LoginRequest* request,
+                       ::siqi::auth::LoginResponse* response,
                        ::google::protobuf::Closure* done);
   void CreatePermission(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::siqi::auth::CreatePermissionRequest* request,
@@ -11416,87 +11452,6 @@ GetUserRolesResponse::mutable_role_keys() {
 
 // CreateAppRequest
 
-// string operator_id = 1;
-inline void CreateAppRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& CreateAppRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.CreateAppRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void CreateAppRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.CreateAppRequest.operator_id)
-}
-inline std::string* CreateAppRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.CreateAppRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& CreateAppRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void CreateAppRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void CreateAppRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.CreateAppRequest.operator_id)
-}
-inline void CreateAppRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.CreateAppRequest.operator_id)
-}
-inline void CreateAppRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.CreateAppRequest.operator_id)
-}
-inline std::string* CreateAppRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* CreateAppRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.CreateAppRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void CreateAppRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.CreateAppRequest.operator_id)
-}
-inline std::string* CreateAppRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.CreateAppRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void CreateAppRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.CreateAppRequest.operator_id)
-}
-
 // string app_name = 2;
 inline void CreateAppRequest::clear_app_name() {
   app_name_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
@@ -11743,87 +11698,6 @@ inline void CreateAppRequest::unsafe_arena_set_allocated_description(
 // -------------------------------------------------------------------
 
 // UpdateAppRequest
-
-// string operator_id = 1;
-inline void UpdateAppRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& UpdateAppRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.UpdateAppRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void UpdateAppRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.UpdateAppRequest.operator_id)
-}
-inline std::string* UpdateAppRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.UpdateAppRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& UpdateAppRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void UpdateAppRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void UpdateAppRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.UpdateAppRequest.operator_id)
-}
-inline void UpdateAppRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.UpdateAppRequest.operator_id)
-}
-inline void UpdateAppRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.UpdateAppRequest.operator_id)
-}
-inline std::string* UpdateAppRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* UpdateAppRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.UpdateAppRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void UpdateAppRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.UpdateAppRequest.operator_id)
-}
-inline std::string* UpdateAppRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.UpdateAppRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void UpdateAppRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.UpdateAppRequest.operator_id)
-}
 
 // string app_code = 2;
 inline void UpdateAppRequest::clear_app_code() {
@@ -12123,87 +11997,6 @@ inline void UpdateAppRequest::set_status(::PROTOBUF_NAMESPACE_ID::int32 value) {
 // -------------------------------------------------------------------
 
 // DeleteAppRequest
-
-// string operator_id = 1;
-inline void DeleteAppRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& DeleteAppRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.DeleteAppRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void DeleteAppRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.DeleteAppRequest.operator_id)
-}
-inline std::string* DeleteAppRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.DeleteAppRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& DeleteAppRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void DeleteAppRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void DeleteAppRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.DeleteAppRequest.operator_id)
-}
-inline void DeleteAppRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.DeleteAppRequest.operator_id)
-}
-inline void DeleteAppRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.DeleteAppRequest.operator_id)
-}
-inline std::string* DeleteAppRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* DeleteAppRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.DeleteAppRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void DeleteAppRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.DeleteAppRequest.operator_id)
-}
-inline std::string* DeleteAppRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.DeleteAppRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void DeleteAppRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.DeleteAppRequest.operator_id)
-}
 
 // string app_code = 2;
 inline void DeleteAppRequest::clear_app_code() {
@@ -13173,87 +12966,6 @@ inline void ListAppsResponse::set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value
 
 // CreatePermissionRequest
 
-// string operator_id = 1;
-inline void CreatePermissionRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& CreatePermissionRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.CreatePermissionRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void CreatePermissionRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.CreatePermissionRequest.operator_id)
-}
-inline std::string* CreatePermissionRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.CreatePermissionRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& CreatePermissionRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void CreatePermissionRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void CreatePermissionRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.CreatePermissionRequest.operator_id)
-}
-inline void CreatePermissionRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.CreatePermissionRequest.operator_id)
-}
-inline void CreatePermissionRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.CreatePermissionRequest.operator_id)
-}
-inline std::string* CreatePermissionRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* CreatePermissionRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.CreatePermissionRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void CreatePermissionRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.CreatePermissionRequest.operator_id)
-}
-inline std::string* CreatePermissionRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.CreatePermissionRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void CreatePermissionRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.CreatePermissionRequest.operator_id)
-}
-
 // string app_code = 2;
 inline void CreatePermissionRequest::clear_app_code() {
   app_code_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
@@ -13581,87 +13293,6 @@ inline void CreatePermissionRequest::unsafe_arena_set_allocated_description(
 // -------------------------------------------------------------------
 
 // UpdatePermissionRequest
-
-// string operator_id = 1;
-inline void UpdatePermissionRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& UpdatePermissionRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.UpdatePermissionRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void UpdatePermissionRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.UpdatePermissionRequest.operator_id)
-}
-inline std::string* UpdatePermissionRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.UpdatePermissionRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& UpdatePermissionRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void UpdatePermissionRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void UpdatePermissionRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.UpdatePermissionRequest.operator_id)
-}
-inline void UpdatePermissionRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.UpdatePermissionRequest.operator_id)
-}
-inline void UpdatePermissionRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.UpdatePermissionRequest.operator_id)
-}
-inline std::string* UpdatePermissionRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* UpdatePermissionRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.UpdatePermissionRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void UpdatePermissionRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.UpdatePermissionRequest.operator_id)
-}
-inline std::string* UpdatePermissionRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.UpdatePermissionRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void UpdatePermissionRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.UpdatePermissionRequest.operator_id)
-}
 
 // string app_code = 2;
 inline void UpdatePermissionRequest::clear_app_code() {
@@ -14014,87 +13645,6 @@ inline void UpdatePermissionRequest::unsafe_arena_set_allocated_description(
 // -------------------------------------------------------------------
 
 // DeletePermissionRequest
-
-// string operator_id = 1;
-inline void DeletePermissionRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& DeletePermissionRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.DeletePermissionRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void DeletePermissionRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.DeletePermissionRequest.operator_id)
-}
-inline std::string* DeletePermissionRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.DeletePermissionRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& DeletePermissionRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void DeletePermissionRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void DeletePermissionRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.DeletePermissionRequest.operator_id)
-}
-inline void DeletePermissionRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.DeletePermissionRequest.operator_id)
-}
-inline void DeletePermissionRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.DeletePermissionRequest.operator_id)
-}
-inline std::string* DeletePermissionRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* DeletePermissionRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.DeletePermissionRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void DeletePermissionRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.DeletePermissionRequest.operator_id)
-}
-inline std::string* DeletePermissionRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.DeletePermissionRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void DeletePermissionRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.DeletePermissionRequest.operator_id)
-}
 
 // string app_code = 2;
 inline void DeletePermissionRequest::clear_app_code() {
@@ -15105,87 +14655,6 @@ inline void ListPermissionsResponse::set_page_size(::PROTOBUF_NAMESPACE_ID::int3
 
 // CreateRoleRequest
 
-// string operator_id = 1;
-inline void CreateRoleRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& CreateRoleRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.CreateRoleRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void CreateRoleRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.CreateRoleRequest.operator_id)
-}
-inline std::string* CreateRoleRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.CreateRoleRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& CreateRoleRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void CreateRoleRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void CreateRoleRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.CreateRoleRequest.operator_id)
-}
-inline void CreateRoleRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.CreateRoleRequest.operator_id)
-}
-inline void CreateRoleRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.CreateRoleRequest.operator_id)
-}
-inline std::string* CreateRoleRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* CreateRoleRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.CreateRoleRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void CreateRoleRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.CreateRoleRequest.operator_id)
-}
-inline std::string* CreateRoleRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.CreateRoleRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void CreateRoleRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.CreateRoleRequest.operator_id)
-}
-
 // string app_code = 2;
 inline void CreateRoleRequest::clear_app_code() {
   app_code_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
@@ -15533,87 +15002,6 @@ inline void CreateRoleRequest::set_is_default(bool value) {
 // -------------------------------------------------------------------
 
 // UpdateRoleRequest
-
-// string operator_id = 1;
-inline void UpdateRoleRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& UpdateRoleRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.UpdateRoleRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void UpdateRoleRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.UpdateRoleRequest.operator_id)
-}
-inline std::string* UpdateRoleRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.UpdateRoleRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& UpdateRoleRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void UpdateRoleRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void UpdateRoleRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.UpdateRoleRequest.operator_id)
-}
-inline void UpdateRoleRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.UpdateRoleRequest.operator_id)
-}
-inline void UpdateRoleRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.UpdateRoleRequest.operator_id)
-}
-inline std::string* UpdateRoleRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* UpdateRoleRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.UpdateRoleRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void UpdateRoleRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.UpdateRoleRequest.operator_id)
-}
-inline std::string* UpdateRoleRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.UpdateRoleRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void UpdateRoleRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.UpdateRoleRequest.operator_id)
-}
 
 // string app_code = 2;
 inline void UpdateRoleRequest::clear_app_code() {
@@ -15994,87 +15382,6 @@ inline void UpdateRoleRequest::set_is_default(bool value) {
 // -------------------------------------------------------------------
 
 // DeleteRoleRequest
-
-// string operator_id = 1;
-inline void DeleteRoleRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& DeleteRoleRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.DeleteRoleRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void DeleteRoleRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.DeleteRoleRequest.operator_id)
-}
-inline std::string* DeleteRoleRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.DeleteRoleRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& DeleteRoleRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void DeleteRoleRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void DeleteRoleRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.DeleteRoleRequest.operator_id)
-}
-inline void DeleteRoleRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.DeleteRoleRequest.operator_id)
-}
-inline void DeleteRoleRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.DeleteRoleRequest.operator_id)
-}
-inline std::string* DeleteRoleRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* DeleteRoleRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.DeleteRoleRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void DeleteRoleRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.DeleteRoleRequest.operator_id)
-}
-inline std::string* DeleteRoleRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.DeleteRoleRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void DeleteRoleRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.DeleteRoleRequest.operator_id)
-}
 
 // string app_code = 2;
 inline void DeleteRoleRequest::clear_app_code() {
@@ -17133,87 +16440,6 @@ inline void ListRolesResponse::set_page_size(::PROTOBUF_NAMESPACE_ID::int32 valu
 
 // AddPermissionToRoleRequest
 
-// string operator_id = 1;
-inline void AddPermissionToRoleRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& AddPermissionToRoleRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.AddPermissionToRoleRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void AddPermissionToRoleRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.AddPermissionToRoleRequest.operator_id)
-}
-inline std::string* AddPermissionToRoleRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.AddPermissionToRoleRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& AddPermissionToRoleRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void AddPermissionToRoleRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void AddPermissionToRoleRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.AddPermissionToRoleRequest.operator_id)
-}
-inline void AddPermissionToRoleRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.AddPermissionToRoleRequest.operator_id)
-}
-inline void AddPermissionToRoleRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.AddPermissionToRoleRequest.operator_id)
-}
-inline std::string* AddPermissionToRoleRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* AddPermissionToRoleRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.AddPermissionToRoleRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void AddPermissionToRoleRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.AddPermissionToRoleRequest.operator_id)
-}
-inline std::string* AddPermissionToRoleRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.AddPermissionToRoleRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void AddPermissionToRoleRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.AddPermissionToRoleRequest.operator_id)
-}
-
 // string app_code = 2;
 inline void AddPermissionToRoleRequest::clear_app_code() {
   app_code_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
@@ -17460,87 +16686,6 @@ inline void AddPermissionToRoleRequest::unsafe_arena_set_allocated_perm_key(
 // -------------------------------------------------------------------
 
 // RemovePermissionFromRoleRequest
-
-// string operator_id = 1;
-inline void RemovePermissionFromRoleRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& RemovePermissionFromRoleRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void RemovePermissionFromRoleRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-}
-inline std::string* RemovePermissionFromRoleRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& RemovePermissionFromRoleRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void RemovePermissionFromRoleRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void RemovePermissionFromRoleRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-}
-inline void RemovePermissionFromRoleRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-}
-inline void RemovePermissionFromRoleRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-}
-inline std::string* RemovePermissionFromRoleRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* RemovePermissionFromRoleRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void RemovePermissionFromRoleRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-}
-inline std::string* RemovePermissionFromRoleRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void RemovePermissionFromRoleRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.RemovePermissionFromRoleRequest.operator_id)
-}
 
 // string app_code = 2;
 inline void RemovePermissionFromRoleRequest::clear_app_code() {
@@ -18033,87 +17178,6 @@ GetRolePermissionsResponse::mutable_perm_keys() {
 
 // GrantRoleToUserRequest
 
-// string operator_id = 1;
-inline void GrantRoleToUserRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& GrantRoleToUserRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.GrantRoleToUserRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void GrantRoleToUserRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.GrantRoleToUserRequest.operator_id)
-}
-inline std::string* GrantRoleToUserRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.GrantRoleToUserRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& GrantRoleToUserRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void GrantRoleToUserRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void GrantRoleToUserRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.GrantRoleToUserRequest.operator_id)
-}
-inline void GrantRoleToUserRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.GrantRoleToUserRequest.operator_id)
-}
-inline void GrantRoleToUserRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.GrantRoleToUserRequest.operator_id)
-}
-inline std::string* GrantRoleToUserRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* GrantRoleToUserRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.GrantRoleToUserRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void GrantRoleToUserRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.GrantRoleToUserRequest.operator_id)
-}
-inline std::string* GrantRoleToUserRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.GrantRoleToUserRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void GrantRoleToUserRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.GrantRoleToUserRequest.operator_id)
-}
-
 // string app_code = 2;
 inline void GrantRoleToUserRequest::clear_app_code() {
   app_code_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
@@ -18360,87 +17424,6 @@ inline void GrantRoleToUserRequest::unsafe_arena_set_allocated_role_key(
 // -------------------------------------------------------------------
 
 // RevokeRoleFromUserRequest
-
-// string operator_id = 1;
-inline void RevokeRoleFromUserRequest::clear_operator_id() {
-  operator_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline const std::string& RevokeRoleFromUserRequest::operator_id() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-  return _internal_operator_id();
-}
-inline void RevokeRoleFromUserRequest::set_operator_id(const std::string& value) {
-  _internal_set_operator_id(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-}
-inline std::string* RevokeRoleFromUserRequest::mutable_operator_id() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-  return _internal_mutable_operator_id();
-}
-inline const std::string& RevokeRoleFromUserRequest::_internal_operator_id() const {
-  return operator_id_.Get();
-}
-inline void RevokeRoleFromUserRequest::_internal_set_operator_id(const std::string& value) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
-}
-inline void RevokeRoleFromUserRequest::set_operator_id(std::string&& value) {
-  
-  operator_id_.Set(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-}
-inline void RevokeRoleFromUserRequest::set_operator_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
-              GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-}
-inline void RevokeRoleFromUserRequest::set_operator_id(const char* value,
-    size_t size) {
-  
-  operator_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-}
-inline std::string* RevokeRoleFromUserRequest::_internal_mutable_operator_id() {
-  
-  return operator_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline std::string* RevokeRoleFromUserRequest::release_operator_id() {
-  // @@protoc_insertion_point(field_release:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-  return operator_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void RevokeRoleFromUserRequest::set_allocated_operator_id(std::string* operator_id) {
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), operator_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-}
-inline std::string* RevokeRoleFromUserRequest::unsafe_arena_release_operator_id() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  
-  return operator_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      GetArena());
-}
-inline void RevokeRoleFromUserRequest::unsafe_arena_set_allocated_operator_id(
-    std::string* operator_id) {
-  GOOGLE_DCHECK(GetArena() != nullptr);
-  if (operator_id != nullptr) {
-    
-  } else {
-    
-  }
-  operator_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      operator_id, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.RevokeRoleFromUserRequest.operator_id)
-}
 
 // string app_code = 2;
 inline void RevokeRoleFromUserRequest::clear_app_code() {
@@ -20807,9 +19790,365 @@ inline void AdminResponse::unsafe_arena_set_allocated_app_secret(
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.AdminResponse.app_secret)
 }
 
+// -------------------------------------------------------------------
+
+// LoginRequest
+
+// string username = 1;
+inline void LoginRequest::clear_username() {
+  username_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& LoginRequest::username() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.LoginRequest.username)
+  return _internal_username();
+}
+inline void LoginRequest::set_username(const std::string& value) {
+  _internal_set_username(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.LoginRequest.username)
+}
+inline std::string* LoginRequest::mutable_username() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.LoginRequest.username)
+  return _internal_mutable_username();
+}
+inline const std::string& LoginRequest::_internal_username() const {
+  return username_.Get();
+}
+inline void LoginRequest::_internal_set_username(const std::string& value) {
+  
+  username_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void LoginRequest::set_username(std::string&& value) {
+  
+  username_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.LoginRequest.username)
+}
+inline void LoginRequest::set_username(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  username_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.LoginRequest.username)
+}
+inline void LoginRequest::set_username(const char* value,
+    size_t size) {
+  
+  username_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.LoginRequest.username)
+}
+inline std::string* LoginRequest::_internal_mutable_username() {
+  
+  return username_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* LoginRequest::release_username() {
+  // @@protoc_insertion_point(field_release:siqi.auth.LoginRequest.username)
+  return username_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void LoginRequest::set_allocated_username(std::string* username) {
+  if (username != nullptr) {
+    
+  } else {
+    
+  }
+  username_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), username,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.LoginRequest.username)
+}
+inline std::string* LoginRequest::unsafe_arena_release_username() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.LoginRequest.username)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return username_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void LoginRequest::unsafe_arena_set_allocated_username(
+    std::string* username) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (username != nullptr) {
+    
+  } else {
+    
+  }
+  username_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      username, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.LoginRequest.username)
+}
+
+// string password = 2;
+inline void LoginRequest::clear_password() {
+  password_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& LoginRequest::password() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.LoginRequest.password)
+  return _internal_password();
+}
+inline void LoginRequest::set_password(const std::string& value) {
+  _internal_set_password(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.LoginRequest.password)
+}
+inline std::string* LoginRequest::mutable_password() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.LoginRequest.password)
+  return _internal_mutable_password();
+}
+inline const std::string& LoginRequest::_internal_password() const {
+  return password_.Get();
+}
+inline void LoginRequest::_internal_set_password(const std::string& value) {
+  
+  password_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void LoginRequest::set_password(std::string&& value) {
+  
+  password_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.LoginRequest.password)
+}
+inline void LoginRequest::set_password(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  password_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.LoginRequest.password)
+}
+inline void LoginRequest::set_password(const char* value,
+    size_t size) {
+  
+  password_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.LoginRequest.password)
+}
+inline std::string* LoginRequest::_internal_mutable_password() {
+  
+  return password_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* LoginRequest::release_password() {
+  // @@protoc_insertion_point(field_release:siqi.auth.LoginRequest.password)
+  return password_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void LoginRequest::set_allocated_password(std::string* password) {
+  if (password != nullptr) {
+    
+  } else {
+    
+  }
+  password_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), password,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.LoginRequest.password)
+}
+inline std::string* LoginRequest::unsafe_arena_release_password() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.LoginRequest.password)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return password_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void LoginRequest::unsafe_arena_set_allocated_password(
+    std::string* password) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (password != nullptr) {
+    
+  } else {
+    
+  }
+  password_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      password, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.LoginRequest.password)
+}
+
+// -------------------------------------------------------------------
+
+// LoginResponse
+
+// bool success = 1;
+inline void LoginResponse::clear_success() {
+  success_ = false;
+}
+inline bool LoginResponse::_internal_success() const {
+  return success_;
+}
+inline bool LoginResponse::success() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.LoginResponse.success)
+  return _internal_success();
+}
+inline void LoginResponse::_internal_set_success(bool value) {
+  
+  success_ = value;
+}
+inline void LoginResponse::set_success(bool value) {
+  _internal_set_success(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.LoginResponse.success)
+}
+
+// string message = 2;
+inline void LoginResponse::clear_message() {
+  message_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& LoginResponse::message() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.LoginResponse.message)
+  return _internal_message();
+}
+inline void LoginResponse::set_message(const std::string& value) {
+  _internal_set_message(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.LoginResponse.message)
+}
+inline std::string* LoginResponse::mutable_message() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.LoginResponse.message)
+  return _internal_mutable_message();
+}
+inline const std::string& LoginResponse::_internal_message() const {
+  return message_.Get();
+}
+inline void LoginResponse::_internal_set_message(const std::string& value) {
+  
+  message_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void LoginResponse::set_message(std::string&& value) {
+  
+  message_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.LoginResponse.message)
+}
+inline void LoginResponse::set_message(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  message_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.LoginResponse.message)
+}
+inline void LoginResponse::set_message(const char* value,
+    size_t size) {
+  
+  message_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.LoginResponse.message)
+}
+inline std::string* LoginResponse::_internal_mutable_message() {
+  
+  return message_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* LoginResponse::release_message() {
+  // @@protoc_insertion_point(field_release:siqi.auth.LoginResponse.message)
+  return message_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void LoginResponse::set_allocated_message(std::string* message) {
+  if (message != nullptr) {
+    
+  } else {
+    
+  }
+  message_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), message,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.LoginResponse.message)
+}
+inline std::string* LoginResponse::unsafe_arena_release_message() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.LoginResponse.message)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return message_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void LoginResponse::unsafe_arena_set_allocated_message(
+    std::string* message) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (message != nullptr) {
+    
+  } else {
+    
+  }
+  message_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      message, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.LoginResponse.message)
+}
+
+// string token = 3;
+inline void LoginResponse::clear_token() {
+  token_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& LoginResponse::token() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.LoginResponse.token)
+  return _internal_token();
+}
+inline void LoginResponse::set_token(const std::string& value) {
+  _internal_set_token(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.LoginResponse.token)
+}
+inline std::string* LoginResponse::mutable_token() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.LoginResponse.token)
+  return _internal_mutable_token();
+}
+inline const std::string& LoginResponse::_internal_token() const {
+  return token_.Get();
+}
+inline void LoginResponse::_internal_set_token(const std::string& value) {
+  
+  token_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void LoginResponse::set_token(std::string&& value) {
+  
+  token_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.LoginResponse.token)
+}
+inline void LoginResponse::set_token(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  token_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.LoginResponse.token)
+}
+inline void LoginResponse::set_token(const char* value,
+    size_t size) {
+  
+  token_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.LoginResponse.token)
+}
+inline std::string* LoginResponse::_internal_mutable_token() {
+  
+  return token_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* LoginResponse::release_token() {
+  // @@protoc_insertion_point(field_release:siqi.auth.LoginResponse.token)
+  return token_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void LoginResponse::set_allocated_token(std::string* token) {
+  if (token != nullptr) {
+    
+  } else {
+    
+  }
+  token_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), token,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.LoginResponse.token)
+}
+inline std::string* LoginResponse::unsafe_arena_release_token() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.LoginResponse.token)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return token_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void LoginResponse::unsafe_arena_set_allocated_token(
+    std::string* token) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (token != nullptr) {
+    
+  } else {
+    
+  }
+  token_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      token, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.LoginResponse.token)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

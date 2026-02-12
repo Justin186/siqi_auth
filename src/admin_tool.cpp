@@ -1,6 +1,7 @@
 #include <brpc/channel.h>
 #include <gflags/gflags.h>
 #include <iostream>
+#include <fstream>
 #include "auth.pb.h"
 
 DEFINE_string(server, "127.0.0.1:8888", "服务器地址 (默认 127.0.0.1:8888)");
@@ -12,21 +13,39 @@ DEFINE_string(app, "qq_bot", "应用代号 (App Code)");
 DEFINE_string(user, "", "用户 ID (User ID)");
 DEFINE_string(role, "", "角色标识 Key (Role Key)");
 DEFINE_string(perm, "", "权限标识 Key (Permission Key)");
-DEFINE_string(operator_id, "1", "操作管理员 ID");
 DEFINE_string(name, "", "名称 (角色名或权限名)");
 DEFINE_string(desc, "", "描述信息");
+DEFINE_string(password, "", "登录密码");
 DEFINE_bool(is_default, false, "是否为默认角色");
+
+const char* TOKEN_FILE = ".auth_token";
+
+std::string LoadToken() {
+    std::ifstream ifs(TOKEN_FILE);
+    if (!ifs.is_open()) return "";
+    std::string token;
+    std::getline(ifs, token);
+    return token;
+}
+
+void SaveToken(const std::string& token) {
+    std::ofstream ofs(TOKEN_FILE);
+    if (ofs.is_open()) {
+        ofs << token;
+    }
+}
 
 int main(int argc, char* argv[]) {
     std::string usage_msg = 
         "\nSiqi Auth 管理工具 (Admin Tool)\n"
         "用途: 管理权限系统的角色、权限定义以及用户授权关系。\n\n"
         "常见用法示例:\n"
-        "  1. 创建角色: ./admin_tool --op=create_role --role=admin --name=管理员 --desc=超级管理\n"
-        "  2. 创建权限: ./admin_tool --op=create_perm --perm=user:del --name=删用户\n"
-        "  3. 角色绑定: ./admin_tool --op=add_perm --role=admin --perm=user:del\n"
-        "  4. 用户授权: ./admin_tool --op=grant_role --user=10086 --role=admin\n"
-        "  5. 查看列表: ./admin_tool --op=list_roles\n\n"
+        "  1. 登录验证: ./admin_tool --op=login --user=admin --password=admin\n"
+        "  2. 创建角色: ./admin_tool --op=create_role --role=admin --name=管理员 --desc=超级管理\n"
+        "  3. 创建权限: ./admin_tool --op=create_perm --perm=user:del --name=删用户\n"
+        "  4. 角色绑定: ./admin_tool --op=add_perm --role=admin --perm=user:del\n"
+        "  5. 用户授权: ./admin_tool --op=grant_role --user=10086 --role=admin\n"
+        "  6. 查看列表: ./admin_tool --op=list_roles\n\n"
         "提示: 若只想查看本工具的参数说明，请使用: ./admin_tool --helpon=admin_tool";
     
     gflags::SetUsageMessage(usage_msg);
@@ -34,6 +53,7 @@ int main(int argc, char* argv[]) {
     
     brpc::Channel channel;
     brpc::ChannelOptions options;
+    options.protocol = "http"; // 强制使用 HTTP 协议，以便传递 Authorization Header
     options.timeout_ms = 2000;
     options.max_retry = 3;
     if (channel.Init(FLAGS_server.c_str(), &options) != 0) {
@@ -44,14 +64,44 @@ int main(int argc, char* argv[]) {
     siqi::auth::AdminService_Stub stub(&channel);
     siqi::auth::AdminResponse response;
     brpc::Controller cntl;
+    
+    // Load Token and set header for all requests except login
+    if (FLAGS_op != "login") {
+        std::string token = LoadToken();
+        if (!token.empty()) {
+             // Bearer Token standard
+            cntl.http_request().SetHeader("Authorization", "Bearer " + token);
+        }
+    }
 
-    if (FLAGS_op == "grant_role") {
+    if (FLAGS_op == "login") {
+        if (FLAGS_user.empty() || FLAGS_password.empty()) {
+            std::cerr << "Missing --user or --password" << std::endl;
+            return -1;
+        }
+        siqi::auth::LoginRequest request;
+        request.set_username(FLAGS_user);
+        request.set_password(FLAGS_password);
+        siqi::auth::LoginResponse login_response;
+        
+        stub.Login(&cntl, &request, &login_response, NULL);
+        
+        if (!cntl.Failed()) {
+            if (login_response.success()) {
+                std::cout << "✅ 登录成功! Token: " << login_response.token() << std::endl;
+                SaveToken(login_response.token());
+                std::cout << "Token 已保存至 " << TOKEN_FILE << std::endl;
+            } else {
+                std::cout << "❌ 登录失败: " << login_response.message() << std::endl;
+            }
+            return 0;
+        }
+    } else if (FLAGS_op == "grant_role") {
         if (FLAGS_user.empty() || FLAGS_role.empty()) {
             std::cerr << "Missing --user or --role" << std::endl;
             return -1;
         }
         siqi::auth::GrantRoleToUserRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_user_id(FLAGS_user);
         request.set_role_key(FLAGS_role);
@@ -63,7 +113,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::RevokeRoleFromUserRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_user_id(FLAGS_user);
         request.set_role_key(FLAGS_role);
@@ -75,7 +124,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::AddPermissionToRoleRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_role_key(FLAGS_role);
         request.set_perm_key(FLAGS_perm);
@@ -87,7 +135,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::RemovePermissionFromRoleRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_role_key(FLAGS_role);
         request.set_perm_key(FLAGS_perm);
@@ -99,7 +146,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::CreateRoleRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_role_key(FLAGS_role);
         request.set_role_name(FLAGS_name);
@@ -113,7 +159,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::CreatePermissionRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_perm_key(FLAGS_perm);
         request.set_perm_name(FLAGS_name);
@@ -126,7 +171,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::DeleteRoleRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_role_key(FLAGS_role);
         
@@ -137,7 +181,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::DeletePermissionRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_perm_key(FLAGS_perm);
         
@@ -148,7 +191,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::UpdateRoleRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_role_key(FLAGS_role);
         if (!FLAGS_name.empty()) request.set_role_name(FLAGS_name);
@@ -164,7 +206,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         siqi::auth::UpdatePermissionRequest request;
-        request.set_operator_id(FLAGS_operator_id);
         request.set_app_code(FLAGS_app);
         request.set_perm_key(FLAGS_perm);
         if (!FLAGS_name.empty()) request.set_perm_name(FLAGS_name);

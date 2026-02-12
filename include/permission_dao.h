@@ -114,6 +114,19 @@ public:
                         const std::string& object_id = "",
                         const std::string& object_name = "");
     
+    struct ConsoleUser {
+        int64_t id = -1;
+        std::string username;
+        std::string password_hash;
+        std::string real_name;
+    };
+
+    // 获取控制台用户详情
+    ConsoleUser getConsoleUser(const std::string& username);
+    
+    // Legacy support (to be removed) - now calls getConsoleUser
+    std::string getConsoleUserHash(const std::string& username);
+
     // 状态检查
     bool isConnected() const;
     std::string getLastError() const;

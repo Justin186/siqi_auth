@@ -98,6 +98,10 @@ service AdminService {
     // 获取应用列表
     rpc ListApps(ListAppsRequest) returns (ListAppsResponse);
     
+    // ------------------------- 认证管理 -------------------------
+    // 登录并获取Token
+    rpc Login(LoginRequest) returns (LoginResponse);
+    
     // ------------------------- 权限管理 -------------------------
     // 创建新权限
     rpc CreatePermission(CreatePermissionRequest) returns (AdminResponse);
@@ -141,14 +145,12 @@ service AdminService {
 
 // ------------------------- 应用管理消息定义 -------------------------
 message CreateAppRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_name = 2; // 系统名称 例:课程群bot
     string app_code = 3; // 应用代号 例:course_bot
     string description = 4; // 描述
 }
 
 message UpdateAppRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     optional string app_name = 3;    // 系统名称
     optional string description = 4; // 描述
@@ -156,7 +158,6 @@ message UpdateAppRequest {
 }
 
 message DeleteAppRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号（软删除：status=0）
 }
 
@@ -191,7 +192,6 @@ message ListAppsResponse {
 
 // ------------------------- 权限管理消息定义 -------------------------
 message CreatePermissionRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string perm_name = 3; // 权限名称 例:踢人
     string perm_key = 4; // 权限标识 例:member:kick
@@ -199,7 +199,6 @@ message CreatePermissionRequest {
 }
 
 message UpdatePermissionRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string perm_key = 3; // 权限标识
     optional string perm_name = 4; // 权限名称
@@ -207,7 +206,6 @@ message UpdatePermissionRequest {
 }
 
 message DeletePermissionRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string perm_key = 3; // 权限标识
 }
@@ -237,7 +235,6 @@ message ListPermissionsResponse {
 
 // ------------------------- 角色管理消息定义 -------------------------
 message CreateRoleRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string role_name = 3; // 角色名称 例:管理员
     string role_key = 4; // 角色标识 例:admin
@@ -246,7 +243,6 @@ message CreateRoleRequest {
 }
 
 message UpdateRoleRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string role_key = 3; // 角色标识
     optional string role_name = 4; // 角色名称
@@ -255,7 +251,6 @@ message UpdateRoleRequest {
 }
 
 message DeleteRoleRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string role_key = 3; // 角色标识
 }
@@ -287,14 +282,12 @@ message ListRolesResponse {
 
 // ------------------------- 角色-权限绑定消息定义 -------------------------
 message AddPermissionToRoleRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string role_key = 3; // 角色标识
     string perm_key = 4; // 权限标识
 }
 
 message RemovePermissionFromRoleRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string role_key = 3; // 角色标识
     string perm_key = 4; // 权限标识
@@ -311,14 +304,12 @@ message GetRolePermissionsResponse {
 
 // ------------------------- 用户-角色授权消息定义 -------------------------
 message GrantRoleToUserRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string user_id = 3; // 业务系统用户ID
     string role_key = 4; // 角色标识
 }
 
 message RevokeRoleFromUserRequest {
-    string operator_id = 1; // 操作管理员ID
     string app_code = 2; // 应用代号
     string user_id = 3; // 业务系统用户ID
     string role_key = 4; // 角色标识
@@ -381,4 +372,16 @@ message AdminResponse {
     int32 code = 2; // 错误码: 0成功, >0业务错误, <0系统错误
     string message = 3; // 提示信息
     optional string app_secret = 4; // 仅CreateApp时返回
+}
+// 登录请求
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+// 登录响应
+message LoginResponse {
+    bool success = 1;
+    string message = 2;
+    string token = 3; // 登录成功返回Token
 }

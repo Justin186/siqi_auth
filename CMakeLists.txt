@@ -48,6 +48,7 @@ target_link_libraries(auth_server
     pthread
     dl
     z
+    crypt
     ssl
     crypto
     leveldb
