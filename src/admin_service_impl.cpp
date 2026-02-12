@@ -9,10 +9,12 @@
 
 AdminServiceImpl::AdminServiceImpl(std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache,
                                    const std::string& host,
+                                   int port,
                                    const std::string& user,
                                    const std::string& password,
-                                   const std::string& database)
-    : dao_(host, user, password, database), cache_(cache) {
+                                   const std::string& database,
+                                   int session_ttl)
+    : dao_(host, port, user, password, database), cache_(cache), session_ttl_(session_ttl) {
 }
 
 bool AdminServiceImpl::ValidateToken(brpc::Controller* cntl, SessionInfo& session) {
@@ -513,7 +515,7 @@ void AdminServiceImpl::Login(google::protobuf::RpcController* cntl_base,
     session.user_id = user_info.id;
     session.username = user_info.username;
     session.real_name = user_info.real_name;
-    session_cache_.Put(token, session, 3600);
+    session_cache_.Put(token, session, session_ttl_);
     
     response->set_success(true);
     response->set_message("登录成功");

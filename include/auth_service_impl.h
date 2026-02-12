@@ -15,14 +15,17 @@ private:
     // Key: "app_code:user_id"
     // Value: Set of permission keys
     std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache_;
+    int cache_ttl_;
     
 public:
     // 构造函数
     AuthServiceImpl(std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache,
-                    const std::string& host = "localhost",
-                    const std::string& user = "siqi_dev",
-                    const std::string& password = "siqi123",
-                    const std::string& database = "siqi_auth");
+                    const std::string& host,
+                    int port,
+                    const std::string& user,
+                    const std::string& password,
+                    const std::string& database,
+                    int cache_ttl);
     
     // 权限检查接口
     void Check(google::protobuf::RpcController* cntl,

@@ -5,12 +5,14 @@
 #include <iostream>
 
 PermissionDAO::PermissionDAO(const std::string& host,
+                             int port,
                              const std::string& user,
                              const std::string& password,
                              const std::string& database) {
     try {
         sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
-        connection_.reset(driver->connect("tcp://" + host + ":3306", user, password));
+        std::string url = "tcp://" + host + ":" + std::to_string(port);
+        connection_.reset(driver->connect(url, user, password));
         connection_->setSchema(database);
         last_error_.clear();
     } catch (const sql::SQLException& e) {

@@ -12,13 +12,16 @@ class AdminServiceImpl : public siqi::auth::AdminService {
 private:
     PermissionDAO dao_;
     std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache_;
+    int session_ttl_;
     
 public:
     AdminServiceImpl(std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache,
-                     const std::string& host = "localhost",
-                     const std::string& user = "siqi_dev",
-                     const std::string& password = "siqi123",
-                     const std::string& database = "siqi_auth");
+                     const std::string& host,
+                     int port,
+                     const std::string& user,
+                     const std::string& password,
+                     const std::string& database,
+                     int session_ttl);
                      
     // ------------------------- 用户-角色授权 -------------------------
     void GrantRoleToUser(google::protobuf::RpcController* cntl,

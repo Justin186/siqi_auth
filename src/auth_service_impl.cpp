@@ -4,10 +4,12 @@
 
 AuthServiceImpl::AuthServiceImpl(std::shared_ptr<LocalCache<std::unordered_set<std::string>>> cache,
                                  const std::string& host,
+                                 int port,
                                  const std::string& user,
                                  const std::string& password,
-                                 const std::string& database)
-    : dao_(host, user, password, database), cache_(cache) {
+                                 const std::string& database,
+                                 int cache_ttl)
+    : dao_(host, port, user, password, database), cache_(cache), cache_ttl_(cache_ttl) {
     
     if (!dao_.isConnected()) {
         LOG(ERROR) << "数据库连接失败，服务启动可能受影响";
@@ -69,9 +71,9 @@ void AuthServiceImpl::Check(google::protobuf::RpcController* cntl,
          return;
     }
     
-    // 4. Update Cache (TTL 60 seconds)
+    // 4. Update Cache (TTL from config)
     if (cache_) {
-        cache_->Put(cache_key, user_perms, 60);
+        cache_->Put(cache_key, user_perms, cache_ttl_);
     }
 
     // 5. Final Check

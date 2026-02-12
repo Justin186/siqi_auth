@@ -24,6 +24,7 @@
 siqi_auth/                      # 项目根目录
 ├── build/                      # 编译输出目录
 ├── conf/                       # 配置文件目录
+│   └── server.conf             # 服务端配置文件示例
 ├── include/                    # 头文件目录
 │   ├── admin_service_impl.h    # 管理服务接口实现类定义
 │   ├── auth_service_impl.h     # 鉴权服务接口实现类定义
@@ -109,8 +110,17 @@ mysql -u siqi_dev -p siqi_auth
 1. **启动 MySQL** 并确保数据库已初始化。
 2. **启动权限服务器**：
 
+可以通过命令行参数或配置文件启动：
+
 ```bash
+# 方式1：默认配置启动 (端口 8888, localhost:3306)
 ./build/auth_server
+
+# 方式2：通过命令行指定配置
+./build/auth_server --port=9000 --db_host=127.0.0.1
+
+# 方式3：通过配置文件启动（推荐）
+./build/auth_server --flagfile=conf/server.conf
 ```
 
 服务器默认监听端口 **8888**。
@@ -168,5 +178,4 @@ protoc --proto_path=proto --experimental_allow_proto3_optional --cpp_out=src pro
 |------|-----------|---------------|
 | **多语言SDK** | 仅有C++客户端示例，没有SDK | C++、Java、Python、Go... |
 | **熔断降级** | ❌ 无 | ✅ 熔断器机制 |
-| **配置管理** | ❌ 硬编码 | ✅ 配置文件支持 |
 

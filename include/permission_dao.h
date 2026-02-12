@@ -14,10 +14,11 @@ private:
     
 public:
     // 构造函数
-    PermissionDAO(const std::string& host = "localhost",
-                  const std::string& user = "siqi_dev",
-                  const std::string& password = "siqi123",
-                  const std::string& database = "siqi_auth");
+    PermissionDAO(const std::string& host,
+                  int port,
+                  const std::string& user,
+                  const std::string& password,
+                  const std::string& database);
     
     // 析构函数
     ~PermissionDAO();
