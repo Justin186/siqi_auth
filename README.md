@@ -9,7 +9,7 @@
 - **本地缓存**：权限数据本地缓存，提升权限检查性能，减少数据库访问压力。
 - **审计日志**：自动记录所有管理操作，追踪到具体操作人，保障系统安全。
 - **持久化存储**：使用 MySQL 存储权限数据。
-- **易于集成**：提供简单的客户端 SDK 示例。
+- **多语言接入**：提供 Node Agent (Sidecar) 模式，通过 HTTP 接口支持 Python/Java/Go 等多语言无缝接入，零 SDK 依赖。
 
 ## 技术栈
 
@@ -24,9 +24,11 @@
 siqi_auth/                      # 项目根目录
 ├── build/                      # 编译输出目录
 ├── conf/                       # 配置文件目录
+│   ├── agent.conf              # Agent 配置文件示例
 │   └── server.conf             # 服务端配置文件示例
 ├── include/                    # 头文件目录
 │   ├── admin_service_impl.h    # 管理服务接口实现类定义
+│   ├── auth_agent.h            # Agent 业务逻辑实现类定义
 │   ├── auth_service_impl.h     # 鉴权服务接口实现类定义
 │   ├── auth.pb.h               # [自动生成] Protobuf 生成的 C++ 头文件
 │   ├── local_cache.h           # 本地缓存实现，提升权限检查性能
@@ -39,6 +41,8 @@ siqi_auth/                      # 项目根目录
 │   ├── admin_service_impl.cpp  # 管理服务具体逻辑实现
 │   ├── admin_tool.cpp          # CLI 管理工具
 │   ├── auth_service_impl.cpp   # 鉴权服务具体逻辑实现
+│   ├── auth_agent.cpp          # Agent 业务逻辑实现入口，处理 HTTP 请求并调用远程 Server
+│   ├── auth_agent_impl.cpp     # Agent 业务逻辑实现
 │   ├── auth.pb.cc              # [自动生成] Protobuf 生成的 C++ 源文件
 │   ├── client_example.cpp      # 客户端 SDK 调用示例代码
 │   ├── permission_dao.cpp      # 数据库操作具体实现（CRUD）
@@ -81,11 +85,12 @@ make -C build/ -j`nproc`
 
 构建完成后，`build/` 目录下将生成以下可执行文件：
 - `auth_server`: 权限系统服务端
+- `auth_agent`: 节点级 Sidecar 代理 (Node Agent)
 - `test_client`: 测试用客户端
 
 ## 数据库配置
 
-项目默认使用 MySQL 数据库，默认配置如下（硬编码在代码中，后期修改为配置文件）：
+项目默认使用 MySQL 数据库，默认配置如下：
 - **Host**: `localhost`
 - **Port**: `3306`
 - **User**: `siqi_dev`
@@ -134,6 +139,85 @@ I0212 20:47:43.630126 20766     0 /home/justin/siqi_auth/src/server_main.cpp:36 
 I0212 20:47:43.630136 20766     0 /home/justin/siqi_auth/src/server_main.cpp:37 main] 其他系统可以通过 brpc://localhost:8888 调用
 ```
 
+## 接入方式（多语言支持）
+
+本项目推荐采用 **Node Agent (节点级 Sidecar)** 模式接入。
+
+### 为什么选择 Agent？
+
+- **无需 SDK**：业务方（Java/Python/Go）只需发起简单的 HTTP 请求。
+- **本地缓存**：Agent 内部实现了高性能缓存（TTL 可配），99% 的请求在毫秒级返回，无需穿透到 Server。
+- **解耦**：当权限系统升级协议时，业务代码无需改动。
+
+### 1. 部署架构
+
+```mermaid
+graph TD
+  UserApp["业务应用"] -->|HTTP GET| Agent["Auth Agent"]
+  Agent -->|L1 Cache| LocalMem["本地内存"]
+  Agent -->|RPC| Server["Auth Server"]
+  Server -->|SQL| DB[(MySQL)]
+```
+
+### 2. 启动 Agent
+
+在每台业务服务器上运行一个 Agent 守护进程。建议使用配置文件启动：
+
+```bash
+# 推荐：使用配置文件启动
+./build/auth_agent --flagfile=conf/agent.conf
+
+# 或者：命令行参数覆盖
+./build/auth_agent --port=8881 --server=192.168.1.100:8888 --cache_ttl=60
+```
+
+### 3. 业务调用示例
+
+**Python:**
+```python
+import requests
+# 直接访问本机 Agent
+resp = requests.get("http://127.0.0.1:8881/AuthService/Check", params={
+    "app_code": "qq_bot",
+    "user_id": "10086",
+    "perm_key": "member:kick"
+})
+if resp.json().get("allowed"):
+    pass # 允许操作
+```
+
+**Curl (测试):**
+```bash
+curl "http://127.0.0.1:8881/AuthService/Check?app_code=qq_bot&user_id=123456&perm_key=member:kick"
+```
+
+### 4. 接口返回格式 (JSON)
+
+Agent 接口返回标准的 JSON 对象：
+
+**成功允许 (Allowed):**
+```json
+{
+  "allowed": true,
+}
+```
+
+**拒绝访问 (Denied):**
+```json
+{
+  "reason": "用户没有该权限" // 或 "参数不完整", "服务端异常" 等
+}
+```
+
+> **注意**：根据 Protobuf 3 序列化规范，当 `allowed` 字段值为 `false`（默认值）时，该字段如果不显示，即代表拒绝。
+
+
+**Header 辅助信息:**
+Agent 会在响应 Header 中添加 `X-Cache` 字段以标识缓存命中情况：
+- `X-Cache: HIT`  - 命中 Agent 本地缓存 (极速)
+- `X-Cache: MISS` - 未命中，已穿透请求至远程 Server
+- `X-Cache: ERROR`- 远程 Server 不可用，触发默认拒绝
+
 ## CLI 管理工具
 
 使用 `admin_tool` 进行管理操作（如创建应用、管理用户等）。操作前必须先登录：
@@ -172,10 +256,12 @@ protoc --proto_path=proto --experimental_allow_proto3_optional --cpp_out=src pro
 
 
 ## 未来优化方向
-**项目接入采用计划中的方案二：独立Client**
+**已完成：多语言接入方案（Agent 模式）**
 
-| 功能 | 当前 | 完整方案二需要 |
+| 功能 | 当前状态 | 计划中 |
 |------|-----------|---------------|
-| **多语言SDK** | 仅有C++客户端示例，没有SDK | C++、Java、Python、Go... |
-| **熔断降级** | ❌ 无 | ✅ 熔断器机制 |
+| **配置管理** | ✅ 支持 gflags (命令行/文件) | 动态配置中心 (Etcd) |
+| **接入方式** | ✅ Node Agent (HTTP) | SDK (高性能直连场景) |
+| **熔断降级** | ⚠️ Agent 端有基础超时 | 完善的熔断指标统计 |
+| **多级缓存** | ✅ 本地内存缓存 | Redis 分布式缓存 |
 

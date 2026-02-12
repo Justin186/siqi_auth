@@ -102,3 +102,29 @@ target_link_libraries(admin_tool
     leveldb
     gflags
 )
+
+# 可执行文件：Client Agent (新增)
+add_executable(auth_agent
+    src/auth_agent.cpp
+    src/auth_agent_impl.cpp
+    ${PROTO_SRCS}
+)
+
+target_include_directories(auth_agent PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${PROTOBUF_INCLUDE_DIR}
+    ${BRPC_INCLUDE_DIRS}
+    include
+)
+
+target_link_libraries(auth_agent
+    ${PROTOBUF_LIBRARY}
+    ${BRPC_LIBRARIES}
+    pthread
+    dl
+    z
+    ssl
+    crypto
+    leveldb
+    gflags
+)

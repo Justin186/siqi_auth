@@ -147,7 +147,7 @@ CREATE TABLE `sys_audit_logs` (
 -- 初始化数据：内置超级管理员（密码需后续修改）
 -- ----------------------------
 INSERT IGNORE INTO `sys_console_users` (`id`, `username`, `password_hash`, `real_name`) 
-VALUES (1, 'admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE4lBoTWqjpNVEc2G', '系统管理员');
+VALUES (1, 'admin', '$6$saltsalt$R/al3WpzpwnOAjyk4icGxW6fCRaUtE6kNJnAakHs220z43YXmDnXm0n3.v1ycAmkvbT3al2H8qMPIy0nP8jVI/', '系统管理员');
 -- 初始密码: admin123 (实际使用时必须修改)
 
 -- ----------------------------
