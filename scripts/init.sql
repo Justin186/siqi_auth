@@ -48,7 +48,7 @@ CREATE TABLE `sys_console_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='控制台管理员表';
 
 -- ----------------------------
--- 3. 权限定义表
+-- 3. 权限定义表（优化版）
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_permissions`;
 CREATE TABLE `sys_permissions` (
@@ -59,11 +59,12 @@ CREATE TABLE `sys_permissions` (
     `description` VARCHAR(255) COMMENT '描述',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间戳',
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间戳',
-    UNIQUE KEY `uk_app_perm` (`app_id`, `perm_key`)
+    UNIQUE KEY `uk_app_perm` (`app_id`, `perm_key`),
+    KEY `idx_app_id` (`app_id`)  -- ⚡ 新增：按应用查权限
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限定义表';
 
 -- ----------------------------
--- 4. 角色定义表
+-- 4. 角色定义表（优化版）
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_roles`;
 CREATE TABLE `sys_roles` (
@@ -75,7 +76,8 @@ CREATE TABLE `sys_roles` (
     `is_default` TINYINT DEFAULT 0 COMMENT '是否默认角色 1是 0否',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间戳',
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间戳',
-    UNIQUE KEY `uk_app_role` (`app_id`, `role_key`)
+    UNIQUE KEY `uk_app_role` (`app_id`, `role_key`),
+    KEY `idx_app_id` (`app_id`)  -- ⚡ 新增：按应用查角色
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色定义表';
 
 -- ----------------------------
@@ -92,7 +94,7 @@ CREATE TABLE `sys_role_permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限绑定表';
 
 -- ----------------------------
--- 6. 用户角色授权表
+-- 6. 用户角色授权表（预留临时权限字段）
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_roles`;
 CREATE TABLE `sys_user_roles` (
@@ -151,47 +153,223 @@ VALUES (1, 'admin', '$6$saltsalt$R/al3WpzpwnOAjyk4icGxW6fCRaUtE6kNJnAakHs220z43Y
 -- 初始密码: admin123 (实际使用时必须修改)
 
 -- ----------------------------
--- 测试数据
+-- 清空并重置测试数据
 -- ----------------------------
--- A. 注册应用
+TRUNCATE TABLE `sys_audit_logs`;
+TRUNCATE TABLE `sys_user_roles`;
+TRUNCATE TABLE `sys_role_permissions`;
+TRUNCATE TABLE `sys_roles`;
+TRUNCATE TABLE `sys_permissions`;
+TRUNCATE TABLE `sys_apps`;
+
+-- ----------------------------
+-- A. 注册3个应用
+-- ----------------------------
 INSERT INTO sys_apps (app_name, app_code, app_secret, description) VALUES
 ('QQ机器人', 'qq_bot', 'secret_qq_123', 'QQ群管理机器人'),
-('内部管理系统', 'admin_panel', 'secret_admin_456', '公司内部后台');
+('内部管理系统', 'admin_panel', 'secret_admin_456', '公司内部后台'),
+('课程群助手', 'course_bot', 'secret_course_789', '课程答疑机器人');
 
--- 获取应用ID变量 (假设是第一个插入的)
 SET @app_qq = (SELECT id FROM sys_apps WHERE app_code = 'qq_bot');
 SET @app_admin = (SELECT id FROM sys_apps WHERE app_code = 'admin_panel');
+SET @app_course = (SELECT id FROM sys_apps WHERE app_code = 'course_bot');
 
--- B. 定义权限
+-- ----------------------------
+-- B. 定义10个权限
+-- ----------------------------
 INSERT INTO sys_permissions (app_id, perm_name, perm_key, description) VALUES
+-- QQ机器人权限 (4个)
 (@app_qq, '踢出成员', 'member:kick', '允许踢出群成员'),
 (@app_qq, '禁言成员', 'member:mute', '允许禁言群成员'),
-(@app_admin, '数据查看', 'data:view', '查看报表数据');
+(@app_qq, '删除消息', 'message:delete', '允许删除群消息'),
+(@app_qq, '置顶消息', 'message:pin', '允许置顶消息'),
 
+-- 内部管理系统权限 (4个)
+(@app_admin, '数据查看', 'data:view', '查看报表数据'),
+(@app_admin, '数据导出', 'data:export', '导出数据'),
+(@app_admin, '用户创建', 'user:create', '创建用户'),
+(@app_admin, '用户删除', 'user:delete', '删除用户'),
+
+-- 课程群助手权限 (2个)
+(@app_course, '布置作业', 'homework:assign', '布置作业'),
+(@app_course, '批改作业', 'homework:grade', '批改作业');
+
+-- ----------------------------
 -- C. 定义角色
+-- ----------------------------
 INSERT INTO sys_roles (app_id, role_name, role_key, description, is_default) VALUES
+-- QQ机器人角色
 (@app_qq, '超级管理员', 'admin', '拥有所有权限', 0),
 (@app_qq, '群主', 'owner', '群拥有者', 0),
-(@app_qq, '普通成员', 'member', '普通群员', 1);
+(@app_qq, '管理员', 'manager', '协助管理', 0),
+(@app_qq, '普通成员', 'member', '普通群员', 1),
 
--- 获取ID变量
-SET @perm_kick = (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'member:kick');
-SET @perm_mute = (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'member:mute');
-SET @role_admin = (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'admin');
+-- 内部管理系统角色
+(@app_admin, '超级管理员', 'admin', '系统管理员', 0),
+(@app_admin, '部门经理', 'manager', '部门负责人', 0),
+(@app_admin, '普通员工', 'staff', '普通员工', 1),
 
--- D. 给角色分配权限 (注意：V2版本表结构移除了 app_id 字段)
+-- 课程群助手角色
+(@app_course, '教师', 'teacher', '授课教师', 0),
+(@app_course, '助教', 'assistant', '课程助教', 0),
+(@app_course, '学生', 'student', '选课学生', 1);
+
+-- ----------------------------
+-- D. 角色分配权限
+-- ----------------------------
+-- QQ机器人角色权限
 INSERT INTO sys_role_permissions (role_id, perm_id) VALUES
-(@role_admin, @perm_kick),
-(@role_admin, @perm_mute);
+-- admin角色拥有全部4个权限
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'admin'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'member:kick')),
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'admin'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'member:mute')),
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'admin'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'message:delete')),
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'admin'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'message:pin')),
 
--- E. 给用户分配角色
--- 给用户 '123456' 分配 'admin' 角色
+-- owner角色拥有3个权限（除置顶消息）
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'owner'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'member:kick')),
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'owner'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'member:mute')),
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'owner'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'message:delete')),
+
+-- manager角色拥有2个权限（禁言和删消息）
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'manager'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'member:mute')),
+((SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'manager'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_qq AND perm_key = 'message:delete')),
+
+-- member角色无权限（不插入）
+
+-- 内部管理系统角色权限
+((SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'admin'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_admin AND perm_key = 'data:view')),
+((SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'admin'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_admin AND perm_key = 'data:export')),
+((SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'admin'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_admin AND perm_key = 'user:create')),
+((SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'admin'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_admin AND perm_key = 'user:delete')),
+
+((SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'manager'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_admin AND perm_key = 'data:view')),
+((SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'manager'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_admin AND perm_key = 'data:export')),
+((SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'manager'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_admin AND perm_key = 'user:create')),
+
+((SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'staff'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_admin AND perm_key = 'data:view')),
+
+-- 课程群助手角色权限
+((SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'teacher'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_course AND perm_key = 'homework:assign')),
+((SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'teacher'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_course AND perm_key = 'homework:grade')),
+
+((SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'assistant'), 
+ (SELECT id FROM sys_permissions WHERE app_id = @app_course AND perm_key = 'homework:grade'));
+
+-- ----------------------------
+-- E. 给40个用户分配角色
+-- ----------------------------
+-- QQ机器人用户 (20个)
 INSERT INTO sys_user_roles (app_id, app_user_id, role_id) VALUES
-(@app_qq, '123456', @role_admin);
+-- admin角色 (2个)
+(@app_qq, '100001', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'admin')),
+(@app_qq, '100002', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'admin')),
 
+-- owner角色 (3个)
+(@app_qq, '100101', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'owner')),
+(@app_qq, '100102', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'owner')),
+(@app_qq, '100103', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'owner')),
+
+-- manager角色 (5个)
+(@app_qq, '100201', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'manager')),
+(@app_qq, '100202', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'manager')),
+(@app_qq, '100203', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'manager')),
+(@app_qq, '100204', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'manager')),
+(@app_qq, '100205', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'manager')),
+
+-- member角色 (10个)
+(@app_qq, '100301', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100302', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100303', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100304', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100305', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100306', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100307', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100308', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100309', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member')),
+(@app_qq, '100310', (SELECT id FROM sys_roles WHERE app_id = @app_qq AND role_key = 'member'));
+
+-- 内部管理系统用户 (12个)
+INSERT INTO sys_user_roles (app_id, app_user_id, role_id) VALUES
+-- admin角色 (2个)
+(@app_admin, '200001', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'admin')),
+(@app_admin, '200002', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'admin')),
+
+-- manager角色 (3个)
+(@app_admin, '200101', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'manager')),
+(@app_admin, '200102', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'manager')),
+(@app_admin, '200103', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'manager')),
+
+-- staff角色 (7个)
+(@app_admin, '200201', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'staff')),
+(@app_admin, '200202', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'staff')),
+(@app_admin, '200203', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'staff')),
+(@app_admin, '200204', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'staff')),
+(@app_admin, '200205', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'staff')),
+(@app_admin, '200206', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'staff')),
+(@app_admin, '200207', (SELECT id FROM sys_roles WHERE app_id = @app_admin AND role_key = 'staff'));
+
+-- 课程群助手用户 (8个)
+INSERT INTO sys_user_roles (app_id, app_user_id, role_id) VALUES
+-- teacher角色 (2个)
+(@app_course, '300001', (SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'teacher')),
+(@app_course, '300002', (SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'teacher')),
+
+-- assistant角色 (2个)
+(@app_course, '300101', (SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'assistant')),
+(@app_course, '300102', (SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'assistant')),
+
+-- student角色 (4个)
+(@app_course, '300201', (SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'student')),
+(@app_course, '300202', (SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'student')),
+(@app_course, '300203', (SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'student')),
+(@app_course, '300204', (SELECT id FROM sys_roles WHERE app_id = @app_course AND role_key = 'student'));
+
+-- 总计: 20 + 12 + 8 = 40个用户
+
+-- ----------------------------
 -- F. 审计日志示例
-INSERT INTO sys_audit_logs (operator_id, operator_name, app_code, action, target_type, target_id, target_name) VALUES
-(1, '系统管理员', 'qq_bot', 'USER_GRANT_ROLE', 'USER', '123456', '测试用户');
+-- ----------------------------
+INSERT INTO sys_audit_logs (operator_id, operator_name, app_code, action, target_type, target_id, target_name, object_type, object_id, object_name) VALUES
+(1, '系统管理员', 'qq_bot', 'USER_GRANT_ROLE', 'USER', '100001', '测试用户1', 'ROLE', 'admin', '超级管理员'),
+(1, '系统管理员', 'admin_panel', 'PERM_ADD', 'ROLE', 'manager', '部门经理', 'PERM', 'user:create', '用户创建'),
+(1, '系统管理员', 'course_bot', 'ROLE_ASSIGN', 'USER', '300001', '张老师', 'ROLE', 'teacher', '教师');
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- 统计信息查询
+-- ----------------------------
+-- SELECT 'sys_apps' AS table_name, COUNT(*) AS count FROM sys_apps
+-- UNION ALL SELECT 'sys_permissions', COUNT(*) FROM sys_permissions
+-- UNION ALL SELECT 'sys_roles', COUNT(*) FROM sys_roles
+-- UNION ALL SELECT 'sys_role_permissions', COUNT(*) FROM sys_role_permissions
+-- UNION ALL SELECT 'sys_user_roles', COUNT(*) FROM sys_user_roles;
+-- 
+-- 预期结果:
+-- sys_apps: 3
+-- sys_permissions: 10
+-- sys_roles: 10
+-- sys_role_permissions: 18
+-- sys_user_roles: 40
 
 SET FOREIGN_KEY_CHECKS = 1;
 

@@ -128,3 +128,27 @@ target_link_libraries(auth_agent
     leveldb
     gflags
 )
+
+# 性能测试工具
+add_executable(perf_test
+    test/perf_test.cpp
+    ${PROTO_SRCS}
+)
+
+target_include_directories(perf_test PRIVATE
+    ${PROTOBUF_INCLUDE_DIR}
+    ${BRPC_INCLUDE_DIRS}
+    include
+)
+
+target_link_libraries(perf_test
+    ${PROTOBUF_LIBRARY}
+    ${BRPC_LIBRARIES}
+    pthread
+    dl
+    z
+    ssl
+    crypto
+    leveldb
+    gflags
+)

@@ -4,14 +4,36 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <mutex>
+#include <queue>
+#include <condition_variable>
 #include <mysql_driver.h>
 #include <mysql_connection.h>
 
 class PermissionDAO {
 private:
-    std::unique_ptr<sql::Connection> connection_;
+    struct DBConfig {
+        std::string host;
+        int port;
+        std::string user;
+        std::string password;
+        std::string database;
+    } config_;
+
+    std::queue<sql::Connection*> connection_pool_;
+    std::mutex pool_mutex_;
+    std::condition_variable pool_cond_;
+    size_t initial_pool_size_ = 5;
+    size_t max_pool_size_ = 50;
+    size_t current_pool_size_ = 0;
+
     std::string last_error_;
-    
+    mutable std::mutex error_mutex_; // 保护 last_error
+
+    sql::Connection* getConnection();
+    void releaseConnection(sql::Connection* conn);
+    sql::Connection* createConnection();
+
 public:
     // 构造函数
     PermissionDAO(const std::string& host,
@@ -134,8 +156,24 @@ public:
     
 private:
     // 内部辅助方法
-    bool reconnectIfNeeded();
     int64_t getAppId(const std::string& app_code);
+    
+    // RAII 风格的连接守卫，作用域结束自动归还连接
+    class ConnectionGuard {
+    public:
+        ConnectionGuard(PermissionDAO* dao) : dao_(dao) {
+            conn_ = dao_->getConnection();
+        }
+        ~ConnectionGuard() {
+            if (conn_) dao_->releaseConnection(conn_);
+        }
+        sql::Connection* operator->() { return conn_; }
+        sql::Connection* get() { return conn_; }
+        bool isValid() { return conn_ != nullptr; }
+    private:
+        PermissionDAO* dao_;
+        sql::Connection* conn_;
+    };
 };
 
 #endif // PERMISSION_DAO_H
