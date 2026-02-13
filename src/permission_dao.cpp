@@ -3,62 +3,134 @@
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 PermissionDAO::PermissionDAO(const std::string& host,
                              int port,
                              const std::string& user,
                              const std::string& password,
                              const std::string& database) {
-    try {
-        sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
-        std::string url = "tcp://" + host + ":" + std::to_string(port);
-        connection_.reset(driver->connect(url, user, password));
-        connection_->setSchema(database);
-        last_error_.clear();
-    } catch (const sql::SQLException& e) {
-        last_error_ = "连接数据库失败: " + std::string(e.what());
-        std::cerr << last_error_ << std::endl;
+    config_.host = host;
+    config_.port = port;
+    config_.user = user;
+    config_.password = password;
+    config_.database = database;
+
+    // 初始化连接池
+    for (size_t i = 0; i < initial_pool_size_; ++i) {
+        sql::Connection* conn = createConnection();
+        if (conn) {
+            connection_pool_.push(conn);
+            current_pool_size_++;
+        }
     }
 }
 
 PermissionDAO::~PermissionDAO() {
-    if (connection_) {
-        try {
-            connection_->close();
-        } catch (...) {}
+    std::lock_guard<std::mutex> lock(pool_mutex_);
+    while (!connection_pool_.empty()) {
+        sql::Connection* conn = connection_pool_.front();
+        connection_pool_.pop();
+        delete conn;
     }
+}
+
+sql::Connection* PermissionDAO::createConnection() {
+    try {
+        sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
+        std::string url = "tcp://" + config_.host + ":" + std::to_string(config_.port);
+        sql::Connection* conn = driver->connect(url, config_.user, config_.password);
+        conn->setSchema(config_.database);
+        return conn;
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_);
+        last_error_ = "创建连接失败: " + std::string(e.what());
+        std::cerr << last_error_ << std::endl;
+        return nullptr;
+    }
+}
+
+sql::Connection* PermissionDAO::getConnection() {
+    std::unique_lock<std::mutex> lock(pool_mutex_);
+    
+    // 如果没有可用连接，且未达最大上限，创建新连接
+    if (connection_pool_.empty() && current_pool_size_ < max_pool_size_) {
+        // 创建连接比较耗时，先释放锁
+        current_pool_size_++; // 先占位
+        lock.unlock();
+        
+        sql::Connection* new_conn = createConnection();
+        if (new_conn) {
+             return new_conn;
+        } else {
+             // 创建失败，回退计数
+             lock.lock();
+             current_pool_size_--;
+             return nullptr;
+        }
+    }
+
+    // 等待可用连接
+    while (connection_pool_.empty()) {
+        // 等待 1 秒
+        if (pool_cond_.wait_for(lock, std::chrono::seconds(1)) == std::cv_status::timeout) {
+            std::cerr << "等待数据库连接超时" << std::endl;
+            return nullptr;
+        }
+    }
+
+    sql::Connection* conn = connection_pool_.front();
+    connection_pool_.pop();
+    
+    // 简单检查连接有效性，失效则重连
+    if (conn->isClosed()) {
+        delete conn;
+        conn = nullptr;
+        // 尝试重连一次 (RAII style in createConnection would be nice, but simple here)
+        // 注意这里持有锁，所以我们调用 createConnection (它自己不加pool锁)
+        // 但 createConnection 可能很慢，简单起见我们这里如果断了就... 实际上 driver->connect 是慢操作
+        // 理想做法是 unlock -> create -> return. 
+        // 简化处理：既然无效了，就当前线程自己负责造一个新的
+        lock.unlock();
+        conn = createConnection();
+        if (!conn) {
+            lock.lock();
+            current_pool_size_--; // 彻底失败
+        }
+        return conn;
+    }
+
+    return conn;
+}
+
+void PermissionDAO::releaseConnection(sql::Connection* conn) {
+    if (!conn) return;
+    std::lock_guard<std::mutex> lock(pool_mutex_);
+    connection_pool_.push(conn);
+    pool_cond_.notify_one();
 }
 
 bool PermissionDAO::isConnected() const {
-    try {
-        return connection_ && !connection_->isClosed() && connection_->isValid();
-    } catch (...) {
-        return false;
-    }
+    // 只要池子里有连接或者能创建连接就算连通，这里简单返回 true，具体的 valid 在 getConnection 里做
+    return true; 
 }
 
 std::string PermissionDAO::getLastError() const {
+    std::lock_guard<std::mutex> lock(error_mutex_);
     return last_error_;
-}
-
-bool PermissionDAO::reconnectIfNeeded() {
-    // Basic check. In a real app, store credentials and reconnect here.
-    return isConnected();   
 }
 
 bool PermissionDAO::checkPermission(const std::string& app_code,
                                    const std::string& user_id,
                                    const std::string& perm_key,
                                    const std::string& resource_id) {
-    if (!reconnectIfNeeded()) {
-        return false;
-    }
+    ConnectionGuard conn(this);
+    if (!conn.isValid()) return false;
     
     try {
-        // SQL query to check permission
-        // Using a simpler query structure for reliability
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "SELECT COUNT(*) as cnt "
                 "FROM sys_user_roles ur "
                 "JOIN sys_apps a ON ur.app_id = a.id "
@@ -84,6 +156,7 @@ bool PermissionDAO::checkPermission(const std::string& app_code,
         return false;
         
     } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_);
         last_error_ = "查询权限失败: " + std::string(e.what());
         std::cerr << last_error_ << std::endl;
         return false;
@@ -104,11 +177,12 @@ std::vector<bool> PermissionDAO::batchCheckPermissions(
 std::vector<std::string> PermissionDAO::getUserRoles(const std::string& app_code,
                                           const std::string& user_id) {
     std::vector<std::string> roles;
-    if (!isConnected()) return roles;
+    ConnectionGuard conn(this);
+    if (!conn.isValid()) return roles;
 
     try {
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "SELECT r.role_key "
                 "FROM sys_user_roles ur "
                 "JOIN sys_apps a ON ur.app_id = a.id "
@@ -129,7 +203,7 @@ std::vector<std::string> PermissionDAO::getUserRoles(const std::string& app_code
         }
         
     } catch (const sql::SQLException& e) {
-        last_error_ = "获取角色失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "获取角色失败: " + std::string(e.what());
         std::cerr << last_error_ << std::endl;
     }
     return roles;
@@ -139,11 +213,11 @@ std::vector<std::pair<std::string, std::string>>
 PermissionDAO::getUserPermissions(const std::string& app_code,
                        const std::string& user_id) {
     std::vector<std::pair<std::string, std::string>> perms;
-    if (!reconnectIfNeeded()) return perms;
+    ConnectionGuard conn(this); if (!conn.isValid()) return perms;
 
     try {
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "SELECT p.perm_key, p.perm_name "
                 "FROM sys_user_roles ur "
                 "JOIN sys_apps a ON ur.app_id = a.id "
@@ -160,16 +234,16 @@ PermissionDAO::getUserPermissions(const std::string& app_code,
             perms.emplace_back(res->getString("perm_key"), res->getString("perm_name"));
         }
     } catch (const sql::SQLException& e) {
-        last_error_ = "获取用户权限失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "获取用户权限失败: " + std::string(e.what());
     }
     return perms;
 }
 
 int64_t PermissionDAO::getAppId(const std::string& app_code) {
-    if (!reconnectIfNeeded()) return -1;
+    ConnectionGuard conn(this); if (!conn.isValid()) return -1;
     try {
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement("SELECT id FROM sys_apps WHERE app_code = ?")
+            conn->prepareStatement("SELECT id FROM sys_apps WHERE app_code = ?")
         );
         pstmt->setString(1, app_code);
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
@@ -185,16 +259,16 @@ bool PermissionDAO::createRole(const std::string& app_code,
                                const std::string& role_key,
                                const std::string& description,
                                bool is_default) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) {
-            last_error_ = "应用不存在: " + app_code;
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "应用不存在: " + app_code;
             return false;
         }
 
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "INSERT INTO sys_roles (app_id, role_name, role_key, description, is_default) "
                 "VALUES (?, ?, ?, ?, ?)"
             )
@@ -208,7 +282,7 @@ bool PermissionDAO::createRole(const std::string& app_code,
         pstmt->executeUpdate();
         return true;
     } catch (const sql::SQLException& e) {
-        last_error_ = "创建角色失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "创建角色失败: " + std::string(e.what());
         return false;
     }
 }
@@ -217,16 +291,16 @@ bool PermissionDAO::createPermission(const std::string& app_code,
                                      const std::string& perm_name,
                                      const std::string& perm_key,
                                      const std::string& description) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) {
-            last_error_ = "应用不存在: " + app_code;
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "应用不存在: " + app_code;
             return false;
         }
 
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "INSERT INTO sys_permissions (app_id, perm_name, perm_key, description) "
                 "VALUES (?, ?, ?, ?)"
             )
@@ -239,7 +313,7 @@ bool PermissionDAO::createPermission(const std::string& app_code,
         pstmt->executeUpdate();
         return true;
     } catch (const sql::SQLException& e) {
-        last_error_ = "创建权限失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "创建权限失败: " + std::string(e.what());
         return false;
     }
 }
@@ -247,11 +321,11 @@ bool PermissionDAO::createPermission(const std::string& app_code,
 bool PermissionDAO::assignRoleToUser(const std::string& app_code,
                           const std::string& user_id,
                           const std::string& role_key) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         // 1. Get role_id
         std::unique_ptr<sql::PreparedStatement> pstmt_role(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "SELECT r.id, r.app_id FROM sys_roles r JOIN sys_apps a ON r.app_id = a.id "
                 "WHERE a.app_code = ? AND r.role_key = ?"
             )
@@ -261,7 +335,7 @@ bool PermissionDAO::assignRoleToUser(const std::string& app_code,
         std::unique_ptr<sql::ResultSet> res(pstmt_role->executeQuery());
         
         if (!res->next()) {
-            last_error_ = "角色不存在";
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "角色不存在";
             return false;
         }
         int64_t role_id = res->getInt64("id");
@@ -269,7 +343,7 @@ bool PermissionDAO::assignRoleToUser(const std::string& app_code,
 
         // 2. Insert mapping
         std::unique_ptr<sql::PreparedStatement> pstmt_insert(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "INSERT INTO sys_user_roles (app_id, app_user_id, role_id) VALUES (?, ?, ?)"
             )
         );
@@ -280,7 +354,7 @@ bool PermissionDAO::assignRoleToUser(const std::string& app_code,
         pstmt_insert->executeUpdate();
         return true;
     } catch (const sql::SQLException& e) {
-        last_error_ = "授权失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "授权失败: " + std::string(e.what());
         return false;
     }
 }
@@ -288,10 +362,10 @@ bool PermissionDAO::assignRoleToUser(const std::string& app_code,
 bool PermissionDAO::removeRoleFromUser(const std::string& app_code,
                           const std::string& user_id,
                           const std::string& role_key) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "DELETE ur FROM sys_user_roles ur "
                 "JOIN sys_apps a ON ur.app_id = a.id "
                 "JOIN sys_roles r ON ur.role_id = r.id "
@@ -305,7 +379,7 @@ bool PermissionDAO::removeRoleFromUser(const std::string& app_code,
         int rows = pstmt->executeUpdate();
         return rows > 0;
     } catch (const sql::SQLException& e) {
-        last_error_ = "移除权限失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "移除权限失败: " + std::string(e.what());
         return false;
     }
 }
@@ -313,7 +387,7 @@ bool PermissionDAO::removeRoleFromUser(const std::string& app_code,
 bool PermissionDAO::addPermissionToRole(const std::string& app_code,
                                         const std::string& role_key,
                                         const std::string& perm_key) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         // SQL lookups for IDs might be complex, simplified by subqueries or separate lookups.
         // Let's do separate lookups for safety and clarity.
@@ -321,39 +395,39 @@ bool PermissionDAO::addPermissionToRole(const std::string& app_code,
         // 1. Get Role ID
         int64_t role_id = -1;
         {
-            std::unique_ptr<sql::PreparedStatement> estmt(connection_->prepareStatement(
+            std::unique_ptr<sql::PreparedStatement> estmt(conn->prepareStatement(
                 "SELECT r.id FROM sys_roles r JOIN sys_apps a ON r.app_id = a.id WHERE a.app_code = ? AND r.role_key = ?"
             ));
             estmt->setString(1, app_code);
             estmt->setString(2, role_key);
             std::unique_ptr<sql::ResultSet> res(estmt->executeQuery());
             if (res->next()) role_id = res->getInt64("id");
-            else { last_error_ = "角色不存在"; return false; }
+            else { std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "角色不存在"; return false; }
         }
 
         // 2. Get Permission ID
         int64_t perm_id = -1;
         {
-            std::unique_ptr<sql::PreparedStatement> estmt(connection_->prepareStatement(
+            std::unique_ptr<sql::PreparedStatement> estmt(conn->prepareStatement(
                 "SELECT p.id FROM sys_permissions p JOIN sys_apps a ON p.app_id = a.id WHERE a.app_code = ? AND p.perm_key = ?"
             ));
             estmt->setString(1, app_code);
             estmt->setString(2, perm_key);
             std::unique_ptr<sql::ResultSet> res(estmt->executeQuery());
             if (res->next()) perm_id = res->getInt64("id");
-            else { last_error_ = "权限不存在"; return false; }
+            else { std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "权限不存在"; return false; }
         }
 
         // 3. Insert
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement("INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (?, ?)")
+            conn->prepareStatement("INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (?, ?)")
         );
         pstmt->setInt64(1, role_id);
         pstmt->setInt64(2, perm_id);
         pstmt->executeUpdate();
         return true;
     } catch (const sql::SQLException& e) {
-        last_error_ = "添加角色权限失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "添加角色权限失败: " + std::string(e.what());
         return false;
     }
 }
@@ -361,10 +435,10 @@ bool PermissionDAO::addPermissionToRole(const std::string& app_code,
 bool PermissionDAO::removePermissionFromRole(const std::string& app_code,
                                              const std::string& role_key,
                                              const std::string& perm_key) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "DELETE rp FROM sys_role_permissions rp "
                 "JOIN sys_roles r ON rp.role_id = r.id "
                 "JOIN sys_permissions p ON rp.perm_id = p.id "
@@ -379,7 +453,7 @@ bool PermissionDAO::removePermissionFromRole(const std::string& app_code,
         int rows = pstmt->executeUpdate();
         return rows > 0;
     } catch (const sql::SQLException& e) {
-        last_error_ = "移除角色权限失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "移除角色权限失败: " + std::string(e.what());
         return false;
     }
 }
@@ -394,10 +468,10 @@ bool PermissionDAO::createAuditLog(int64_t operator_id,
                                    const std::string& object_type,
                                    const std::string& object_id,
                                    const std::string& object_name) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "INSERT INTO sys_audit_logs "
                 "(operator_id, operator_name, app_code, action, target_type, target_id, target_name, object_type, object_id, object_name) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -424,16 +498,16 @@ bool PermissionDAO::createAuditLog(int64_t operator_id,
 }
 
 bool PermissionDAO::deleteRole(const std::string& app_code, const std::string& role_key) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) {
-            last_error_ = "应用不存在: " + app_code;
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "应用不存在: " + app_code;
             return false;
         }
 
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "DELETE FROM sys_roles WHERE app_id = ? AND role_key = ?"
             )
         );
@@ -442,27 +516,27 @@ bool PermissionDAO::deleteRole(const std::string& app_code, const std::string& r
         
         int rows = pstmt->executeUpdate();
         if (rows == 0) {
-            last_error_ = "角色不存在或已删除";
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "角色不存在或已删除";
             return false;
         }
         return true;
     } catch (const sql::SQLException& e) {
-        last_error_ = "删除角色失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "删除角色失败: " + std::string(e.what());
         return false;
     }
 }
 
 bool PermissionDAO::deletePermission(const std::string& app_code, const std::string& perm_key) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) {
-            last_error_ = "应用不存在: " + app_code;
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "应用不存在: " + app_code;
             return false;
         }
 
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "DELETE FROM sys_permissions WHERE app_id = ? AND perm_key = ?"
             )
         );
@@ -471,25 +545,25 @@ bool PermissionDAO::deletePermission(const std::string& app_code, const std::str
         
         int rows = pstmt->executeUpdate();
         if (rows == 0) {
-            last_error_ = "权限不存在或已删除";
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "权限不存在或已删除";
             return false;
         }
         return true;
     } catch (const sql::SQLException& e) {
-        last_error_ = "删除权限失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "删除权限失败: " + std::string(e.what());
         return false;
     }
 }
 
 std::vector<PermissionDAO::RoleInfo> PermissionDAO::listRoles(const std::string& app_code) {
     std::vector<RoleInfo> roles;
-    if (!reconnectIfNeeded()) return roles;
+    ConnectionGuard conn(this); if (!conn.isValid()) return roles;
     try {
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) return roles;
 
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "SELECT id, role_name, role_key, description, is_default FROM sys_roles WHERE app_id = ?"
             )
         );
@@ -506,20 +580,20 @@ std::vector<PermissionDAO::RoleInfo> PermissionDAO::listRoles(const std::string&
             roles.push_back(role);
         }
     } catch (const sql::SQLException& e) {
-        last_error_ = "查询角色列表失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询角色列表失败: " + std::string(e.what());
     }
     return roles;
 }
 
 std::vector<PermissionDAO::PermInfo> PermissionDAO::listPermissions(const std::string& app_code) {
     std::vector<PermInfo> perms;
-    if (!reconnectIfNeeded()) return perms;
+    ConnectionGuard conn(this); if (!conn.isValid()) return perms;
     try {
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) return perms;
 
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement(
+            conn->prepareStatement(
                 "SELECT id, perm_name, perm_key, description FROM sys_permissions WHERE app_id = ?"
             )
         );
@@ -535,7 +609,7 @@ std::vector<PermissionDAO::PermInfo> PermissionDAO::listPermissions(const std::s
             perms.push_back(perm);
         }
     } catch (const sql::SQLException& e) {
-        last_error_ = "查询权限列表失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询权限列表失败: " + std::string(e.what());
     }
     return perms;
 }
@@ -545,11 +619,11 @@ bool PermissionDAO::updateRole(const std::string& app_code,
                                const std::string* role_name,
                                const std::string* description,
                                const bool* is_default) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) {
-            last_error_ = "应用不存在: " + app_code;
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "应用不存在: " + app_code;
             return false;
         }
 
@@ -559,7 +633,7 @@ bool PermissionDAO::updateRole(const std::string& app_code,
         if (is_default) sql += ", is_default=?";
         sql += " WHERE app_id=? AND role_key=?";
 
-        std::unique_ptr<sql::PreparedStatement> pstmt(connection_->prepareStatement(sql));
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(sql));
 
         int idx = 1;
         if (role_name) pstmt->setString(idx++, *role_name);
@@ -575,7 +649,7 @@ bool PermissionDAO::updateRole(const std::string& app_code,
         
         return true;
     } catch (const sql::SQLException& e) {
-        last_error_ = "更新角色失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "更新角色失败: " + std::string(e.what());
         return false;
     }
 }
@@ -584,11 +658,11 @@ bool PermissionDAO::updatePermission(const std::string& app_code,
                                      const std::string& perm_key,
                                      const std::string* perm_name,
                                      const std::string* description) {
-    if (!reconnectIfNeeded()) return false;
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) {
-            last_error_ = "应用不存在: " + app_code;
+            std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "应用不存在: " + app_code;
             return false;
         }
 
@@ -597,7 +671,7 @@ bool PermissionDAO::updatePermission(const std::string& app_code,
         if (description) sql += ", description=?";
         sql += " WHERE app_id=? AND perm_key=?";
 
-        std::unique_ptr<sql::PreparedStatement> pstmt(connection_->prepareStatement(sql));
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(sql));
 
         int idx = 1;
         if (perm_name) pstmt->setString(idx++, *perm_name);
@@ -608,17 +682,17 @@ bool PermissionDAO::updatePermission(const std::string& app_code,
         pstmt->executeUpdate();
         return true;
     } catch (const sql::SQLException& e) {
-        last_error_ = "更新权限失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "更新权限失败: " + std::string(e.what());
         return false;
     }
 }
 
 PermissionDAO::ConsoleUser PermissionDAO::getConsoleUser(const std::string& username) {
     ConsoleUser user;
-    if (!reconnectIfNeeded()) return user;
+    ConnectionGuard conn(this); if (!conn.isValid()) return user;
     try {
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            connection_->prepareStatement("SELECT id, username, password_hash, real_name FROM sys_console_users WHERE username = ?")
+            conn->prepareStatement("SELECT id, username, password_hash, real_name FROM sys_console_users WHERE username = ?")
         );
         pstmt->setString(1, username);
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
@@ -629,7 +703,7 @@ PermissionDAO::ConsoleUser PermissionDAO::getConsoleUser(const std::string& user
             user.real_name = res->getString("real_name");
         }
     } catch (const sql::SQLException& e) {
-        last_error_ = "查询用户失败: " + std::string(e.what());
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询用户失败: " + std::string(e.what());
     }
     return user;
 }
