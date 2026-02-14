@@ -103,10 +103,11 @@ target_link_libraries(admin_tool
     gflags
 )
 
-# 可执行文件：Client Agent (新增)
+# 可执行文件：Client Agent (修改为直连数据库)
 add_executable(auth_agent
     src/auth_agent.cpp
     src/auth_agent_impl.cpp
+    src/permission_dao.cpp
     ${PROTO_SRCS}
 )
 
@@ -114,12 +115,14 @@ target_include_directories(auth_agent PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROTOBUF_INCLUDE_DIR}
     ${BRPC_INCLUDE_DIRS}
+    ${MYSQL_INCLUDE_DIR}
     include
 )
 
 target_link_libraries(auth_agent
     ${PROTOBUF_LIBRARY}
     ${BRPC_LIBRARIES}
+    ${MYSQL_LIBRARY}
     pthread
     dl
     z

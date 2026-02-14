@@ -18,9 +18,9 @@ fi
 echo "[+] 启动 Auth Server..."
 
 # 后台运行并重定向日志
-# 注意：这里连接的是 127.0.0.1:3306，这正好对应 Docker 映射出来的宿主机端口
+# 注意：这里连接的是 127.0.0.1:3306，即 deploy_db.sh 启动的 Docker 内 Master 数据库
 nohup $BUILD_DIR/auth_server \
-    --server=0.0.0.0:8888 \
+    --port=8888 \
     --db_host=127.0.0.1 \
     --db_port=3306 \
     --db_user=siqi_dev \

@@ -26,10 +26,17 @@ docker run -d \
     -e MYSQL_USER=$DB_USER \
     -e MYSQL_PASSWORD=$DB_PASS \
     -v "$PROJECT_ROOT/scripts/init.sql":/docker-entrypoint-initdb.d/init.sql \
-    mysql:8.0
+    mysql:8.0 \
+    --server-id=1 \
+    --log-bin=mysql-bin \
+    --binlog-format=ROW
 
 echo "[*] 等待数据库初始化 (约 10-15 秒)..."
 sleep 15
+
+# 创建复制账号 (repl/slave123)
+echo "[+] 正在创建 Replication账号..."
+docker exec $CONTAINER_NAME mysql -uroot -p$DB_ROOT_PASS -e "CREATE USER IF NOT EXISTS 'repl'@'%' IDENTIFIED WITH mysql_native_password BY 'slave123'; GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%'; FLUSH PRIVILEGES;"
 
 # 检查是否启动成功
 if docker ps | grep -q $CONTAINER_NAME; then

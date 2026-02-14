@@ -1,11 +1,9 @@
 #include "auth_agent.h"
 #include <butil/logging.h>
 
-AuthAgentImpl::AuthAgentImpl(brpc::Channel* channel, int cache_ttl, int timeout_ms) 
-    : stub_(new siqi::auth::AuthService_Stub(channel)),
-      cache_ttl_(cache_ttl),
-      timeout_ms_(timeout_ms) {
-    cache_ = std::make_shared<LocalCache<bool>>();
+// 构造函数：注入 DAO 对象
+AuthAgentImpl::AuthAgentImpl(PermissionDAO* dao) 
+    : dao_(dao) {
 }
 
 void AuthAgentImpl::Check(google::protobuf::RpcController* cntl_base,
@@ -46,44 +44,17 @@ void AuthAgentImpl::Check(google::protobuf::RpcController* cntl_base,
         return;
     }
 
-    // 2. 查本地缓存
-    // Key 格式: "app:user:perm"
-    std::string cache_key = app_code + ":" + user_id + ":" + perm_key;
-    bool allowed = false;
+    // 2. 直接查询本地数据库 (MySQL Slave)
+    // 由于是本地回环 (Localhost Loopback)，延迟极低 (<1ms)，无需额外缓存
+    bool allowed = dao_->checkPermission(app_code, user_id, perm_key, ""); // resource_id 暂时留空，视业务需求而定
     
-    if (cache_->Get(cache_key, allowed)) {
-        response->set_allowed(allowed);
-        // 可以在 HTTP Header 里加个标记，方便调试
-        cntl->http_response().SetHeader("X-Cache", "HIT");
-        return;
-    }
-
-    // 3. 缓存未命中，发起远程 RPC
-    brpc::Controller remote_cntl;
-    remote_cntl.set_timeout_ms(timeout_ms_);
-    
-    // 构造实际的 RPC 请求（因为原始 request 可能为空，需要用我们解析出来的字段重组）
-    siqi::auth::CheckRequest remote_request;
-    remote_request.set_app_code(app_code);
-    remote_request.set_user_id(user_id);
-    remote_request.set_perm_key(perm_key);
-    
-    siqi::auth::CheckResponse remote_response;
-    stub_->Check(&remote_cntl, &remote_request, &remote_response, NULL);
-    
-    if (remote_cntl.Failed()) {
-        // RPC 失败 (网络问题/Server挂了)
-        // 策略: 默认拒绝 (Fail-Secure)
-        response->set_allowed(false);
-        response->set_reason("IAM Server Unavailable: " + remote_cntl.ErrorText());
-        cntl->http_response().SetHeader("X-Cache", "ERROR");
-        return;
+    // 3. 返回结果
+    response->set_allowed(allowed);
+    if (!allowed) {
+        // 可以记录下是在数据库里没查到
+        response->set_reason("Refused by Local DB Policy");
     }
     
-    // 4. 写回缓存
-    cache_->Put(cache_key, remote_response.allowed(), cache_ttl_);
-    
-    // 5. 返回结果
-    response->CopyFrom(remote_response);
-    cntl->http_response().SetHeader("X-Cache", "MISS");
+    // 添加 Header 标识这是本地直连查询
+    cntl->http_response().SetHeader("X-Strategy", "Local-DB-Slave");
 }
