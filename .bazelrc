@@ -1,0 +1,10 @@
+# C++ Standard
+build --cxxopt=-std=c++14
+build --host_cxxopt=-std=c++14
+
+# Show verbose failures for easier debugging
+build --verbose_failures
+
+# Use local CPU cores
+build --jobs=auto
+

@@ -1,3 +1,24 @@
+# === CMake ===
 build/
+
+# === Bazel ===
+# Bazel 在项目根目录创建的符号链接（指向 ~/.cache/bazel/...）
+bazel-bin
+bazel-out
+bazel-siqi_auth
+bazel-testlogs
+
+# === IDE / Editor ===
 .cache/
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === 敏感文件 ===
+.auth_token
+
+# === OS ===
+.DS_Store
+Thumbs.db

@@ -1,0 +1,149 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+# ===========================================================================
+# Proto targets (build-time code generation from proto/auth.proto)
+# ===========================================================================
+
+proto_library(
+    name = "auth_proto",
+    srcs = ["proto/auth.proto"],
+    strip_import_prefix = "proto",
+)
+
+cc_proto_library(
+    name = "auth_proto_cc",
+    deps = [":auth_proto"],
+)
+
+# ===========================================================================
+# Libraries
+# ===========================================================================
+
+# Local Cache (header-only template library)
+cc_library(
+    name = "local_cache_lib",
+    hdrs = ["include/local_cache.h"],
+    includes = ["include"],
+)
+
+# Permission DAO (database access layer)
+cc_library(
+    name = "permission_dao_lib",
+    srcs = ["src/permission_dao.cpp"],
+    hdrs = ["include/permission_dao.h"],
+    includes = ["include"],
+    deps = [
+        "@mysqlcppconn//:mysqlcppconn",
+    ],
+)
+
+# Auth Service Implementation
+cc_library(
+    name = "auth_service_impl_lib",
+    srcs = ["src/auth_service_impl.cpp"],
+    hdrs = ["include/auth_service_impl.h"],
+    includes = ["include"],
+    deps = [
+        ":auth_proto_cc",
+        ":local_cache_lib",
+        ":permission_dao_lib",
+        "@com_github_brpc_brpc//:brpc",
+    ],
+)
+
+# Admin Service Implementation
+cc_library(
+    name = "admin_service_impl_lib",
+    srcs = ["src/admin_service_impl.cpp"],
+    hdrs = ["include/admin_service_impl.h"],
+    includes = ["include"],
+    linkopts = ["-lcrypt"],
+    deps = [
+        ":auth_proto_cc",
+        ":local_cache_lib",
+        ":permission_dao_lib",
+        "@com_github_brpc_brpc//:brpc",
+        "@com_github_gflags_gflags//:gflags",
+    ],
+)
+
+# Auth Agent Implementation
+cc_library(
+    name = "auth_agent_impl_lib",
+    srcs = ["src/auth_agent_impl.cpp"],
+    hdrs = ["include/auth_agent.h"],
+    includes = ["include"],
+    deps = [
+        ":auth_proto_cc",
+        ":permission_dao_lib",
+        "@com_github_brpc_brpc//:brpc",
+    ],
+)
+
+# ===========================================================================
+# Binaries
+# ===========================================================================
+
+cc_binary(
+    name = "auth_server",
+    srcs = ["src/server_main.cpp"],
+    includes = ["include"],
+    deps = [
+        ":auth_proto_cc",
+        ":auth_service_impl_lib",
+        ":admin_service_impl_lib",
+        ":local_cache_lib",
+        "@com_github_brpc_brpc//:brpc",
+        "@com_github_gflags_gflags//:gflags",
+    ],
+)
+
+cc_binary(
+    name = "test_client",
+    srcs = ["src/client_example.cpp"],
+    includes = ["include"],
+    deps = [
+        ":auth_proto_cc",
+        "@com_github_brpc_brpc//:brpc",
+        "@com_github_gflags_gflags//:gflags",
+    ],
+)
+
+cc_binary(
+    name = "admin_tool",
+    srcs = ["src/admin_tool.cpp"],
+    includes = ["include"],
+    deps = [
+        ":auth_proto_cc",
+        "@com_github_brpc_brpc//:brpc",
+        "@com_github_gflags_gflags//:gflags",
+    ],
+)
+
+cc_binary(
+    name = "auth_agent",
+    srcs = ["src/auth_agent.cpp"],
+    includes = ["include"],
+    deps = [
+        ":auth_proto_cc",
+        ":auth_agent_impl_lib",
+        ":permission_dao_lib",
+        "@com_github_brpc_brpc//:brpc",
+        "@com_github_gflags_gflags//:gflags",
+    ],
+)
+
+cc_binary(
+    name = "perf_test",
+    srcs = ["test/perf_test.cpp"],
+    includes = ["include"],
+    deps = [
+        ":auth_proto_cc",
+        "@com_github_brpc_brpc//:brpc",
+        "@com_github_gflags_gflags//:gflags",
+    ],
+)
+
