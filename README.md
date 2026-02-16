@@ -21,37 +21,49 @@
 ## 项目结构
 
 ```
-siqi_auth/                      # 项目根目录
-├── build/                      # 编译输出目录
-├── conf/                       # 配置文件目录
-│   ├── agent.conf              # Agent 配置文件 (连接本地 Slave)
-│   └── server.conf             # 服务端配置文件 (连接远程 Master)
-├── include/                    # 头文件目录
-│   ├── admin_service_impl.h    # 管理服务接口实现类定义
-│   ├── auth_agent.h            # Agent 业务逻辑实现类定义
-│   ├── auth_service_impl.h     # 鉴权服务接口实现类定义
-│   ├── auth.pb.h               # [自动生成] Protobuf 生成的 C++ 头文件
-│   ├── local_cache.h           # 本地缓存实现，提升权限检查性能
-│   └── permission_dao.h        # 数据访问层（DAO）接口定义，负责数据库交互
-├── proto/                      # RPC 接口定义目录
-│   └── auth.proto              # Protobuf 文件，定义服务接口（Check, BatchCheck）与消息结构
-├── scripts/                    # 辅助脚本目录
-│   ├── init.sql                # 初始化数据库脚本
-│   ├── deploy_db.sh            # 一键部署 Master 数据库 (Docker)
-│   ├── start_server.sh         # 启动管理服务端
-│   └── master_snapshot.sql     # [生成] 主从同步数据快照
-├── src/                        # 源代码目录
-│   ├── admin_service_impl.cpp  # 管理服务具体逻辑实现
-│   ├── admin_tool.cpp          # CLI 管理工具
-│   ├── auth_service_impl.cpp   # 鉴权服务具体逻辑实现
-│   ├── auth_agent.cpp          # Agent 主入口，负责初始化本地数据库连接
-│   ├── auth_agent_impl.cpp     # Agent 逻辑，直连本地 Slave 进行查询
-│   ├── auth.pb.cc              # [自动生成] Protobuf 生成的 C++ 源文件
-│   ├── client_example.cpp      # 客户端 SDK 调用示例代码
-│   ├── permission_dao.cpp      # 数据库操作具体实现（CRUD）
-│   └── server_main.cpp         # 服务端主入口，负责初始化与启动 bRPC 服务
-├── CMakeLists.txt              # CMake 构建脚本，定义依赖与编译规则
-└── README.md                   # 项目说明文档
+siqi_auth/                          # 项目根目录
+├── conf/                           # 配置文件目录
+│   ├── agent.conf                  # Agent 配置文件 (连接本地 Slave)
+│   └── server.conf                 # 服务端配置文件 (连接远程 Master)
+├── include/                        # 头文件目录
+│   ├── admin_service_impl.h        # 管理服务接口实现类定义
+│   ├── auth_agent.h                # Agent 业务逻辑实现类定义
+│   ├── auth_service_impl.h         # 鉴权服务接口实现类定义
+│   ├── auth.pb.h                   # [自动生成] Protobuf 生成的 C++ 头文件
+│   ├── local_cache.h               # 本地缓存实现，提升权限检查性能
+│   └── permission_dao.h            # 数据访问层（DAO）接口定义，负责数据库交互
+├── proto/                          # RPC 接口定义目录
+│   └── auth.proto                  # Protobuf 文件，定义服务接口与消息结构
+├── scripts/                        # 辅助脚本目录
+│   ├── init.sql                    # 初始化数据库脚本
+│   ├── deploy_db.sh                # 一键部署 Master 数据库 (Docker)
+│   ├── start_server.sh             # 启动管理服务端
+│   └── master_snapshot.sql         # [生成] 主从同步数据快照
+├── src/                            # 源代码目录
+│   ├── admin_service_impl.cpp      # 管理服务具体逻辑实现
+│   ├── admin_tool.cpp              # CLI 管理工具
+│   ├── auth_service_impl.cpp       # 鉴权服务具体逻辑实现
+│   ├── auth_agent.cpp              # Agent 主入口，负责初始化本地数据库连接
+│   ├── auth_agent_impl.cpp         # Agent 逻辑，直连本地 Slave 进行查询
+│   ├── auth.pb.cc                  # [自动生成] Protobuf 生成的 C++ 源文件
+│   ├── client_example.cpp          # 客户端 SDK 调用示例代码
+│   ├── permission_dao.cpp          # 数据库操作具体实现（CRUD）
+│   └── server_main.cpp             # 服务端主入口，负责初始化与启动 bRPC 服务
+├── test/                           # 测试目录
+│   └── perf_test.cpp               # 性能测试工具，多线程压测 AuthService
+├── third_party/                    # 第三方依赖 Bazel 构建规则
+│   ├── BUILD                       # 包声明文件
+│   ├── protobuf.BUILD              # Protobuf 构建规则（含 protoc 编译器）
+│   ├── leveldb.BUILD               # LevelDB 构建规则
+│   ├── zlib.BUILD                  # Zlib 构建规则
+│   ├── openssl.BUILD               # OpenSSL 构建规则（链接系统库）
+│   └── mysqlcppconn.BUILD          # MySQL Connector/C++ 构建规则（链接系统库）
+├── BUILD.bazel                     # Bazel 构建脚本，定义项目目标与依赖关系
+├── WORKSPACE                       # Bazel 工作空间配置，声明外部依赖（bRPC, Protobuf 等）
+├── .bazelrc                        # Bazel 构建选项配置
+├── .bazelversion                   # 指定 Bazel 版本 (6.4.0)
+├── CMakeLists.txt                  # CMake 构建脚本，定义依赖与编译规则
+└── README.md                       # 项目说明文档
 ```
 
 ## 部署架构 (V2.0 - 分布式读写分离)
@@ -103,7 +115,7 @@ graph TD
 
 ---
 
-## 环境准备 (Ubuntu 22.04)
+## 环境准备 (Ubuntu 22.04)(cmake)
 
 确保系统安装了必要的构建工具和依赖库：
 
@@ -142,7 +154,50 @@ make -C build/ -j`nproc`
 - `perf_test`: 性能压测工具
 
 ---
+## 环境准备 (Ubuntu 22.04)(Bazel)
 
+Bazel 构建系统会自动从网络下载并编译大部分依赖（bRPC、Protobuf、gflags、LevelDB、Zlib），仅需安装少量系统级依赖：
+
+```bash
+# 基础构建工具
+sudo apt install -y git g++ make
+
+# Bazel 依赖的系统库（OpenSSL、MySQL Connector/C++ 通过系统安装提供）
+sudo apt install -y libssl-dev libmysqlcppconn-dev
+```
+
+### 安装 Bazel 6.4.0
+
+```bash
+# 方式一：通过 Bazelisk（会自动读取 .bazelversion 文件选择版本）
+sudo wget -qO /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64
+sudo chmod +x /usr/local/bin/bazel
+bazel --version  # 首次运行会自动下载 Bazel 6.4.0
+
+### 编译构建
+
+```bash
+# 编译所有目标（推荐）
+bazel build //...
+
+# 或单独编译指定目标
+bazel build //:auth_server
+bazel build //:test_client
+bazel build //:admin_tool
+bazel build //:auth_agent
+bazel build //:perf_test
+```
+
+构建完成后，可执行文件位于 `bazel-bin/` 目录下：
+- `bazel-bin/auth_server`: 权限系统服务端 (连接 Master)
+- `bazel-bin/auth_agent`: 节点级 Sidecar 代理 (连接 Local Slave)
+- `bazel-bin/admin_tool`: 命令行管理工具
+- `bazel-bin/test_client`: 客户端示例
+- `bazel-bin/perf_test`: 性能压测工具
+
+
+
+---
 ## 部署指南 (Step-by-Step)
 
 ### 1. 中心端 (Master Node) 部署
