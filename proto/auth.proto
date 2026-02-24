@@ -91,7 +91,7 @@ service AdminService {
     rpc CreateApp(CreateAppRequest) returns (AdminResponse);
     // 更新应用信息
     rpc UpdateApp(UpdateAppRequest) returns (AdminResponse);
-    // 删除应用（软删除）
+    // 删除应用（硬删除）
     rpc DeleteApp(DeleteAppRequest) returns (AdminResponse);
     // 获取应用详情
     rpc GetApp(GetAppRequest) returns (GetAppResponse);
@@ -158,7 +158,7 @@ message UpdateAppRequest {
 }
 
 message DeleteAppRequest {
-    string app_code = 2; // 应用代号（软删除：status=0）
+    string app_code = 2; // 应用代号（硬删除）
 }
 
 message GetAppRequest {

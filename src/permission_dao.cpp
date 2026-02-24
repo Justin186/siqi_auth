@@ -325,7 +325,7 @@ bool PermissionDAO::deleteApp(const std::string& app_code) {
     ConnectionGuard conn(this); if (!conn.isValid()) return false;
     try {
         std::unique_ptr<sql::PreparedStatement> pstmt(
-            conn->prepareStatement("UPDATE sys_apps SET status = 0 WHERE app_code = ?")
+            conn->prepareStatement("DELETE FROM sys_apps WHERE app_code = ?")
         );
         pstmt->setString(1, app_code);
         int rows = pstmt->executeUpdate();
