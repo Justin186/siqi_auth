@@ -4,6 +4,7 @@
 #include <cppconn/resultset.h>
 #include <iostream>
 #include <chrono>
+#include <sstream>
 
 PermissionDAO::PermissionDAO(const std::string& host,
                              int port,
@@ -984,6 +985,78 @@ std::vector<PermissionDAO::UserInfo> PermissionDAO::getRoleUsers(const std::stri
         }
     } catch (const sql::SQLException& e) {
         std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询角色用户失败: " + std::string(e.what());
+    }
+    return users;
+}
+
+std::vector<PermissionDAO::UserRoleData> PermissionDAO::listUserRoles(const std::string& app_code,
+                                                                      int32_t page, int32_t page_size,
+                                                                      const std::string* user_id,
+                                                                      int64_t& out_total) {
+    std::vector<UserRoleData> users;
+    out_total = 0;
+    ConnectionGuard conn(this); if (!conn.isValid()) return users;
+    try {
+        int64_t app_id = getAppId(app_code);
+        if (app_id == -1) return users;
+
+        std::string base_sql = "FROM sys_user_roles WHERE app_id = ?";
+        if (user_id && !user_id->empty()) {
+            base_sql += " AND app_user_id = ?";
+        }
+
+        // Get total count (distinct users)
+        std::unique_ptr<sql::PreparedStatement> count_stmt(
+            conn->prepareStatement("SELECT COUNT(DISTINCT app_user_id) as total " + base_sql)
+        );
+        count_stmt->setInt64(1, app_id);
+        if (user_id && !user_id->empty()) {
+            count_stmt->setString(2, *user_id);
+        }
+        std::unique_ptr<sql::ResultSet> count_res(count_stmt->executeQuery());
+        if (count_res->next()) {
+            out_total = count_res->getInt64("total");
+        }
+
+        // Get paginated data
+        int32_t offset = (page - 1) * page_size;
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement(
+                "SELECT ur.app_user_id, GROUP_CONCAT(r.role_key) as role_keys, MIN(ur.created_at) as created_at "
+                "FROM sys_user_roles ur "
+                "JOIN sys_roles r ON ur.role_id = r.id "
+                "WHERE ur.app_id = ? " + 
+                (user_id && !user_id->empty() ? std::string("AND ur.app_user_id = ? ") : std::string("")) +
+                "GROUP BY ur.app_user_id "
+                "ORDER BY created_at DESC LIMIT ? OFFSET ?"
+            )
+        );
+        
+        int idx = 1;
+        pstmt->setInt64(idx++, app_id);
+        if (user_id && !user_id->empty()) {
+            pstmt->setString(idx++, *user_id);
+        }
+        pstmt->setInt(idx++, page_size);
+        pstmt->setInt(idx++, offset);
+        
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        
+        while (res->next()) {
+            UserRoleData data;
+            data.user_id = res->getString("app_user_id");
+            data.created_at = res->getString("created_at");
+            
+            std::string roles_str = res->getString("role_keys");
+            std::stringstream ss(roles_str);
+            std::string item;
+            while (std::getline(ss, item, ',')) {
+                data.role_keys.push_back(item);
+            }
+            users.push_back(data);
+        }
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询用户角色列表失败: " + std::string(e.what());
     }
     return users;
 }

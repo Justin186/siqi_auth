@@ -166,6 +166,16 @@ public:
                                        int32_t page, int32_t page_size,
                                        int64_t& out_total);
 
+    struct UserRoleData {
+        std::string user_id;
+        std::vector<std::string> role_keys;
+        std::string created_at;
+    };
+    std::vector<UserRoleData> listUserRoles(const std::string& app_code,
+                                            int32_t page, int32_t page_size,
+                                            const std::string* user_id,
+                                            int64_t& out_total);
+
     // 审计日志
     bool createAuditLog(int64_t operator_id, 
                         const std::string& operator_name,

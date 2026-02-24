@@ -137,6 +137,8 @@ service AdminService {
     rpc RevokeRoleFromUser(RevokeRoleFromUserRequest) returns (AdminResponse);
     // 获取拥有某角色的所有用户
     rpc GetRoleUsers(GetRoleUsersRequest) returns (GetRoleUsersResponse);
+    // 获取应用下的所有用户及其角色
+    rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse);
     
     // ------------------------- 审计日志 -------------------------
     // 查询审计日志
@@ -384,4 +386,23 @@ message LoginResponse {
     bool success = 1;
     string message = 2;
     string token = 3; // 登录成功返回Token
+}
+
+message ListUserRolesRequest {
+    string app_code = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+    optional string user_id = 4;
+}
+
+message ListUserRolesResponse {
+    message UserRoleInfo {
+        string user_id = 1;
+        repeated string role_keys = 2;
+        string created_at = 3;
+    }
+    repeated UserRoleInfo users = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
 }

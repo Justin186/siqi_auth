@@ -48,7 +48,7 @@ struct TableStruct_auth_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[44]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[47]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -168,6 +168,15 @@ extern ListRolesResponseDefaultTypeInternal _ListRolesResponse_default_instance_
 class ListRolesResponse_Role;
 class ListRolesResponse_RoleDefaultTypeInternal;
 extern ListRolesResponse_RoleDefaultTypeInternal _ListRolesResponse_Role_default_instance_;
+class ListUserRolesRequest;
+class ListUserRolesRequestDefaultTypeInternal;
+extern ListUserRolesRequestDefaultTypeInternal _ListUserRolesRequest_default_instance_;
+class ListUserRolesResponse;
+class ListUserRolesResponseDefaultTypeInternal;
+extern ListUserRolesResponseDefaultTypeInternal _ListUserRolesResponse_default_instance_;
+class ListUserRolesResponse_UserRoleInfo;
+class ListUserRolesResponse_UserRoleInfoDefaultTypeInternal;
+extern ListUserRolesResponse_UserRoleInfoDefaultTypeInternal _ListUserRolesResponse_UserRoleInfo_default_instance_;
 class LoginRequest;
 class LoginRequestDefaultTypeInternal;
 extern LoginRequestDefaultTypeInternal _LoginRequest_default_instance_;
@@ -229,6 +238,9 @@ template<> ::siqi::auth::ListPermissionsResponse_Permission* Arena::CreateMaybeM
 template<> ::siqi::auth::ListRolesRequest* Arena::CreateMaybeMessage<::siqi::auth::ListRolesRequest>(Arena*);
 template<> ::siqi::auth::ListRolesResponse* Arena::CreateMaybeMessage<::siqi::auth::ListRolesResponse>(Arena*);
 template<> ::siqi::auth::ListRolesResponse_Role* Arena::CreateMaybeMessage<::siqi::auth::ListRolesResponse_Role>(Arena*);
+template<> ::siqi::auth::ListUserRolesRequest* Arena::CreateMaybeMessage<::siqi::auth::ListUserRolesRequest>(Arena*);
+template<> ::siqi::auth::ListUserRolesResponse* Arena::CreateMaybeMessage<::siqi::auth::ListUserRolesResponse>(Arena*);
+template<> ::siqi::auth::ListUserRolesResponse_UserRoleInfo* Arena::CreateMaybeMessage<::siqi::auth::ListUserRolesResponse_UserRoleInfo>(Arena*);
 template<> ::siqi::auth::LoginRequest* Arena::CreateMaybeMessage<::siqi::auth::LoginRequest>(Arena*);
 template<> ::siqi::auth::LoginResponse* Arena::CreateMaybeMessage<::siqi::auth::LoginResponse>(Arena*);
 template<> ::siqi::auth::RemovePermissionFromRoleRequest* Arena::CreateMaybeMessage<::siqi::auth::RemovePermissionFromRoleRequest>(Arena*);
@@ -9456,6 +9468,600 @@ class LoginResponse PROTOBUF_FINAL :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_auth_2eproto;
 };
+// -------------------------------------------------------------------
+
+class ListUserRolesRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:siqi.auth.ListUserRolesRequest) */ {
+ public:
+  inline ListUserRolesRequest() : ListUserRolesRequest(nullptr) {};
+  virtual ~ListUserRolesRequest();
+
+  ListUserRolesRequest(const ListUserRolesRequest& from);
+  ListUserRolesRequest(ListUserRolesRequest&& from) noexcept
+    : ListUserRolesRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline ListUserRolesRequest& operator=(const ListUserRolesRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ListUserRolesRequest& operator=(ListUserRolesRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const ListUserRolesRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const ListUserRolesRequest* internal_default_instance() {
+    return reinterpret_cast<const ListUserRolesRequest*>(
+               &_ListUserRolesRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    44;
+
+  friend void swap(ListUserRolesRequest& a, ListUserRolesRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ListUserRolesRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ListUserRolesRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ListUserRolesRequest* New() const final {
+    return CreateMaybeMessage<ListUserRolesRequest>(nullptr);
+  }
+
+  ListUserRolesRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ListUserRolesRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const ListUserRolesRequest& from);
+  void MergeFrom(const ListUserRolesRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ListUserRolesRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "siqi.auth.ListUserRolesRequest";
+  }
+  protected:
+  explicit ListUserRolesRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_auth_2eproto);
+    return ::descriptor_table_auth_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kAppCodeFieldNumber = 1,
+    kUserIdFieldNumber = 4,
+    kPageFieldNumber = 2,
+    kPageSizeFieldNumber = 3,
+  };
+  // string app_code = 1;
+  void clear_app_code();
+  const std::string& app_code() const;
+  void set_app_code(const std::string& value);
+  void set_app_code(std::string&& value);
+  void set_app_code(const char* value);
+  void set_app_code(const char* value, size_t size);
+  std::string* mutable_app_code();
+  std::string* release_app_code();
+  void set_allocated_app_code(std::string* app_code);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_app_code();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_app_code(
+      std::string* app_code);
+  private:
+  const std::string& _internal_app_code() const;
+  void _internal_set_app_code(const std::string& value);
+  std::string* _internal_mutable_app_code();
+  public:
+
+  // string user_id = 4;
+  bool has_user_id() const;
+  private:
+  bool _internal_has_user_id() const;
+  public:
+  void clear_user_id();
+  const std::string& user_id() const;
+  void set_user_id(const std::string& value);
+  void set_user_id(std::string&& value);
+  void set_user_id(const char* value);
+  void set_user_id(const char* value, size_t size);
+  std::string* mutable_user_id();
+  std::string* release_user_id();
+  void set_allocated_user_id(std::string* user_id);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_user_id();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_user_id(
+      std::string* user_id);
+  private:
+  const std::string& _internal_user_id() const;
+  void _internal_set_user_id(const std::string& value);
+  std::string* _internal_mutable_user_id();
+  public:
+
+  // int32 page = 2;
+  void clear_page();
+  ::PROTOBUF_NAMESPACE_ID::int32 page() const;
+  void set_page(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_page() const;
+  void _internal_set_page(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 page_size = 3;
+  void clear_page_size();
+  ::PROTOBUF_NAMESPACE_ID::int32 page_size() const;
+  void set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_page_size() const;
+  void _internal_set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:siqi.auth.ListUserRolesRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr app_code_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr user_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 page_;
+  ::PROTOBUF_NAMESPACE_ID::int32 page_size_;
+  friend struct ::TableStruct_auth_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ListUserRolesResponse_UserRoleInfo PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:siqi.auth.ListUserRolesResponse.UserRoleInfo) */ {
+ public:
+  inline ListUserRolesResponse_UserRoleInfo() : ListUserRolesResponse_UserRoleInfo(nullptr) {};
+  virtual ~ListUserRolesResponse_UserRoleInfo();
+
+  ListUserRolesResponse_UserRoleInfo(const ListUserRolesResponse_UserRoleInfo& from);
+  ListUserRolesResponse_UserRoleInfo(ListUserRolesResponse_UserRoleInfo&& from) noexcept
+    : ListUserRolesResponse_UserRoleInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline ListUserRolesResponse_UserRoleInfo& operator=(const ListUserRolesResponse_UserRoleInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ListUserRolesResponse_UserRoleInfo& operator=(ListUserRolesResponse_UserRoleInfo&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const ListUserRolesResponse_UserRoleInfo& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const ListUserRolesResponse_UserRoleInfo* internal_default_instance() {
+    return reinterpret_cast<const ListUserRolesResponse_UserRoleInfo*>(
+               &_ListUserRolesResponse_UserRoleInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    45;
+
+  friend void swap(ListUserRolesResponse_UserRoleInfo& a, ListUserRolesResponse_UserRoleInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ListUserRolesResponse_UserRoleInfo* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ListUserRolesResponse_UserRoleInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ListUserRolesResponse_UserRoleInfo* New() const final {
+    return CreateMaybeMessage<ListUserRolesResponse_UserRoleInfo>(nullptr);
+  }
+
+  ListUserRolesResponse_UserRoleInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ListUserRolesResponse_UserRoleInfo>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const ListUserRolesResponse_UserRoleInfo& from);
+  void MergeFrom(const ListUserRolesResponse_UserRoleInfo& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ListUserRolesResponse_UserRoleInfo* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "siqi.auth.ListUserRolesResponse.UserRoleInfo";
+  }
+  protected:
+  explicit ListUserRolesResponse_UserRoleInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_auth_2eproto);
+    return ::descriptor_table_auth_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kRoleKeysFieldNumber = 2,
+    kUserIdFieldNumber = 1,
+    kCreatedAtFieldNumber = 3,
+  };
+  // repeated string role_keys = 2;
+  int role_keys_size() const;
+  private:
+  int _internal_role_keys_size() const;
+  public:
+  void clear_role_keys();
+  const std::string& role_keys(int index) const;
+  std::string* mutable_role_keys(int index);
+  void set_role_keys(int index, const std::string& value);
+  void set_role_keys(int index, std::string&& value);
+  void set_role_keys(int index, const char* value);
+  void set_role_keys(int index, const char* value, size_t size);
+  std::string* add_role_keys();
+  void add_role_keys(const std::string& value);
+  void add_role_keys(std::string&& value);
+  void add_role_keys(const char* value);
+  void add_role_keys(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& role_keys() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_role_keys();
+  private:
+  const std::string& _internal_role_keys(int index) const;
+  std::string* _internal_add_role_keys();
+  public:
+
+  // string user_id = 1;
+  void clear_user_id();
+  const std::string& user_id() const;
+  void set_user_id(const std::string& value);
+  void set_user_id(std::string&& value);
+  void set_user_id(const char* value);
+  void set_user_id(const char* value, size_t size);
+  std::string* mutable_user_id();
+  std::string* release_user_id();
+  void set_allocated_user_id(std::string* user_id);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_user_id();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_user_id(
+      std::string* user_id);
+  private:
+  const std::string& _internal_user_id() const;
+  void _internal_set_user_id(const std::string& value);
+  std::string* _internal_mutable_user_id();
+  public:
+
+  // string created_at = 3;
+  void clear_created_at();
+  const std::string& created_at() const;
+  void set_created_at(const std::string& value);
+  void set_created_at(std::string&& value);
+  void set_created_at(const char* value);
+  void set_created_at(const char* value, size_t size);
+  std::string* mutable_created_at();
+  std::string* release_created_at();
+  void set_allocated_created_at(std::string* created_at);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_created_at();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_created_at(
+      std::string* created_at);
+  private:
+  const std::string& _internal_created_at() const;
+  void _internal_set_created_at(const std::string& value);
+  std::string* _internal_mutable_created_at();
+  public:
+
+  // @@protoc_insertion_point(class_scope:siqi.auth.ListUserRolesResponse.UserRoleInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> role_keys_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr user_id_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr created_at_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_auth_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ListUserRolesResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:siqi.auth.ListUserRolesResponse) */ {
+ public:
+  inline ListUserRolesResponse() : ListUserRolesResponse(nullptr) {};
+  virtual ~ListUserRolesResponse();
+
+  ListUserRolesResponse(const ListUserRolesResponse& from);
+  ListUserRolesResponse(ListUserRolesResponse&& from) noexcept
+    : ListUserRolesResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline ListUserRolesResponse& operator=(const ListUserRolesResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ListUserRolesResponse& operator=(ListUserRolesResponse&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const ListUserRolesResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const ListUserRolesResponse* internal_default_instance() {
+    return reinterpret_cast<const ListUserRolesResponse*>(
+               &_ListUserRolesResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    46;
+
+  friend void swap(ListUserRolesResponse& a, ListUserRolesResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ListUserRolesResponse* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ListUserRolesResponse* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ListUserRolesResponse* New() const final {
+    return CreateMaybeMessage<ListUserRolesResponse>(nullptr);
+  }
+
+  ListUserRolesResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ListUserRolesResponse>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const ListUserRolesResponse& from);
+  void MergeFrom(const ListUserRolesResponse& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ListUserRolesResponse* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "siqi.auth.ListUserRolesResponse";
+  }
+  protected:
+  explicit ListUserRolesResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_auth_2eproto);
+    return ::descriptor_table_auth_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  typedef ListUserRolesResponse_UserRoleInfo UserRoleInfo;
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUsersFieldNumber = 1,
+    kTotalFieldNumber = 2,
+    kPageFieldNumber = 3,
+    kPageSizeFieldNumber = 4,
+  };
+  // repeated .siqi.auth.ListUserRolesResponse.UserRoleInfo users = 1;
+  int users_size() const;
+  private:
+  int _internal_users_size() const;
+  public:
+  void clear_users();
+  ::siqi::auth::ListUserRolesResponse_UserRoleInfo* mutable_users(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::siqi::auth::ListUserRolesResponse_UserRoleInfo >*
+      mutable_users();
+  private:
+  const ::siqi::auth::ListUserRolesResponse_UserRoleInfo& _internal_users(int index) const;
+  ::siqi::auth::ListUserRolesResponse_UserRoleInfo* _internal_add_users();
+  public:
+  const ::siqi::auth::ListUserRolesResponse_UserRoleInfo& users(int index) const;
+  ::siqi::auth::ListUserRolesResponse_UserRoleInfo* add_users();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::siqi::auth::ListUserRolesResponse_UserRoleInfo >&
+      users() const;
+
+  // int64 total = 2;
+  void clear_total();
+  ::PROTOBUF_NAMESPACE_ID::int64 total() const;
+  void set_total(::PROTOBUF_NAMESPACE_ID::int64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int64 _internal_total() const;
+  void _internal_set_total(::PROTOBUF_NAMESPACE_ID::int64 value);
+  public:
+
+  // int32 page = 3;
+  void clear_page();
+  ::PROTOBUF_NAMESPACE_ID::int32 page() const;
+  void set_page(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_page() const;
+  void _internal_set_page(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 page_size = 4;
+  void clear_page_size();
+  ::PROTOBUF_NAMESPACE_ID::int32 page_size() const;
+  void set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_page_size() const;
+  void _internal_set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:siqi.auth.ListUserRolesResponse)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::siqi::auth::ListUserRolesResponse_UserRoleInfo > users_;
+  ::PROTOBUF_NAMESPACE_ID::int64 total_;
+  ::PROTOBUF_NAMESPACE_ID::int32 page_;
+  ::PROTOBUF_NAMESPACE_ID::int32 page_size_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_auth_2eproto;
+};
 // ===================================================================
 
 class AuthService_Stub;
@@ -9634,6 +10240,10 @@ class AdminService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        const ::siqi::auth::GetRoleUsersRequest* request,
                        ::siqi::auth::GetRoleUsersResponse* response,
                        ::google::protobuf::Closure* done);
+  virtual void ListUserRoles(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::siqi::auth::ListUserRolesRequest* request,
+                       ::siqi::auth::ListUserRolesResponse* response,
+                       ::google::protobuf::Closure* done);
   virtual void ListAuditLogs(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::siqi::auth::ListAuditLogsRequest* request,
                        ::siqi::auth::ListAuditLogsResponse* response,
@@ -9746,6 +10356,10 @@ class AdminService_Stub : public AdminService {
   void GetRoleUsers(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::siqi::auth::GetRoleUsersRequest* request,
                        ::siqi::auth::GetRoleUsersResponse* response,
+                       ::google::protobuf::Closure* done);
+  void ListUserRoles(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::siqi::auth::ListUserRolesRequest* request,
+                       ::siqi::auth::ListUserRolesResponse* response,
                        ::google::protobuf::Closure* done);
   void ListAuditLogs(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::siqi::auth::ListAuditLogsRequest* request,
@@ -20142,9 +20756,576 @@ inline void LoginResponse::unsafe_arena_set_allocated_token(
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.LoginResponse.token)
 }
 
+// -------------------------------------------------------------------
+
+// ListUserRolesRequest
+
+// string app_code = 1;
+inline void ListUserRolesRequest::clear_app_code() {
+  app_code_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& ListUserRolesRequest::app_code() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesRequest.app_code)
+  return _internal_app_code();
+}
+inline void ListUserRolesRequest::set_app_code(const std::string& value) {
+  _internal_set_app_code(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesRequest.app_code)
+}
+inline std::string* ListUserRolesRequest::mutable_app_code() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.ListUserRolesRequest.app_code)
+  return _internal_mutable_app_code();
+}
+inline const std::string& ListUserRolesRequest::_internal_app_code() const {
+  return app_code_.Get();
+}
+inline void ListUserRolesRequest::_internal_set_app_code(const std::string& value) {
+  
+  app_code_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void ListUserRolesRequest::set_app_code(std::string&& value) {
+  
+  app_code_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.ListUserRolesRequest.app_code)
+}
+inline void ListUserRolesRequest::set_app_code(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  app_code_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.ListUserRolesRequest.app_code)
+}
+inline void ListUserRolesRequest::set_app_code(const char* value,
+    size_t size) {
+  
+  app_code_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.ListUserRolesRequest.app_code)
+}
+inline std::string* ListUserRolesRequest::_internal_mutable_app_code() {
+  
+  return app_code_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* ListUserRolesRequest::release_app_code() {
+  // @@protoc_insertion_point(field_release:siqi.auth.ListUserRolesRequest.app_code)
+  return app_code_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void ListUserRolesRequest::set_allocated_app_code(std::string* app_code) {
+  if (app_code != nullptr) {
+    
+  } else {
+    
+  }
+  app_code_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), app_code,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.ListUserRolesRequest.app_code)
+}
+inline std::string* ListUserRolesRequest::unsafe_arena_release_app_code() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.ListUserRolesRequest.app_code)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return app_code_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void ListUserRolesRequest::unsafe_arena_set_allocated_app_code(
+    std::string* app_code) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (app_code != nullptr) {
+    
+  } else {
+    
+  }
+  app_code_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      app_code, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.ListUserRolesRequest.app_code)
+}
+
+// int32 page = 2;
+inline void ListUserRolesRequest::clear_page() {
+  page_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ListUserRolesRequest::_internal_page() const {
+  return page_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ListUserRolesRequest::page() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesRequest.page)
+  return _internal_page();
+}
+inline void ListUserRolesRequest::_internal_set_page(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  page_ = value;
+}
+inline void ListUserRolesRequest::set_page(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_page(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesRequest.page)
+}
+
+// int32 page_size = 3;
+inline void ListUserRolesRequest::clear_page_size() {
+  page_size_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ListUserRolesRequest::_internal_page_size() const {
+  return page_size_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ListUserRolesRequest::page_size() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesRequest.page_size)
+  return _internal_page_size();
+}
+inline void ListUserRolesRequest::_internal_set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  page_size_ = value;
+}
+inline void ListUserRolesRequest::set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_page_size(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesRequest.page_size)
+}
+
+// string user_id = 4;
+inline bool ListUserRolesRequest::_internal_has_user_id() const {
+  bool value = (_has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline bool ListUserRolesRequest::has_user_id() const {
+  return _internal_has_user_id();
+}
+inline void ListUserRolesRequest::clear_user_id() {
+  user_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline const std::string& ListUserRolesRequest::user_id() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesRequest.user_id)
+  return _internal_user_id();
+}
+inline void ListUserRolesRequest::set_user_id(const std::string& value) {
+  _internal_set_user_id(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesRequest.user_id)
+}
+inline std::string* ListUserRolesRequest::mutable_user_id() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.ListUserRolesRequest.user_id)
+  return _internal_mutable_user_id();
+}
+inline const std::string& ListUserRolesRequest::_internal_user_id() const {
+  return user_id_.Get();
+}
+inline void ListUserRolesRequest::_internal_set_user_id(const std::string& value) {
+  _has_bits_[0] |= 0x00000001u;
+  user_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void ListUserRolesRequest::set_user_id(std::string&& value) {
+  _has_bits_[0] |= 0x00000001u;
+  user_id_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.ListUserRolesRequest.user_id)
+}
+inline void ListUserRolesRequest::set_user_id(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000001u;
+  user_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.ListUserRolesRequest.user_id)
+}
+inline void ListUserRolesRequest::set_user_id(const char* value,
+    size_t size) {
+  _has_bits_[0] |= 0x00000001u;
+  user_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.ListUserRolesRequest.user_id)
+}
+inline std::string* ListUserRolesRequest::_internal_mutable_user_id() {
+  _has_bits_[0] |= 0x00000001u;
+  return user_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* ListUserRolesRequest::release_user_id() {
+  // @@protoc_insertion_point(field_release:siqi.auth.ListUserRolesRequest.user_id)
+  if (!_internal_has_user_id()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000001u;
+  return user_id_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void ListUserRolesRequest::set_allocated_user_id(std::string* user_id) {
+  if (user_id != nullptr) {
+    _has_bits_[0] |= 0x00000001u;
+  } else {
+    _has_bits_[0] &= ~0x00000001u;
+  }
+  user_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), user_id,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.ListUserRolesRequest.user_id)
+}
+inline std::string* ListUserRolesRequest::unsafe_arena_release_user_id() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.ListUserRolesRequest.user_id)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  _has_bits_[0] &= ~0x00000001u;
+  return user_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void ListUserRolesRequest::unsafe_arena_set_allocated_user_id(
+    std::string* user_id) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (user_id != nullptr) {
+    _has_bits_[0] |= 0x00000001u;
+  } else {
+    _has_bits_[0] &= ~0x00000001u;
+  }
+  user_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      user_id, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.ListUserRolesRequest.user_id)
+}
+
+// -------------------------------------------------------------------
+
+// ListUserRolesResponse_UserRoleInfo
+
+// string user_id = 1;
+inline void ListUserRolesResponse_UserRoleInfo::clear_user_id() {
+  user_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& ListUserRolesResponse_UserRoleInfo::user_id() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+  return _internal_user_id();
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_user_id(const std::string& value) {
+  _internal_set_user_id(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::mutable_user_id() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+  return _internal_mutable_user_id();
+}
+inline const std::string& ListUserRolesResponse_UserRoleInfo::_internal_user_id() const {
+  return user_id_.Get();
+}
+inline void ListUserRolesResponse_UserRoleInfo::_internal_set_user_id(const std::string& value) {
+  
+  user_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_user_id(std::string&& value) {
+  
+  user_id_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_user_id(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  user_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_user_id(const char* value,
+    size_t size) {
+  
+  user_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::_internal_mutable_user_id() {
+  
+  return user_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::release_user_id() {
+  // @@protoc_insertion_point(field_release:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+  return user_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_allocated_user_id(std::string* user_id) {
+  if (user_id != nullptr) {
+    
+  } else {
+    
+  }
+  user_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), user_id,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::unsafe_arena_release_user_id() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return user_id_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void ListUserRolesResponse_UserRoleInfo::unsafe_arena_set_allocated_user_id(
+    std::string* user_id) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (user_id != nullptr) {
+    
+  } else {
+    
+  }
+  user_id_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      user_id, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.ListUserRolesResponse.UserRoleInfo.user_id)
+}
+
+// repeated string role_keys = 2;
+inline int ListUserRolesResponse_UserRoleInfo::_internal_role_keys_size() const {
+  return role_keys_.size();
+}
+inline int ListUserRolesResponse_UserRoleInfo::role_keys_size() const {
+  return _internal_role_keys_size();
+}
+inline void ListUserRolesResponse_UserRoleInfo::clear_role_keys() {
+  role_keys_.Clear();
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::add_role_keys() {
+  // @@protoc_insertion_point(field_add_mutable:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+  return _internal_add_role_keys();
+}
+inline const std::string& ListUserRolesResponse_UserRoleInfo::_internal_role_keys(int index) const {
+  return role_keys_.Get(index);
+}
+inline const std::string& ListUserRolesResponse_UserRoleInfo::role_keys(int index) const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+  return _internal_role_keys(index);
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::mutable_role_keys(int index) {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+  return role_keys_.Mutable(index);
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_role_keys(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+  role_keys_.Mutable(index)->assign(value);
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_role_keys(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+  role_keys_.Mutable(index)->assign(std::move(value));
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_role_keys(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  role_keys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_role_keys(int index, const char* value, size_t size) {
+  role_keys_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::_internal_add_role_keys() {
+  return role_keys_.Add();
+}
+inline void ListUserRolesResponse_UserRoleInfo::add_role_keys(const std::string& value) {
+  role_keys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+}
+inline void ListUserRolesResponse_UserRoleInfo::add_role_keys(std::string&& value) {
+  role_keys_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+}
+inline void ListUserRolesResponse_UserRoleInfo::add_role_keys(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  role_keys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+}
+inline void ListUserRolesResponse_UserRoleInfo::add_role_keys(const char* value, size_t size) {
+  role_keys_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+ListUserRolesResponse_UserRoleInfo::role_keys() const {
+  // @@protoc_insertion_point(field_list:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+  return role_keys_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+ListUserRolesResponse_UserRoleInfo::mutable_role_keys() {
+  // @@protoc_insertion_point(field_mutable_list:siqi.auth.ListUserRolesResponse.UserRoleInfo.role_keys)
+  return &role_keys_;
+}
+
+// string created_at = 3;
+inline void ListUserRolesResponse_UserRoleInfo::clear_created_at() {
+  created_at_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& ListUserRolesResponse_UserRoleInfo::created_at() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+  return _internal_created_at();
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_created_at(const std::string& value) {
+  _internal_set_created_at(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::mutable_created_at() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+  return _internal_mutable_created_at();
+}
+inline const std::string& ListUserRolesResponse_UserRoleInfo::_internal_created_at() const {
+  return created_at_.Get();
+}
+inline void ListUserRolesResponse_UserRoleInfo::_internal_set_created_at(const std::string& value) {
+  
+  created_at_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_created_at(std::string&& value) {
+  
+  created_at_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_created_at(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  created_at_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_created_at(const char* value,
+    size_t size) {
+  
+  created_at_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::_internal_mutable_created_at() {
+  
+  return created_at_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::release_created_at() {
+  // @@protoc_insertion_point(field_release:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+  return created_at_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_allocated_created_at(std::string* created_at) {
+  if (created_at != nullptr) {
+    
+  } else {
+    
+  }
+  created_at_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), created_at,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::unsafe_arena_release_created_at() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return created_at_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void ListUserRolesResponse_UserRoleInfo::unsafe_arena_set_allocated_created_at(
+    std::string* created_at) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (created_at != nullptr) {
+    
+  } else {
+    
+  }
+  created_at_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      created_at, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+}
+
+// -------------------------------------------------------------------
+
+// ListUserRolesResponse
+
+// repeated .siqi.auth.ListUserRolesResponse.UserRoleInfo users = 1;
+inline int ListUserRolesResponse::_internal_users_size() const {
+  return users_.size();
+}
+inline int ListUserRolesResponse::users_size() const {
+  return _internal_users_size();
+}
+inline void ListUserRolesResponse::clear_users() {
+  users_.Clear();
+}
+inline ::siqi::auth::ListUserRolesResponse_UserRoleInfo* ListUserRolesResponse::mutable_users(int index) {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.ListUserRolesResponse.users)
+  return users_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::siqi::auth::ListUserRolesResponse_UserRoleInfo >*
+ListUserRolesResponse::mutable_users() {
+  // @@protoc_insertion_point(field_mutable_list:siqi.auth.ListUserRolesResponse.users)
+  return &users_;
+}
+inline const ::siqi::auth::ListUserRolesResponse_UserRoleInfo& ListUserRolesResponse::_internal_users(int index) const {
+  return users_.Get(index);
+}
+inline const ::siqi::auth::ListUserRolesResponse_UserRoleInfo& ListUserRolesResponse::users(int index) const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesResponse.users)
+  return _internal_users(index);
+}
+inline ::siqi::auth::ListUserRolesResponse_UserRoleInfo* ListUserRolesResponse::_internal_add_users() {
+  return users_.Add();
+}
+inline ::siqi::auth::ListUserRolesResponse_UserRoleInfo* ListUserRolesResponse::add_users() {
+  // @@protoc_insertion_point(field_add:siqi.auth.ListUserRolesResponse.users)
+  return _internal_add_users();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::siqi::auth::ListUserRolesResponse_UserRoleInfo >&
+ListUserRolesResponse::users() const {
+  // @@protoc_insertion_point(field_list:siqi.auth.ListUserRolesResponse.users)
+  return users_;
+}
+
+// int64 total = 2;
+inline void ListUserRolesResponse::clear_total() {
+  total_ = PROTOBUF_LONGLONG(0);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 ListUserRolesResponse::_internal_total() const {
+  return total_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 ListUserRolesResponse::total() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesResponse.total)
+  return _internal_total();
+}
+inline void ListUserRolesResponse::_internal_set_total(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  
+  total_ = value;
+}
+inline void ListUserRolesResponse::set_total(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  _internal_set_total(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.total)
+}
+
+// int32 page = 3;
+inline void ListUserRolesResponse::clear_page() {
+  page_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ListUserRolesResponse::_internal_page() const {
+  return page_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ListUserRolesResponse::page() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesResponse.page)
+  return _internal_page();
+}
+inline void ListUserRolesResponse::_internal_set_page(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  page_ = value;
+}
+inline void ListUserRolesResponse::set_page(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_page(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.page)
+}
+
+// int32 page_size = 4;
+inline void ListUserRolesResponse::clear_page_size() {
+  page_size_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ListUserRolesResponse::_internal_page_size() const {
+  return page_size_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ListUserRolesResponse::page_size() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesResponse.page_size)
+  return _internal_page_size();
+}
+inline void ListUserRolesResponse::_internal_set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  page_size_ = value;
+}
+inline void ListUserRolesResponse::set_page_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_page_size(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.page_size)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

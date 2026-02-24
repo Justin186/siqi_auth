@@ -65,6 +65,11 @@ public:
                       siqi::auth::GetRoleUsersResponse* response,
                       google::protobuf::Closure* done) override;
 
+    void ListUserRoles(google::protobuf::RpcController* cntl,
+                       const siqi::auth::ListUserRolesRequest* request,
+                       siqi::auth::ListUserRolesResponse* response,
+                       google::protobuf::Closure* done) override;
+
     // ------------------------- 角色-权限绑定 -------------------------
     void AddPermissionToRole(google::protobuf::RpcController* cntl,
                              const siqi::auth::AddPermissionToRoleRequest* request,

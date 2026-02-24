@@ -718,6 +718,45 @@ void AdminServiceImpl::GetRoleUsers(google::protobuf::RpcController* cntl_base,
     response->set_page_size(page_size);
 }
 
+void AdminServiceImpl::ListUserRoles(google::protobuf::RpcController* cntl_base,
+                                     const siqi::auth::ListUserRolesRequest* request,
+                                     siqi::auth::ListUserRolesResponse* response,
+                                     google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        cntl->http_response().set_status_code(brpc::HTTP_STATUS_UNAUTHORIZED);
+        return;
+    }
+    
+    if (request->app_code().empty()) {
+        cntl->http_response().set_status_code(brpc::HTTP_STATUS_BAD_REQUEST);
+        return;
+    }
+    
+    int32_t page = request->page() > 0 ? request->page() : 1;
+    int32_t page_size = request->page_size() > 0 ? request->page_size() : 20;
+    const std::string* user_id = request->has_user_id() ? &request->user_id() : nullptr;
+    
+    int64_t total = 0;
+    auto users = dao_.listUserRoles(request->app_code(), page, page_size, user_id, total);
+    
+    for (const auto& u : users) {
+        auto* user_pb = response->add_users();
+        user_pb->set_user_id(u.user_id);
+        user_pb->set_created_at(u.created_at);
+        for (const auto& r : u.role_keys) {
+            user_pb->add_role_keys(r);
+        }
+    }
+    
+    response->set_total(total);
+    response->set_page(page);
+    response->set_page_size(page_size);
+}
+
 void AdminServiceImpl::Login(google::protobuf::RpcController* cntl_base,
                              const siqi::auth::LoginRequest* request,
                              siqi::auth::LoginResponse* response,
