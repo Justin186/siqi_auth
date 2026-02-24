@@ -23,6 +23,32 @@ public:
                      const std::string& database,
                      int session_ttl);
                      
+    // ------------------------- 应用管理 -------------------------
+    void CreateApp(google::protobuf::RpcController* cntl,
+                   const siqi::auth::CreateAppRequest* request,
+                   siqi::auth::AdminResponse* response,
+                   google::protobuf::Closure* done) override;
+
+    void UpdateApp(google::protobuf::RpcController* cntl,
+                   const siqi::auth::UpdateAppRequest* request,
+                   siqi::auth::AdminResponse* response,
+                   google::protobuf::Closure* done) override;
+
+    void DeleteApp(google::protobuf::RpcController* cntl,
+                   const siqi::auth::DeleteAppRequest* request,
+                   siqi::auth::AdminResponse* response,
+                   google::protobuf::Closure* done) override;
+
+    void GetApp(google::protobuf::RpcController* cntl,
+                const siqi::auth::GetAppRequest* request,
+                siqi::auth::GetAppResponse* response,
+                google::protobuf::Closure* done) override;
+
+    void ListApps(google::protobuf::RpcController* cntl,
+                  const siqi::auth::ListAppsRequest* request,
+                  siqi::auth::ListAppsResponse* response,
+                  google::protobuf::Closure* done) override;
+
     // ------------------------- 用户-角色授权 -------------------------
     void GrantRoleToUser(google::protobuf::RpcController* cntl,
                          const siqi::auth::GrantRoleToUserRequest* request,

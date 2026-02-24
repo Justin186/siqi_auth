@@ -38,6 +38,201 @@ bool AdminServiceImpl::ValidateToken(brpc::Controller* cntl, SessionInfo& sessio
     return true;
 }
 
+void AdminServiceImpl::CreateApp(google::protobuf::RpcController* cntl_base,
+                                 const siqi::auth::CreateAppRequest* request,
+                                 siqi::auth::AdminResponse* response,
+                                 google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
+    if (request->app_code().empty() || request->app_name().empty()) {
+        response->set_success(false);
+        response->set_code(EINVAL);
+        response->set_message("缺少必要参数");
+        return;
+    }
+    
+    std::string app_secret;
+    if (dao_.createApp(request->app_name(), request->app_code(), request->description(), app_secret)) {
+        response->set_success(true);
+        response->set_code(0);
+        response->set_message("创建应用成功");
+        response->set_app_secret(app_secret);
+        
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
+                            "CREATE_APP", "APP", request->app_code(), request->app_name());
+    } else {
+        response->set_success(false);
+        response->set_code(1001);
+        response->set_message("创建应用失败: " + dao_.getLastError());
+    }
+}
+
+void AdminServiceImpl::UpdateApp(google::protobuf::RpcController* cntl_base,
+                                 const siqi::auth::UpdateAppRequest* request,
+                                 siqi::auth::AdminResponse* response,
+                                 google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
+    if (request->app_code().empty()) {
+        response->set_success(false);
+        response->set_code(EINVAL);
+        response->set_message("缺少必要参数");
+        return;
+    }
+    
+    const std::string* app_name = request->has_app_name() ? &request->app_name() : nullptr;
+    const std::string* description = request->has_description() ? &request->description() : nullptr;
+    
+    int32_t status_val = 0;
+    const int32_t* status = nullptr;
+    if (request->has_status()) {
+        status_val = request->status();
+        status = &status_val;
+    }
+    
+    if (dao_.updateApp(request->app_code(), app_name, description, status)) {
+        response->set_success(true);
+        response->set_code(0);
+        response->set_message("更新应用成功");
+        
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
+                            "UPDATE_APP", "APP", request->app_code());
+    } else {
+        response->set_success(false);
+        response->set_code(1001);
+        response->set_message("更新应用失败: " + dao_.getLastError());
+    }
+}
+
+void AdminServiceImpl::DeleteApp(google::protobuf::RpcController* cntl_base,
+                                 const siqi::auth::DeleteAppRequest* request,
+                                 siqi::auth::AdminResponse* response,
+                                 google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        response->set_success(false);
+        response->set_message("Unauthorized: Login required");
+        return;
+    }
+    
+    if (request->app_code().empty()) {
+        response->set_success(false);
+        response->set_code(EINVAL);
+        response->set_message("缺少必要参数");
+        return;
+    }
+    
+    if (dao_.deleteApp(request->app_code())) {
+        response->set_success(true);
+        response->set_code(0);
+        response->set_message("删除应用成功");
+        
+        dao_.createAuditLog(session.user_id, session.real_name, request->app_code(), 
+                            "DELETE_APP", "APP", request->app_code());
+    } else {
+        response->set_success(false);
+        response->set_code(1001);
+        response->set_message("删除应用失败: " + dao_.getLastError());
+    }
+}
+
+void AdminServiceImpl::GetApp(google::protobuf::RpcController* cntl_base,
+                              const siqi::auth::GetAppRequest* request,
+                              siqi::auth::GetAppResponse* response,
+                              google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        cntl->SetFailed(brpc::EAUTH, "Unauthorized: Login required");
+        return;
+    }
+    
+    if (request->app_code().empty()) {
+        cntl->SetFailed(EINVAL, "缺少必要参数");
+        return;
+    }
+    
+    PermissionDAO::AppInfo app;
+    if (dao_.getApp(request->app_code(), app)) {
+        response->set_id(app.id);
+        response->set_app_name(app.app_name);
+        response->set_app_code(app.app_code);
+        response->set_app_secret(app.app_secret);
+        response->set_description(app.description);
+        response->set_status(app.status);
+        response->set_created_at(app.created_at);
+        response->set_updated_at(app.updated_at);
+    } else {
+        cntl->SetFailed(ENOENT, "应用不存在");
+    }
+}
+
+void AdminServiceImpl::ListApps(google::protobuf::RpcController* cntl_base,
+                                const siqi::auth::ListAppsRequest* request,
+                                siqi::auth::ListAppsResponse* response,
+                                google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        cntl->SetFailed(brpc::EAUTH, "Unauthorized: Login required");
+        return;
+    }
+    
+    int32_t page = request->page() > 0 ? request->page() : 1;
+    int32_t page_size = request->page_size() > 0 ? request->page_size() : 20;
+    
+    const std::string* app_name = request->has_app_name() ? &request->app_name() : nullptr;
+    
+    int32_t status_val = 0;
+    const int32_t* status = nullptr;
+    if (request->has_status()) {
+        status_val = request->status();
+        status = &status_val;
+    }
+    
+    int64_t total = 0;
+    auto apps = dao_.listApps(page, page_size, app_name, status, total);
+    
+    for (const auto& app : apps) {
+        auto* app_resp = response->add_apps();
+        app_resp->set_id(app.id);
+        app_resp->set_app_name(app.app_name);
+        app_resp->set_app_code(app.app_code);
+        app_resp->set_app_secret(app.app_secret);
+        app_resp->set_description(app.description);
+        app_resp->set_status(app.status);
+        app_resp->set_created_at(app.created_at);
+        app_resp->set_updated_at(app.updated_at);
+    }
+    
+    response->set_total(total);
+    response->set_page(page);
+    response->set_page_size(page_size);
+}
+
 void AdminServiceImpl::GrantRoleToUser(google::protobuf::RpcController* cntl_base,
                                        const siqi::auth::GrantRoleToUserRequest* request,
                                        siqi::auth::AdminResponse* response,

@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <memory>
 #include <mutex>
 #include <queue>
 #include <condition_variable>
@@ -66,6 +65,36 @@ public:
                                           const std::string& user_id);
     
     // 管理接口（根据需要添加）
+    struct AppInfo {
+        int64_t id;
+        std::string app_name;
+        std::string app_code;
+        std::string app_secret;
+        std::string description;
+        int32_t status;
+        std::string created_at;
+        std::string updated_at;
+    };
+
+    bool createApp(const std::string& app_name,
+                   const std::string& app_code,
+                   const std::string& description,
+                   std::string& out_app_secret);
+
+    bool updateApp(const std::string& app_code,
+                   const std::string* app_name,
+                   const std::string* description,
+                   const int32_t* status);
+
+    bool deleteApp(const std::string& app_code);
+
+    bool getApp(const std::string& app_code, AppInfo& out_app);
+
+    std::vector<AppInfo> listApps(int32_t page, int32_t page_size,
+                                  const std::string* app_name,
+                                  const int32_t* status,
+                                  int64_t& out_total);
+
     bool createRole(const std::string& app_code,
                     const std::string& role_name,
                     const std::string& role_key,

@@ -3,7 +3,6 @@
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
 #include <iostream>
-#include <thread>
 #include <chrono>
 
 PermissionDAO::PermissionDAO(const std::string& host,
@@ -237,6 +236,199 @@ PermissionDAO::getUserPermissions(const std::string& app_code,
         std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "获取用户权限失败: " + std::string(e.what());
     }
     return perms;
+}
+
+bool PermissionDAO::createApp(const std::string& app_name,
+                              const std::string& app_code,
+                              const std::string& description,
+                              std::string& out_app_secret) {
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
+    try {
+        // Generate a simple random secret
+        std::string secret = "secret_" + app_code + "_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
+        out_app_secret = secret;
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement(
+                "INSERT INTO sys_apps (app_name, app_code, app_secret, description, status) "
+                "VALUES (?, ?, ?, ?, 1)"
+            )
+        );
+        pstmt->setString(1, app_name);
+        pstmt->setString(2, app_code);
+        pstmt->setString(3, secret);
+        pstmt->setString(4, description);
+        
+        pstmt->executeUpdate();
+        return true;
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "创建应用失败: " + std::string(e.what());
+        return false;
+    }
+}
+
+bool PermissionDAO::updateApp(const std::string& app_code,
+                              const std::string* app_name,
+                              const std::string* description,
+                              const int32_t* status) {
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
+    try {
+        std::string query = "UPDATE sys_apps SET ";
+        std::vector<std::string> params;
+        std::vector<int> param_types; // 0: string, 1: int
+        std::vector<int32_t> int_params;
+
+        if (app_name) {
+            query += "app_name = ?, ";
+            params.push_back(*app_name);
+            param_types.push_back(0);
+        }
+        if (description) {
+            query += "description = ?, ";
+            params.push_back(*description);
+            param_types.push_back(0);
+        }
+        if (status) {
+            query += "status = ?, ";
+            int_params.push_back(*status);
+            param_types.push_back(1);
+        }
+
+        if (params.empty() && int_params.empty()) return true; // Nothing to update
+
+        query.pop_back(); query.pop_back(); // Remove last ", "
+        query += " WHERE app_code = ?";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        
+        int param_idx = 1;
+        int str_idx = 0;
+        int int_idx = 0;
+        for (int type : param_types) {
+            if (type == 0) {
+                pstmt->setString(param_idx++, params[str_idx++]);
+            } else {
+                pstmt->setInt(param_idx++, int_params[int_idx++]);
+            }
+        }
+        pstmt->setString(param_idx, app_code);
+
+        int rows = pstmt->executeUpdate();
+        return rows > 0;
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "更新应用失败: " + std::string(e.what());
+        return false;
+    }
+}
+
+bool PermissionDAO::deleteApp(const std::string& app_code) {
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
+    try {
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement("UPDATE sys_apps SET status = 0 WHERE app_code = ?")
+        );
+        pstmt->setString(1, app_code);
+        int rows = pstmt->executeUpdate();
+        return rows > 0;
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "删除应用失败: " + std::string(e.what());
+        return false;
+    }
+}
+
+bool PermissionDAO::getApp(const std::string& app_code, AppInfo& out_app) {
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
+    try {
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement(
+                "SELECT id, app_name, app_code, app_secret, description, status, created_at, updated_at "
+                "FROM sys_apps WHERE app_code = ?"
+            )
+        );
+        pstmt->setString(1, app_code);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        if (res->next()) {
+            out_app.id = res->getInt64("id");
+            out_app.app_name = res->getString("app_name");
+            out_app.app_code = res->getString("app_code");
+            out_app.app_secret = res->getString("app_secret");
+            out_app.description = res->getString("description");
+            out_app.status = res->getInt("status");
+            out_app.created_at = res->getString("created_at");
+            out_app.updated_at = res->getString("updated_at");
+            return true;
+        }
+        return false;
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "获取应用失败: " + std::string(e.what());
+        return false;
+    }
+}
+
+std::vector<PermissionDAO::AppInfo> PermissionDAO::listApps(int32_t page, int32_t page_size,
+                                                            const std::string* app_name,
+                                                            const int32_t* status,
+                                                            int64_t& out_total) {
+    std::vector<AppInfo> apps;
+    out_total = 0;
+    ConnectionGuard conn(this); if (!conn.isValid()) return apps;
+
+    try {
+        std::string count_query = "SELECT COUNT(*) as cnt FROM sys_apps WHERE 1=1";
+        std::string data_query = "SELECT id, app_name, app_code, app_secret, description, status, created_at, updated_at FROM sys_apps WHERE 1=1";
+        
+        if (app_name) {
+            count_query += " AND app_name LIKE ?";
+            data_query += " AND app_name LIKE ?";
+        }
+        if (status) {
+            count_query += " AND status = ?";
+            data_query += " AND status = ?";
+        }
+        
+        data_query += " ORDER BY id DESC LIMIT ? OFFSET ?";
+
+        // Count
+        {
+            std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(count_query));
+            int param_idx = 1;
+            if (app_name) pstmt->setString(param_idx++, "%" + *app_name + "%");
+            if (status) pstmt->setInt(param_idx++, *status);
+            
+            std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+            if (res->next()) {
+                out_total = res->getInt64("cnt");
+            }
+        }
+
+        // Data
+        {
+            std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(data_query));
+            int param_idx = 1;
+            if (app_name) pstmt->setString(param_idx++, "%" + *app_name + "%");
+            if (status) pstmt->setInt(param_idx++, *status);
+            
+            pstmt->setInt(param_idx++, page_size);
+            pstmt->setInt(param_idx++, (page - 1) * page_size);
+            
+            std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+            while (res->next()) {
+                AppInfo app;
+                app.id = res->getInt64("id");
+                app.app_name = res->getString("app_name");
+                app.app_code = res->getString("app_code");
+                app.app_secret = res->getString("app_secret");
+                app.description = res->getString("description");
+                app.status = res->getInt("status");
+                app.created_at = res->getString("created_at");
+                app.updated_at = res->getString("updated_at");
+                apps.push_back(app);
+            }
+        }
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "获取应用列表失败: " + std::string(e.what());
+    }
+    return apps;
 }
 
 int64_t PermissionDAO::getAppId(const std::string& app_code) {
