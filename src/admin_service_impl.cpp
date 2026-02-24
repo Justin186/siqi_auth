@@ -657,6 +657,67 @@ void AdminServiceImpl::UpdatePermission(google::protobuf::RpcController* cntl_ba
     }
 }
 
+void AdminServiceImpl::GetRolePermissions(google::protobuf::RpcController* cntl_base,
+                                          const siqi::auth::GetRolePermissionsRequest* request,
+                                          siqi::auth::GetRolePermissionsResponse* response,
+                                          google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        // Note: GetRolePermissionsResponse doesn't have success/message fields in proto
+        // We can set HTTP status code to 401
+        cntl->http_response().set_status_code(brpc::HTTP_STATUS_UNAUTHORIZED);
+        return;
+    }
+    
+    if (request->app_code().empty() || request->role_key().empty()) {
+        cntl->http_response().set_status_code(brpc::HTTP_STATUS_BAD_REQUEST);
+        return;
+    }
+    
+    auto perms = dao_.getRolePermissions(request->app_code(), request->role_key());
+    for (const auto& perm : perms) {
+        response->add_perm_keys(perm);
+    }
+}
+
+void AdminServiceImpl::GetRoleUsers(google::protobuf::RpcController* cntl_base,
+                                    const siqi::auth::GetRoleUsersRequest* request,
+                                    siqi::auth::GetRoleUsersResponse* response,
+                                    google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        cntl->http_response().set_status_code(brpc::HTTP_STATUS_UNAUTHORIZED);
+        return;
+    }
+    
+    if (request->app_code().empty() || request->role_key().empty()) {
+        cntl->http_response().set_status_code(brpc::HTTP_STATUS_BAD_REQUEST);
+        return;
+    }
+    
+    int32_t page = request->page() > 0 ? request->page() : 1;
+    int32_t page_size = request->page_size() > 0 ? request->page_size() : 10;
+    
+    int64_t total = 0;
+    auto users = dao_.getRoleUsers(request->app_code(), request->role_key(), page, page_size, total);
+    
+    for (const auto& u : users) {
+        auto* user = response->add_users();
+        user->set_user_id(u.user_id);
+        user->set_created_at(u.created_at);
+    }
+    
+    response->set_total(total);
+    response->set_page(page);
+    response->set_page_size(page_size);
+}
+
 void AdminServiceImpl::Login(google::protobuf::RpcController* cntl_base,
                              const siqi::auth::LoginRequest* request,
                              siqi::auth::LoginResponse* response,
@@ -716,4 +777,49 @@ void AdminServiceImpl::Login(google::protobuf::RpcController* cntl_base,
     response->set_token(token);
     
     LOG(INFO) << "User Logged In: " << username << " (ID: " << user_info.id << ") Token: " << token;
+}
+
+void AdminServiceImpl::ListAuditLogs(google::protobuf::RpcController* cntl_base,
+                                     const siqi::auth::ListAuditLogsRequest* request,
+                                     siqi::auth::ListAuditLogsResponse* response,
+                                     google::protobuf::Closure* done) {
+    brpc::ClosureGuard done_guard(done);
+    brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
+    
+    SessionInfo session;
+    if (!ValidateToken(cntl, session)) {
+        cntl->http_response().set_status_code(brpc::HTTP_STATUS_UNAUTHORIZED);
+        return;
+    }
+    
+    int32_t page = request->page() > 0 ? request->page() : 1;
+    int32_t page_size = request->page_size() > 0 ? request->page_size() : 20;
+    
+    const std::string* app_code = request->has_app_code() ? &request->app_code() : nullptr;
+    const std::string* action = request->has_action() ? &request->action() : nullptr;
+    const std::string* operator_id = request->has_operator_id() ? &request->operator_id() : nullptr;
+    const std::string* target_id = request->has_target_id() ? &request->target_id() : nullptr;
+    
+    int64_t total = 0;
+    auto logs = dao_.listAuditLogs(page, page_size, app_code, action, operator_id, target_id, total);
+    
+    for (const auto& l : logs) {
+        auto* log = response->add_logs();
+        log->set_id(l.id);
+        log->set_operator_id(l.operator_id);
+        log->set_operator_name(l.operator_name);
+        log->set_app_code(l.app_code);
+        log->set_action(l.action);
+        log->set_target_type(l.target_type);
+        log->set_target_id(l.target_id);
+        log->set_target_name(l.target_name);
+        log->set_object_type(l.object_type);
+        log->set_object_id(l.object_id);
+        log->set_object_name(l.object_name);
+        log->set_created_at(l.created_at);
+    }
+    
+    response->set_total(total);
+    response->set_page(page);
+    response->set_page_size(page_size);
 }

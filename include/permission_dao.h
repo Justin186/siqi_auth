@@ -154,6 +154,18 @@ public:
                                   const std::string& role_key,
                                   const std::string& perm_key);
 
+    std::vector<std::string> getRolePermissions(const std::string& app_code,
+                                                const std::string& role_key);
+
+    struct UserInfo {
+        std::string user_id;
+        std::string created_at;
+    };
+    std::vector<UserInfo> getRoleUsers(const std::string& app_code,
+                                       const std::string& role_key,
+                                       int32_t page, int32_t page_size,
+                                       int64_t& out_total);
+
     // 审计日志
     bool createAuditLog(int64_t operator_id, 
                         const std::string& operator_name,
@@ -165,6 +177,28 @@ public:
                         const std::string& object_type = "",
                         const std::string& object_id = "",
                         const std::string& object_name = "");
+                        
+    struct AuditLogInfo {
+        int64_t id;
+        int64_t operator_id;
+        std::string operator_name;
+        std::string app_code;
+        std::string action;
+        std::string target_type;
+        std::string target_id;
+        std::string target_name;
+        std::string object_type;
+        std::string object_id;
+        std::string object_name;
+        std::string created_at;
+    };
+    
+    std::vector<AuditLogInfo> listAuditLogs(int32_t page, int32_t page_size,
+                                            const std::string* app_code,
+                                            const std::string* action,
+                                            const std::string* operator_id,
+                                            const std::string* target_id,
+                                            int64_t& out_total);
     
     struct ConsoleUser {
         int64_t id = -1;

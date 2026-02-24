@@ -60,6 +60,11 @@ public:
                             siqi::auth::AdminResponse* response,
                             google::protobuf::Closure* done) override;
                             
+    void GetRoleUsers(google::protobuf::RpcController* cntl,
+                      const siqi::auth::GetRoleUsersRequest* request,
+                      siqi::auth::GetRoleUsersResponse* response,
+                      google::protobuf::Closure* done) override;
+
     // ------------------------- 角色-权限绑定 -------------------------
     void AddPermissionToRole(google::protobuf::RpcController* cntl,
                              const siqi::auth::AddPermissionToRoleRequest* request,
@@ -70,6 +75,11 @@ public:
                                   const siqi::auth::RemovePermissionFromRoleRequest* request,
                                   siqi::auth::AdminResponse* response,
                                   google::protobuf::Closure* done) override;
+                                  
+    void GetRolePermissions(google::protobuf::RpcController* cntl,
+                            const siqi::auth::GetRolePermissionsRequest* request,
+                            siqi::auth::GetRolePermissionsResponse* response,
+                            google::protobuf::Closure* done) override;
                                   
     // ------------------------- 创建管理 -------------------------
     void CreateRole(google::protobuf::RpcController* cntl,
@@ -117,6 +127,12 @@ public:
                const siqi::auth::LoginRequest* request,
                siqi::auth::LoginResponse* response,
                google::protobuf::Closure* done) override;    
+
+    // ------------------------- 审计日志 -------------------------
+    void ListAuditLogs(google::protobuf::RpcController* cntl,
+                       const siqi::auth::ListAuditLogsRequest* request,
+                       siqi::auth::ListAuditLogsResponse* response,
+                       google::protobuf::Closure* done) override;
 
     struct SessionInfo {
         int64_t user_id;

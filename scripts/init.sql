@@ -350,8 +350,8 @@ INSERT INTO sys_user_roles (app_id, app_user_id, role_id) VALUES
 -- ----------------------------
 INSERT INTO sys_audit_logs (operator_id, operator_name, app_code, action, target_type, target_id, target_name, object_type, object_id, object_name) VALUES
 (1, '系统管理员', 'qq_bot', 'USER_GRANT_ROLE', 'USER', '100001', '测试用户1', 'ROLE', 'admin', '超级管理员'),
-(1, '系统管理员', 'admin_panel', 'PERM_ADD', 'ROLE', 'manager', '部门经理', 'PERM', 'user:create', '用户创建'),
-(1, '系统管理员', 'course_bot', 'ROLE_ASSIGN', 'USER', '300001', '张老师', 'ROLE', 'teacher', '教师');
+(1, '系统管理员', 'admin_panel', 'CREATE_PERM', 'ROLE', 'manager', '部门经理', 'PERM', 'user:create', '用户创建'),
+(1, '系统管理员', 'course_bot', 'USER_GRANT_ROLE', 'USER', '300001', '张老师', 'ROLE', 'teacher', '教师');
 
 SET FOREIGN_KEY_CHECKS = 1;
 

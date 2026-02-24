@@ -904,3 +904,160 @@ std::string PermissionDAO::getConsoleUserHash(const std::string& username) {
     auto user = getConsoleUser(username);
     return user.password_hash;
 }
+
+std::vector<std::string> PermissionDAO::getRolePermissions(const std::string& app_code,
+                                                           const std::string& role_key) {
+    std::vector<std::string> perms;
+    ConnectionGuard conn(this); if (!conn.isValid()) return perms;
+    try {
+        int64_t app_id = getAppId(app_code);
+        if (app_id == -1) return perms;
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement(
+                "SELECT p.perm_key FROM sys_role_permissions rp "
+                "JOIN sys_roles r ON rp.role_id = r.id "
+                "JOIN sys_permissions p ON rp.perm_id = p.id "
+                "WHERE r.app_id = ? AND r.role_key = ?"
+            )
+        );
+        pstmt->setInt64(1, app_id);
+        pstmt->setString(2, role_key);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        
+        while (res->next()) {
+            perms.push_back(res->getString("perm_key"));
+        }
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询角色权限失败: " + std::string(e.what());
+    }
+    return perms;
+}
+
+std::vector<PermissionDAO::UserInfo> PermissionDAO::getRoleUsers(const std::string& app_code,
+                                                                 const std::string& role_key,
+                                                                 int32_t page, int32_t page_size,
+                                                                 int64_t& out_total) {
+    std::vector<UserInfo> users;
+    out_total = 0;
+    ConnectionGuard conn(this); if (!conn.isValid()) return users;
+    try {
+        int64_t app_id = getAppId(app_code);
+        if (app_id == -1) return users;
+
+        // Get total count
+        std::unique_ptr<sql::PreparedStatement> count_stmt(
+            conn->prepareStatement(
+                "SELECT COUNT(*) as total FROM sys_user_roles ur "
+                "JOIN sys_roles r ON ur.role_id = r.id "
+                "WHERE r.app_id = ? AND r.role_key = ?"
+            )
+        );
+        count_stmt->setInt64(1, app_id);
+        count_stmt->setString(2, role_key);
+        std::unique_ptr<sql::ResultSet> count_res(count_stmt->executeQuery());
+        if (count_res->next()) {
+            out_total = count_res->getInt64("total");
+        }
+
+        // Get paginated data
+        int32_t offset = (page - 1) * page_size;
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement(
+                "SELECT ur.app_user_id, ur.created_at FROM sys_user_roles ur "
+                "JOIN sys_roles r ON ur.role_id = r.id "
+                "WHERE r.app_id = ? AND r.role_key = ? "
+                "ORDER BY ur.created_at DESC LIMIT ? OFFSET ?"
+            )
+        );
+        pstmt->setInt64(1, app_id);
+        pstmt->setString(2, role_key);
+        pstmt->setInt(3, page_size);
+        pstmt->setInt(4, offset);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        
+        while (res->next()) {
+            UserInfo user;
+            user.user_id = res->getString("app_user_id");
+            user.created_at = res->getString("created_at");
+            users.push_back(user);
+        }
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询角色用户失败: " + std::string(e.what());
+    }
+    return users;
+}
+
+std::vector<PermissionDAO::AuditLogInfo> PermissionDAO::listAuditLogs(int32_t page, int32_t page_size,
+                                                                      const std::string* app_code,
+                                                                      const std::string* action,
+                                                                      const std::string* operator_id,
+                                                                      const std::string* target_id,
+                                                                      int64_t& out_total) {
+    std::vector<AuditLogInfo> logs;
+    out_total = 0;
+    ConnectionGuard conn(this); if (!conn.isValid()) return logs;
+    try {
+        std::string base_sql = "FROM sys_audit_logs WHERE 1=1";
+        if (app_code && !app_code->empty()) base_sql += " AND app_code = ?";
+        if (action && !action->empty()) base_sql += " AND action = ?";
+        if (operator_id && !operator_id->empty()) base_sql += " AND operator_id = ?";
+        if (target_id && !target_id->empty()) base_sql += " AND target_id = ?";
+
+        // Get total count
+        std::unique_ptr<sql::PreparedStatement> count_stmt(
+            conn->prepareStatement("SELECT COUNT(*) as total " + base_sql)
+        );
+        
+        int idx = 1;
+        if (app_code && !app_code->empty()) count_stmt->setString(idx++, *app_code);
+        if (action && !action->empty()) count_stmt->setString(idx++, *action);
+        if (operator_id && !operator_id->empty()) count_stmt->setString(idx++, *operator_id);
+        if (target_id && !target_id->empty()) count_stmt->setString(idx++, *target_id);
+        
+        std::unique_ptr<sql::ResultSet> count_res(count_stmt->executeQuery());
+        if (count_res->next()) {
+            out_total = count_res->getInt64("total");
+        }
+
+        // Get paginated data
+        int32_t offset = (page - 1) * page_size;
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement(
+                "SELECT id, operator_id, operator_name, app_code, action, "
+                "target_type, target_id, target_name, object_type, object_id, object_name, created_at "
+                + base_sql + " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+            )
+        );
+        
+        idx = 1;
+        if (app_code && !app_code->empty()) pstmt->setString(idx++, *app_code);
+        if (action && !action->empty()) pstmt->setString(idx++, *action);
+        if (operator_id && !operator_id->empty()) pstmt->setString(idx++, *operator_id);
+        if (target_id && !target_id->empty()) pstmt->setString(idx++, *target_id);
+        pstmt->setInt(idx++, page_size);
+        pstmt->setInt(idx++, offset);
+        
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        
+        while (res->next()) {
+            AuditLogInfo log;
+            log.id = res->getInt64("id");
+            log.operator_id = res->getInt64("operator_id");
+            log.operator_name = res->getString("operator_name");
+            log.app_code = res->getString("app_code");
+            log.action = res->getString("action");
+            log.target_type = res->getString("target_type");
+            log.target_id = res->getString("target_id");
+            log.target_name = res->getString("target_name");
+            log.object_type = res->getString("object_type");
+            log.object_id = res->getString("object_id");
+            log.object_name = res->getString("object_name");
+            log.created_at = res->getString("created_at");
+            logs.push_back(log);
+        }
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询审计日志失败: " + std::string(e.what());
+    }
+    return logs;
+}
