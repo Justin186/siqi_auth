@@ -169,8 +169,9 @@ sudo apt install -y libssl-dev libmysqlcppconn-dev
 ### 安装 Bazel 6.4.0
 
 ```bash
-# 方式一：通过 Bazelisk（会自动读取 .bazelversion 文件选择版本）
-sudo wget -qO /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64
+# 通过 Bazelisk（会自动读取 .bazelversion 文件选择版本）
+# 注意：v1.19.0 存在 HTTP 下载挂起的已知 Bug，请使用 v1.22.1 或更新版本
+sudo wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.22.1/bazelisk-linux-amd64
 sudo chmod +x /usr/local/bin/bazel
 bazel --version  # 首次运行会自动下载 Bazel 6.4.0
 
