@@ -901,7 +901,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_auth_2eproto::offsets[] PROTOB
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::siqi::auth::CheckResponse, allowed_),
   PROTOBUF_FIELD_OFFSET(::siqi::auth::CheckResponse, reason_),
-  PROTOBUF_FIELD_OFFSET(::siqi::auth::CheckResponse, suggest_role_),
+  PROTOBUF_FIELD_OFFSET(::siqi::auth::CheckResponse, current_roles_),
+  PROTOBUF_FIELD_OFFSET(::siqi::auth::CheckResponse, suggest_roles_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::siqi::auth::BatchCheckRequest_CheckItem, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -1340,51 +1341,51 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_auth_2eproto::offsets[] PROTOB
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::siqi::auth::CheckRequest)},
   { 9, -1, sizeof(::siqi::auth::CheckResponse)},
-  { 17, -1, sizeof(::siqi::auth::BatchCheckRequest_CheckItem)},
-  { 25, -1, sizeof(::siqi::auth::BatchCheckRequest)},
-  { 32, -1, sizeof(::siqi::auth::BatchCheckResponse_ResultItem)},
-  { 41, -1, sizeof(::siqi::auth::BatchCheckResponse)},
-  { 47, -1, sizeof(::siqi::auth::GetUserPermissionsRequest)},
-  { 54, -1, sizeof(::siqi::auth::GetUserPermissionsResponse)},
-  { 60, -1, sizeof(::siqi::auth::GetUserRolesRequest)},
-  { 67, -1, sizeof(::siqi::auth::GetUserRolesResponse)},
-  { 73, -1, sizeof(::siqi::auth::CreateAppRequest)},
-  { 81, 90, sizeof(::siqi::auth::UpdateAppRequest)},
-  { 94, -1, sizeof(::siqi::auth::DeleteAppRequest)},
-  { 100, -1, sizeof(::siqi::auth::GetAppRequest)},
-  { 106, -1, sizeof(::siqi::auth::GetAppResponse)},
-  { 119, 128, sizeof(::siqi::auth::ListAppsRequest)},
-  { 132, -1, sizeof(::siqi::auth::ListAppsResponse)},
-  { 141, -1, sizeof(::siqi::auth::CreatePermissionRequest)},
-  { 150, 159, sizeof(::siqi::auth::UpdatePermissionRequest)},
-  { 163, -1, sizeof(::siqi::auth::DeletePermissionRequest)},
-  { 170, 180, sizeof(::siqi::auth::ListPermissionsRequest)},
-  { 185, -1, sizeof(::siqi::auth::ListPermissionsResponse_Permission)},
-  { 196, -1, sizeof(::siqi::auth::ListPermissionsResponse)},
-  { 205, -1, sizeof(::siqi::auth::CreateRoleRequest)},
-  { 215, 225, sizeof(::siqi::auth::UpdateRoleRequest)},
-  { 230, -1, sizeof(::siqi::auth::DeleteRoleRequest)},
-  { 237, 248, sizeof(::siqi::auth::ListRolesRequest)},
-  { 254, -1, sizeof(::siqi::auth::ListRolesResponse_Role)},
-  { 266, -1, sizeof(::siqi::auth::ListRolesResponse)},
-  { 275, -1, sizeof(::siqi::auth::AddPermissionToRoleRequest)},
-  { 283, -1, sizeof(::siqi::auth::RemovePermissionFromRoleRequest)},
-  { 291, -1, sizeof(::siqi::auth::GetRolePermissionsRequest)},
-  { 298, -1, sizeof(::siqi::auth::GetRolePermissionsResponse)},
-  { 304, -1, sizeof(::siqi::auth::GrantRoleToUserRequest)},
-  { 312, -1, sizeof(::siqi::auth::RevokeRoleFromUserRequest)},
-  { 320, -1, sizeof(::siqi::auth::GetRoleUsersRequest)},
-  { 329, -1, sizeof(::siqi::auth::GetRoleUsersResponse_User)},
-  { 336, -1, sizeof(::siqi::auth::GetRoleUsersResponse)},
-  { 345, 358, sizeof(::siqi::auth::ListAuditLogsRequest)},
-  { 366, -1, sizeof(::siqi::auth::ListAuditLogsResponse_AuditLog)},
-  { 383, -1, sizeof(::siqi::auth::ListAuditLogsResponse)},
-  { 392, 401, sizeof(::siqi::auth::AdminResponse)},
-  { 405, -1, sizeof(::siqi::auth::LoginRequest)},
-  { 412, -1, sizeof(::siqi::auth::LoginResponse)},
-  { 420, 429, sizeof(::siqi::auth::ListUserRolesRequest)},
-  { 433, -1, sizeof(::siqi::auth::ListUserRolesResponse_UserRoleInfo)},
-  { 442, -1, sizeof(::siqi::auth::ListUserRolesResponse)},
+  { 18, -1, sizeof(::siqi::auth::BatchCheckRequest_CheckItem)},
+  { 26, -1, sizeof(::siqi::auth::BatchCheckRequest)},
+  { 33, -1, sizeof(::siqi::auth::BatchCheckResponse_ResultItem)},
+  { 42, -1, sizeof(::siqi::auth::BatchCheckResponse)},
+  { 48, -1, sizeof(::siqi::auth::GetUserPermissionsRequest)},
+  { 55, -1, sizeof(::siqi::auth::GetUserPermissionsResponse)},
+  { 61, -1, sizeof(::siqi::auth::GetUserRolesRequest)},
+  { 68, -1, sizeof(::siqi::auth::GetUserRolesResponse)},
+  { 74, -1, sizeof(::siqi::auth::CreateAppRequest)},
+  { 82, 91, sizeof(::siqi::auth::UpdateAppRequest)},
+  { 95, -1, sizeof(::siqi::auth::DeleteAppRequest)},
+  { 101, -1, sizeof(::siqi::auth::GetAppRequest)},
+  { 107, -1, sizeof(::siqi::auth::GetAppResponse)},
+  { 120, 129, sizeof(::siqi::auth::ListAppsRequest)},
+  { 133, -1, sizeof(::siqi::auth::ListAppsResponse)},
+  { 142, -1, sizeof(::siqi::auth::CreatePermissionRequest)},
+  { 151, 160, sizeof(::siqi::auth::UpdatePermissionRequest)},
+  { 164, -1, sizeof(::siqi::auth::DeletePermissionRequest)},
+  { 171, 181, sizeof(::siqi::auth::ListPermissionsRequest)},
+  { 186, -1, sizeof(::siqi::auth::ListPermissionsResponse_Permission)},
+  { 197, -1, sizeof(::siqi::auth::ListPermissionsResponse)},
+  { 206, -1, sizeof(::siqi::auth::CreateRoleRequest)},
+  { 216, 226, sizeof(::siqi::auth::UpdateRoleRequest)},
+  { 231, -1, sizeof(::siqi::auth::DeleteRoleRequest)},
+  { 238, 249, sizeof(::siqi::auth::ListRolesRequest)},
+  { 255, -1, sizeof(::siqi::auth::ListRolesResponse_Role)},
+  { 267, -1, sizeof(::siqi::auth::ListRolesResponse)},
+  { 276, -1, sizeof(::siqi::auth::AddPermissionToRoleRequest)},
+  { 284, -1, sizeof(::siqi::auth::RemovePermissionFromRoleRequest)},
+  { 292, -1, sizeof(::siqi::auth::GetRolePermissionsRequest)},
+  { 299, -1, sizeof(::siqi::auth::GetRolePermissionsResponse)},
+  { 305, -1, sizeof(::siqi::auth::GrantRoleToUserRequest)},
+  { 313, -1, sizeof(::siqi::auth::RevokeRoleFromUserRequest)},
+  { 321, -1, sizeof(::siqi::auth::GetRoleUsersRequest)},
+  { 330, -1, sizeof(::siqi::auth::GetRoleUsersResponse_User)},
+  { 337, -1, sizeof(::siqi::auth::GetRoleUsersResponse)},
+  { 346, 359, sizeof(::siqi::auth::ListAuditLogsRequest)},
+  { 367, -1, sizeof(::siqi::auth::ListAuditLogsResponse_AuditLog)},
+  { 384, -1, sizeof(::siqi::auth::ListAuditLogsResponse)},
+  { 393, 402, sizeof(::siqi::auth::AdminResponse)},
+  { 406, -1, sizeof(::siqi::auth::LoginRequest)},
+  { 413, -1, sizeof(::siqi::auth::LoginResponse)},
+  { 421, 430, sizeof(::siqi::auth::ListUserRolesRequest)},
+  { 434, -1, sizeof(::siqi::auth::ListUserRolesResponse_UserRoleInfo)},
+  { 443, -1, sizeof(::siqi::auth::ListUserRolesResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -1440,178 +1441,179 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_auth_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\nauth.proto\022\tsiqi.auth\"X\n\014CheckRequest\022"
   "\020\n\010app_code\030\001 \001(\t\022\017\n\007user_id\030\002 \001(\t\022\020\n\010pe"
-  "rm_key\030\003 \001(\t\022\023\n\013resource_id\030\004 \001(\t\"F\n\rChe"
+  "rm_key\030\003 \001(\t\022\023\n\013resource_id\030\004 \001(\t\"^\n\rChe"
   "ckResponse\022\017\n\007allowed\030\001 \001(\010\022\016\n\006reason\030\002 "
-  "\001(\t\022\024\n\014suggest_role\030\003 \001(\t\"\241\001\n\021BatchCheck"
-  "Request\022\020\n\010app_code\030\001 \001(\t\0225\n\005items\030\002 \003(\013"
-  "2&.siqi.auth.BatchCheckRequest.CheckItem"
-  "\032C\n\tCheckItem\022\017\n\007user_id\030\001 \001(\t\022\020\n\010perm_k"
-  "ey\030\002 \001(\t\022\023\n\013resource_id\030\003 \001(\t\"\241\001\n\022BatchC"
-  "heckResponse\0229\n\007results\030\001 \003(\0132(.siqi.aut"
-  "h.BatchCheckResponse.ResultItem\032P\n\nResul"
-  "tItem\022\017\n\007user_id\030\001 \001(\t\022\020\n\010perm_key\030\002 \001(\t"
-  "\022\017\n\007allowed\030\003 \001(\010\022\016\n\006reason\030\004 \001(\t\">\n\031Get"
-  "UserPermissionsRequest\022\020\n\010app_code\030\001 \001(\t"
-  "\022\017\n\007user_id\030\002 \001(\t\"/\n\032GetUserPermissionsR"
-  "esponse\022\021\n\tperm_keys\030\001 \003(\t\"8\n\023GetUserRol"
-  "esRequest\022\020\n\010app_code\030\001 \001(\t\022\017\n\007user_id\030\002"
-  " \001(\t\")\n\024GetUserRolesResponse\022\021\n\trole_key"
-  "s\030\001 \003(\t\"K\n\020CreateAppRequest\022\020\n\010app_name\030"
-  "\002 \001(\t\022\020\n\010app_code\030\003 \001(\t\022\023\n\013description\030\004"
-  " \001(\t\"\222\001\n\020UpdateAppRequest\022\020\n\010app_code\030\002 "
-  "\001(\t\022\025\n\010app_name\030\003 \001(\tH\000\210\001\001\022\030\n\013descriptio"
-  "n\030\004 \001(\tH\001\210\001\001\022\023\n\006status\030\005 \001(\005H\002\210\001\001B\013\n\t_ap"
-  "p_nameB\016\n\014_descriptionB\t\n\007_status\"$\n\020Del"
-  "eteAppRequest\022\020\n\010app_code\030\002 \001(\t\"!\n\rGetAp"
-  "pRequest\022\020\n\010app_code\030\001 \001(\t\"\241\001\n\016GetAppRes"
-  "ponse\022\n\n\002id\030\001 \001(\003\022\020\n\010app_name\030\002 \001(\t\022\020\n\010a"
-  "pp_code\030\003 \001(\t\022\022\n\napp_secret\030\004 \001(\t\022\023\n\013des"
-  "cription\030\005 \001(\t\022\016\n\006status\030\006 \001(\005\022\022\n\ncreate"
-  "d_at\030\007 \001(\t\022\022\n\nupdated_at\030\010 \001(\t\"v\n\017ListAp"
-  "psRequest\022\014\n\004page\030\001 \001(\005\022\021\n\tpage_size\030\002 \001"
-  "(\005\022\025\n\010app_name\030\003 \001(\tH\000\210\001\001\022\023\n\006status\030\004 \001("
-  "\005H\001\210\001\001B\013\n\t_app_nameB\t\n\007_status\"k\n\020ListAp"
-  "psResponse\022\'\n\004apps\030\001 \003(\0132\031.siqi.auth.Get"
-  "AppResponse\022\r\n\005total\030\002 \001(\003\022\014\n\004page\030\003 \001(\005"
-  "\022\021\n\tpage_size\030\004 \001(\005\"e\n\027CreatePermissionR"
-  "equest\022\020\n\010app_code\030\002 \001(\t\022\021\n\tperm_name\030\003 "
-  "\001(\t\022\020\n\010perm_key\030\004 \001(\t\022\023\n\013description\030\005 \001"
-  "(\t\"\215\001\n\027UpdatePermissionRequest\022\020\n\010app_co"
-  "de\030\002 \001(\t\022\020\n\010perm_key\030\003 \001(\t\022\026\n\tperm_name\030"
-  "\004 \001(\tH\000\210\001\001\022\030\n\013description\030\005 \001(\tH\001\210\001\001B\014\n\n"
-  "_perm_nameB\016\n\014_description\"=\n\027DeletePerm"
-  "issionRequest\022\020\n\010app_code\030\002 \001(\t\022\020\n\010perm_"
-  "key\030\003 \001(\t\"\225\001\n\026ListPermissionsRequest\022\020\n\010"
-  "app_code\030\001 \001(\t\022\014\n\004page\030\002 \001(\005\022\021\n\tpage_siz"
-  "e\030\003 \001(\005\022\026\n\tperm_name\030\004 \001(\tH\000\210\001\001\022\025\n\010perm_"
-  "key\030\005 \001(\tH\001\210\001\001B\014\n\n_perm_nameB\013\n\t_perm_ke"
-  "y\"\211\002\n\027ListPermissionsResponse\022B\n\013permiss"
-  "ions\030\001 \003(\0132-.siqi.auth.ListPermissionsRe"
-  "sponse.Permission\022\r\n\005total\030\002 \001(\003\022\014\n\004page"
-  "\030\003 \001(\005\022\021\n\tpage_size\030\004 \001(\005\032z\n\nPermission\022"
-  "\n\n\002id\030\001 \001(\003\022\021\n\tperm_name\030\002 \001(\t\022\020\n\010perm_k"
-  "ey\030\003 \001(\t\022\023\n\013description\030\004 \001(\t\022\022\n\ncreated"
-  "_at\030\005 \001(\t\022\022\n\nupdated_at\030\006 \001(\t\"s\n\021CreateR"
-  "oleRequest\022\020\n\010app_code\030\002 \001(\t\022\021\n\trole_nam"
-  "e\030\003 \001(\t\022\020\n\010role_key\030\004 \001(\t\022\023\n\013description"
-  "\030\005 \001(\t\022\022\n\nis_default\030\006 \001(\010\"\257\001\n\021UpdateRol"
-  "eRequest\022\020\n\010app_code\030\002 \001(\t\022\020\n\010role_key\030\003"
-  " \001(\t\022\026\n\trole_name\030\004 \001(\tH\000\210\001\001\022\030\n\013descript"
-  "ion\030\005 \001(\tH\001\210\001\001\022\027\n\nis_default\030\006 \001(\010H\002\210\001\001B"
-  "\014\n\n_role_nameB\016\n\014_descriptionB\r\n\013_is_def"
-  "ault\"7\n\021DeleteRoleRequest\022\020\n\010app_code\030\002 "
-  "\001(\t\022\020\n\010role_key\030\003 \001(\t\"\267\001\n\020ListRolesReque"
-  "st\022\020\n\010app_code\030\001 \001(\t\022\014\n\004page\030\002 \001(\005\022\021\n\tpa"
-  "ge_size\030\003 \001(\005\022\026\n\trole_name\030\004 \001(\tH\000\210\001\001\022\025\n"
-  "\010role_key\030\005 \001(\tH\001\210\001\001\022\027\n\nis_default\030\006 \001(\010"
-  "H\002\210\001\001B\014\n\n_role_nameB\013\n\t_role_keyB\r\n\013_is_"
-  "default\"\200\002\n\021ListRolesResponse\0220\n\005roles\030\001"
-  " \003(\0132!.siqi.auth.ListRolesResponse.Role\022"
+  "\001(\t\022\025\n\rcurrent_roles\030\003 \001(\t\022\025\n\rsuggest_ro"
+  "les\030\004 \001(\t\"\241\001\n\021BatchCheckRequest\022\020\n\010app_c"
+  "ode\030\001 \001(\t\0225\n\005items\030\002 \003(\0132&.siqi.auth.Bat"
+  "chCheckRequest.CheckItem\032C\n\tCheckItem\022\017\n"
+  "\007user_id\030\001 \001(\t\022\020\n\010perm_key\030\002 \001(\t\022\023\n\013reso"
+  "urce_id\030\003 \001(\t\"\241\001\n\022BatchCheckResponse\0229\n\007"
+  "results\030\001 \003(\0132(.siqi.auth.BatchCheckResp"
+  "onse.ResultItem\032P\n\nResultItem\022\017\n\007user_id"
+  "\030\001 \001(\t\022\020\n\010perm_key\030\002 \001(\t\022\017\n\007allowed\030\003 \001("
+  "\010\022\016\n\006reason\030\004 \001(\t\">\n\031GetUserPermissionsR"
+  "equest\022\020\n\010app_code\030\001 \001(\t\022\017\n\007user_id\030\002 \001("
+  "\t\"/\n\032GetUserPermissionsResponse\022\021\n\tperm_"
+  "keys\030\001 \003(\t\"8\n\023GetUserRolesRequest\022\020\n\010app"
+  "_code\030\001 \001(\t\022\017\n\007user_id\030\002 \001(\t\")\n\024GetUserR"
+  "olesResponse\022\021\n\trole_keys\030\001 \003(\t\"K\n\020Creat"
+  "eAppRequest\022\020\n\010app_name\030\002 \001(\t\022\020\n\010app_cod"
+  "e\030\003 \001(\t\022\023\n\013description\030\004 \001(\t\"\222\001\n\020UpdateA"
+  "ppRequest\022\020\n\010app_code\030\002 \001(\t\022\025\n\010app_name\030"
+  "\003 \001(\tH\000\210\001\001\022\030\n\013description\030\004 \001(\tH\001\210\001\001\022\023\n\006"
+  "status\030\005 \001(\005H\002\210\001\001B\013\n\t_app_nameB\016\n\014_descr"
+  "iptionB\t\n\007_status\"$\n\020DeleteAppRequest\022\020\n"
+  "\010app_code\030\002 \001(\t\"!\n\rGetAppRequest\022\020\n\010app_"
+  "code\030\001 \001(\t\"\241\001\n\016GetAppResponse\022\n\n\002id\030\001 \001("
+  "\003\022\020\n\010app_name\030\002 \001(\t\022\020\n\010app_code\030\003 \001(\t\022\022\n"
+  "\napp_secret\030\004 \001(\t\022\023\n\013description\030\005 \001(\t\022\016"
+  "\n\006status\030\006 \001(\005\022\022\n\ncreated_at\030\007 \001(\t\022\022\n\nup"
+  "dated_at\030\010 \001(\t\"v\n\017ListAppsRequest\022\014\n\004pag"
+  "e\030\001 \001(\005\022\021\n\tpage_size\030\002 \001(\005\022\025\n\010app_name\030\003"
+  " \001(\tH\000\210\001\001\022\023\n\006status\030\004 \001(\005H\001\210\001\001B\013\n\t_app_n"
+  "ameB\t\n\007_status\"k\n\020ListAppsResponse\022\'\n\004ap"
+  "ps\030\001 \003(\0132\031.siqi.auth.GetAppResponse\022\r\n\005t"
+  "otal\030\002 \001(\003\022\014\n\004page\030\003 \001(\005\022\021\n\tpage_size\030\004 "
+  "\001(\005\"e\n\027CreatePermissionRequest\022\020\n\010app_co"
+  "de\030\002 \001(\t\022\021\n\tperm_name\030\003 \001(\t\022\020\n\010perm_key\030"
+  "\004 \001(\t\022\023\n\013description\030\005 \001(\t\"\215\001\n\027UpdatePer"
+  "missionRequest\022\020\n\010app_code\030\002 \001(\t\022\020\n\010perm"
+  "_key\030\003 \001(\t\022\026\n\tperm_name\030\004 \001(\tH\000\210\001\001\022\030\n\013de"
+  "scription\030\005 \001(\tH\001\210\001\001B\014\n\n_perm_nameB\016\n\014_d"
+  "escription\"=\n\027DeletePermissionRequest\022\020\n"
+  "\010app_code\030\002 \001(\t\022\020\n\010perm_key\030\003 \001(\t\"\225\001\n\026Li"
+  "stPermissionsRequest\022\020\n\010app_code\030\001 \001(\t\022\014"
+  "\n\004page\030\002 \001(\005\022\021\n\tpage_size\030\003 \001(\005\022\026\n\tperm_"
+  "name\030\004 \001(\tH\000\210\001\001\022\025\n\010perm_key\030\005 \001(\tH\001\210\001\001B\014"
+  "\n\n_perm_nameB\013\n\t_perm_key\"\211\002\n\027ListPermis"
+  "sionsResponse\022B\n\013permissions\030\001 \003(\0132-.siq"
+  "i.auth.ListPermissionsResponse.Permissio"
+  "n\022\r\n\005total\030\002 \001(\003\022\014\n\004page\030\003 \001(\005\022\021\n\tpage_s"
+  "ize\030\004 \001(\005\032z\n\nPermission\022\n\n\002id\030\001 \001(\003\022\021\n\tp"
+  "erm_name\030\002 \001(\t\022\020\n\010perm_key\030\003 \001(\t\022\023\n\013desc"
+  "ription\030\004 \001(\t\022\022\n\ncreated_at\030\005 \001(\t\022\022\n\nupd"
+  "ated_at\030\006 \001(\t\"s\n\021CreateRoleRequest\022\020\n\010ap"
+  "p_code\030\002 \001(\t\022\021\n\trole_name\030\003 \001(\t\022\020\n\010role_"
+  "key\030\004 \001(\t\022\023\n\013description\030\005 \001(\t\022\022\n\nis_def"
+  "ault\030\006 \001(\010\"\257\001\n\021UpdateRoleRequest\022\020\n\010app_"
+  "code\030\002 \001(\t\022\020\n\010role_key\030\003 \001(\t\022\026\n\trole_nam"
+  "e\030\004 \001(\tH\000\210\001\001\022\030\n\013description\030\005 \001(\tH\001\210\001\001\022\027"
+  "\n\nis_default\030\006 \001(\010H\002\210\001\001B\014\n\n_role_nameB\016\n"
+  "\014_descriptionB\r\n\013_is_default\"7\n\021DeleteRo"
+  "leRequest\022\020\n\010app_code\030\002 \001(\t\022\020\n\010role_key\030"
+  "\003 \001(\t\"\267\001\n\020ListRolesRequest\022\020\n\010app_code\030\001"
+  " \001(\t\022\014\n\004page\030\002 \001(\005\022\021\n\tpage_size\030\003 \001(\005\022\026\n"
+  "\trole_name\030\004 \001(\tH\000\210\001\001\022\025\n\010role_key\030\005 \001(\tH"
+  "\001\210\001\001\022\027\n\nis_default\030\006 \001(\010H\002\210\001\001B\014\n\n_role_n"
+  "ameB\013\n\t_role_keyB\r\n\013_is_default\"\200\002\n\021List"
+  "RolesResponse\0220\n\005roles\030\001 \003(\0132!.siqi.auth"
+  ".ListRolesResponse.Role\022\r\n\005total\030\002 \001(\003\022\014"
+  "\n\004page\030\003 \001(\005\022\021\n\tpage_size\030\004 \001(\005\032\210\001\n\004Role"
+  "\022\n\n\002id\030\001 \001(\003\022\021\n\trole_name\030\002 \001(\t\022\020\n\010role_"
+  "key\030\003 \001(\t\022\023\n\013description\030\004 \001(\t\022\022\n\nis_def"
+  "ault\030\005 \001(\010\022\022\n\ncreated_at\030\006 \001(\t\022\022\n\nupdate"
+  "d_at\030\007 \001(\t\"R\n\032AddPermissionToRoleRequest"
+  "\022\020\n\010app_code\030\002 \001(\t\022\020\n\010role_key\030\003 \001(\t\022\020\n\010"
+  "perm_key\030\004 \001(\t\"W\n\037RemovePermissionFromRo"
+  "leRequest\022\020\n\010app_code\030\002 \001(\t\022\020\n\010role_key\030"
+  "\003 \001(\t\022\020\n\010perm_key\030\004 \001(\t\"\?\n\031GetRolePermis"
+  "sionsRequest\022\020\n\010app_code\030\001 \001(\t\022\020\n\010role_k"
+  "ey\030\002 \001(\t\"/\n\032GetRolePermissionsResponse\022\021"
+  "\n\tperm_keys\030\001 \003(\t\"M\n\026GrantRoleToUserRequ"
+  "est\022\020\n\010app_code\030\002 \001(\t\022\017\n\007user_id\030\003 \001(\t\022\020"
+  "\n\010role_key\030\004 \001(\t\"P\n\031RevokeRoleFromUserRe"
+  "quest\022\020\n\010app_code\030\002 \001(\t\022\017\n\007user_id\030\003 \001(\t"
+  "\022\020\n\010role_key\030\004 \001(\t\"Z\n\023GetRoleUsersReques"
+  "t\022\020\n\010app_code\030\001 \001(\t\022\020\n\010role_key\030\002 \001(\t\022\014\n"
+  "\004page\030\003 \001(\005\022\021\n\tpage_size\030\004 \001(\005\"\250\001\n\024GetRo"
+  "leUsersResponse\0223\n\005users\030\001 \003(\0132$.siqi.au"
+  "th.GetRoleUsersResponse.User\022\r\n\005total\030\002 "
+  "\001(\003\022\014\n\004page\030\003 \001(\005\022\021\n\tpage_size\030\004 \001(\005\032+\n\004"
+  "User\022\017\n\007user_id\030\001 \001(\t\022\022\n\ncreated_at\030\002 \001("
+  "\t\"\227\002\n\024ListAuditLogsRequest\022\014\n\004page\030\001 \001(\005"
+  "\022\021\n\tpage_size\030\002 \001(\005\022\030\n\013operator_id\030\003 \001(\t"
+  "H\000\210\001\001\022\025\n\010app_code\030\004 \001(\tH\001\210\001\001\022\023\n\006action\030\005"
+  " \001(\tH\002\210\001\001\022\026\n\ttarget_id\030\006 \001(\tH\003\210\001\001\022\027\n\nsta"
+  "rt_time\030\007 \001(\003H\004\210\001\001\022\025\n\010end_time\030\010 \001(\003H\005\210\001"
+  "\001B\016\n\014_operator_idB\013\n\t_app_codeB\t\n\007_actio"
+  "nB\014\n\n_target_idB\r\n\013_start_timeB\013\n\t_end_t"
+  "ime\"\365\002\n\025ListAuditLogsResponse\0227\n\004logs\030\001 "
+  "\003(\0132).siqi.auth.ListAuditLogsResponse.Au"
+  "ditLog\022\r\n\005total\030\002 \001(\003\022\014\n\004page\030\003 \001(\005\022\021\n\tp"
+  "age_size\030\004 \001(\005\032\362\001\n\010AuditLog\022\n\n\002id\030\001 \001(\003\022"
+  "\023\n\013operator_id\030\002 \001(\003\022\025\n\roperator_name\030\003 "
+  "\001(\t\022\020\n\010app_code\030\004 \001(\t\022\016\n\006action\030\005 \001(\t\022\023\n"
+  "\013target_type\030\006 \001(\t\022\021\n\ttarget_id\030\007 \001(\t\022\023\n"
+  "\013target_name\030\010 \001(\t\022\023\n\013object_type\030\t \001(\t\022"
+  "\021\n\tobject_id\030\n \001(\t\022\023\n\013object_name\030\013 \001(\t\022"
+  "\022\n\ncreated_at\030\014 \001(\t\"g\n\rAdminResponse\022\017\n\007"
+  "success\030\001 \001(\010\022\014\n\004code\030\002 \001(\005\022\017\n\007message\030\003"
+  " \001(\t\022\027\n\napp_secret\030\004 \001(\tH\000\210\001\001B\r\n\013_app_se"
+  "cret\"2\n\014LoginRequest\022\020\n\010username\030\001 \001(\t\022\020"
+  "\n\010password\030\002 \001(\t\"@\n\rLoginResponse\022\017\n\007suc"
+  "cess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\r\n\005token\030\003 \001"
+  "(\t\"k\n\024ListUserRolesRequest\022\020\n\010app_code\030\001"
+  " \001(\t\022\014\n\004page\030\002 \001(\005\022\021\n\tpage_size\030\003 \001(\005\022\024\n"
+  "\007user_id\030\004 \001(\tH\000\210\001\001B\n\n\010_user_id\"\340\001\n\025List"
+  "UserRolesResponse\022<\n\005users\030\001 \003(\0132-.siqi."
+  "auth.ListUserRolesResponse.UserRoleInfo\022"
   "\r\n\005total\030\002 \001(\003\022\014\n\004page\030\003 \001(\005\022\021\n\tpage_siz"
-  "e\030\004 \001(\005\032\210\001\n\004Role\022\n\n\002id\030\001 \001(\003\022\021\n\trole_nam"
-  "e\030\002 \001(\t\022\020\n\010role_key\030\003 \001(\t\022\023\n\013description"
-  "\030\004 \001(\t\022\022\n\nis_default\030\005 \001(\010\022\022\n\ncreated_at"
-  "\030\006 \001(\t\022\022\n\nupdated_at\030\007 \001(\t\"R\n\032AddPermiss"
-  "ionToRoleRequest\022\020\n\010app_code\030\002 \001(\t\022\020\n\010ro"
-  "le_key\030\003 \001(\t\022\020\n\010perm_key\030\004 \001(\t\"W\n\037Remove"
-  "PermissionFromRoleRequest\022\020\n\010app_code\030\002 "
-  "\001(\t\022\020\n\010role_key\030\003 \001(\t\022\020\n\010perm_key\030\004 \001(\t\""
-  "\?\n\031GetRolePermissionsRequest\022\020\n\010app_code"
-  "\030\001 \001(\t\022\020\n\010role_key\030\002 \001(\t\"/\n\032GetRolePermi"
-  "ssionsResponse\022\021\n\tperm_keys\030\001 \003(\t\"M\n\026Gra"
-  "ntRoleToUserRequest\022\020\n\010app_code\030\002 \001(\t\022\017\n"
-  "\007user_id\030\003 \001(\t\022\020\n\010role_key\030\004 \001(\t\"P\n\031Revo"
-  "keRoleFromUserRequest\022\020\n\010app_code\030\002 \001(\t\022"
-  "\017\n\007user_id\030\003 \001(\t\022\020\n\010role_key\030\004 \001(\t\"Z\n\023Ge"
-  "tRoleUsersRequest\022\020\n\010app_code\030\001 \001(\t\022\020\n\010r"
-  "ole_key\030\002 \001(\t\022\014\n\004page\030\003 \001(\005\022\021\n\tpage_size"
-  "\030\004 \001(\005\"\250\001\n\024GetRoleUsersResponse\0223\n\005users"
-  "\030\001 \003(\0132$.siqi.auth.GetRoleUsersResponse."
-  "User\022\r\n\005total\030\002 \001(\003\022\014\n\004page\030\003 \001(\005\022\021\n\tpag"
-  "e_size\030\004 \001(\005\032+\n\004User\022\017\n\007user_id\030\001 \001(\t\022\022\n"
-  "\ncreated_at\030\002 \001(\t\"\227\002\n\024ListAuditLogsReque"
-  "st\022\014\n\004page\030\001 \001(\005\022\021\n\tpage_size\030\002 \001(\005\022\030\n\013o"
-  "perator_id\030\003 \001(\tH\000\210\001\001\022\025\n\010app_code\030\004 \001(\tH"
-  "\001\210\001\001\022\023\n\006action\030\005 \001(\tH\002\210\001\001\022\026\n\ttarget_id\030\006"
-  " \001(\tH\003\210\001\001\022\027\n\nstart_time\030\007 \001(\003H\004\210\001\001\022\025\n\010en"
-  "d_time\030\010 \001(\003H\005\210\001\001B\016\n\014_operator_idB\013\n\t_ap"
-  "p_codeB\t\n\007_actionB\014\n\n_target_idB\r\n\013_star"
-  "t_timeB\013\n\t_end_time\"\365\002\n\025ListAuditLogsRes"
-  "ponse\0227\n\004logs\030\001 \003(\0132).siqi.auth.ListAudi"
-  "tLogsResponse.AuditLog\022\r\n\005total\030\002 \001(\003\022\014\n"
-  "\004page\030\003 \001(\005\022\021\n\tpage_size\030\004 \001(\005\032\362\001\n\010Audit"
-  "Log\022\n\n\002id\030\001 \001(\003\022\023\n\013operator_id\030\002 \001(\003\022\025\n\r"
-  "operator_name\030\003 \001(\t\022\020\n\010app_code\030\004 \001(\t\022\016\n"
-  "\006action\030\005 \001(\t\022\023\n\013target_type\030\006 \001(\t\022\021\n\tta"
-  "rget_id\030\007 \001(\t\022\023\n\013target_name\030\010 \001(\t\022\023\n\013ob"
-  "ject_type\030\t \001(\t\022\021\n\tobject_id\030\n \001(\t\022\023\n\013ob"
-  "ject_name\030\013 \001(\t\022\022\n\ncreated_at\030\014 \001(\t\"g\n\rA"
-  "dminResponse\022\017\n\007success\030\001 \001(\010\022\014\n\004code\030\002 "
-  "\001(\005\022\017\n\007message\030\003 \001(\t\022\027\n\napp_secret\030\004 \001(\t"
-  "H\000\210\001\001B\r\n\013_app_secret\"2\n\014LoginRequest\022\020\n\010"
-  "username\030\001 \001(\t\022\020\n\010password\030\002 \001(\t\"@\n\rLogi"
-  "nResponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 "
-  "\001(\t\022\r\n\005token\030\003 \001(\t\"k\n\024ListUserRolesReque"
-  "st\022\020\n\010app_code\030\001 \001(\t\022\014\n\004page\030\002 \001(\005\022\021\n\tpa"
-  "ge_size\030\003 \001(\005\022\024\n\007user_id\030\004 \001(\tH\000\210\001\001B\n\n\010_"
-  "user_id\"\340\001\n\025ListUserRolesResponse\022<\n\005use"
-  "rs\030\001 \003(\0132-.siqi.auth.ListUserRolesRespon"
-  "se.UserRoleInfo\022\r\n\005total\030\002 \001(\003\022\014\n\004page\030\003"
-  " \001(\005\022\021\n\tpage_size\030\004 \001(\005\032Y\n\014UserRoleInfo\022"
-  "\017\n\007user_id\030\001 \001(\t\022\021\n\trole_keys\030\002 \003(\t\022\022\n\nc"
-  "reated_at\030\003 \001(\t\022\021\n\tperm_keys\030\004 \003(\t2\310\002\n\013A"
-  "uthService\022:\n\005Check\022\027.siqi.auth.CheckReq"
-  "uest\032\030.siqi.auth.CheckResponse\022I\n\nBatchC"
-  "heck\022\034.siqi.auth.BatchCheckRequest\032\035.siq"
-  "i.auth.BatchCheckResponse\022a\n\022GetUserPerm"
-  "issions\022$.siqi.auth.GetUserPermissionsRe"
-  "quest\032%.siqi.auth.GetUserPermissionsResp"
-  "onse\022O\n\014GetUserRoles\022\036.siqi.auth.GetUser"
-  "RolesRequest\032\037.siqi.auth.GetUserRolesRes"
-  "ponse2\300\r\n\014AdminService\022B\n\tCreateApp\022\033.si"
-  "qi.auth.CreateAppRequest\032\030.siqi.auth.Adm"
-  "inResponse\022B\n\tUpdateApp\022\033.siqi.auth.Upda"
-  "teAppRequest\032\030.siqi.auth.AdminResponse\022B"
-  "\n\tDeleteApp\022\033.siqi.auth.DeleteAppRequest"
-  "\032\030.siqi.auth.AdminResponse\022=\n\006GetApp\022\030.s"
-  "iqi.auth.GetAppRequest\032\031.siqi.auth.GetAp"
-  "pResponse\022C\n\010ListApps\022\032.siqi.auth.ListAp"
-  "psRequest\032\033.siqi.auth.ListAppsResponse\022:"
-  "\n\005Login\022\027.siqi.auth.LoginRequest\032\030.siqi."
-  "auth.LoginResponse\022P\n\020CreatePermission\022\""
-  ".siqi.auth.CreatePermissionRequest\032\030.siq"
-  "i.auth.AdminResponse\022P\n\020UpdatePermission"
-  "\022\".siqi.auth.UpdatePermissionRequest\032\030.s"
-  "iqi.auth.AdminResponse\022P\n\020DeletePermissi"
-  "on\022\".siqi.auth.DeletePermissionRequest\032\030"
-  ".siqi.auth.AdminResponse\022X\n\017ListPermissi"
-  "ons\022!.siqi.auth.ListPermissionsRequest\032\""
-  ".siqi.auth.ListPermissionsResponse\022D\n\nCr"
-  "eateRole\022\034.siqi.auth.CreateRoleRequest\032\030"
-  ".siqi.auth.AdminResponse\022D\n\nUpdateRole\022\034"
-  ".siqi.auth.UpdateRoleRequest\032\030.siqi.auth"
-  ".AdminResponse\022D\n\nDeleteRole\022\034.siqi.auth"
-  ".DeleteRoleRequest\032\030.siqi.auth.AdminResp"
-  "onse\022F\n\tListRoles\022\033.siqi.auth.ListRolesR"
-  "equest\032\034.siqi.auth.ListRolesResponse\022V\n\023"
-  "AddPermissionToRole\022%.siqi.auth.AddPermi"
-  "ssionToRoleRequest\032\030.siqi.auth.AdminResp"
-  "onse\022`\n\030RemovePermissionFromRole\022*.siqi."
-  "auth.RemovePermissionFromRoleRequest\032\030.s"
-  "iqi.auth.AdminResponse\022a\n\022GetRolePermiss"
-  "ions\022$.siqi.auth.GetRolePermissionsReque"
-  "st\032%.siqi.auth.GetRolePermissionsRespons"
-  "e\022N\n\017GrantRoleToUser\022!.siqi.auth.GrantRo"
-  "leToUserRequest\032\030.siqi.auth.AdminRespons"
-  "e\022T\n\022RevokeRoleFromUser\022$.siqi.auth.Revo"
-  "keRoleFromUserRequest\032\030.siqi.auth.AdminR"
-  "esponse\022O\n\014GetRoleUsers\022\036.siqi.auth.GetR"
-  "oleUsersRequest\032\037.siqi.auth.GetRoleUsers"
-  "Response\022R\n\rListUserRoles\022\037.siqi.auth.Li"
-  "stUserRolesRequest\032 .siqi.auth.ListUserR"
-  "olesResponse\022R\n\rListAuditLogs\022\037.siqi.aut"
-  "h.ListAuditLogsRequest\032 .siqi.auth.ListA"
-  "uditLogsResponseB\003\200\001\001b\006proto3"
+  "e\030\004 \001(\005\032Y\n\014UserRoleInfo\022\017\n\007user_id\030\001 \001(\t"
+  "\022\021\n\trole_keys\030\002 \003(\t\022\022\n\ncreated_at\030\003 \001(\t\022"
+  "\021\n\tperm_keys\030\004 \003(\t2\310\002\n\013AuthService\022:\n\005Ch"
+  "eck\022\027.siqi.auth.CheckRequest\032\030.siqi.auth"
+  ".CheckResponse\022I\n\nBatchCheck\022\034.siqi.auth"
+  ".BatchCheckRequest\032\035.siqi.auth.BatchChec"
+  "kResponse\022a\n\022GetUserPermissions\022$.siqi.a"
+  "uth.GetUserPermissionsRequest\032%.siqi.aut"
+  "h.GetUserPermissionsResponse\022O\n\014GetUserR"
+  "oles\022\036.siqi.auth.GetUserRolesRequest\032\037.s"
+  "iqi.auth.GetUserRolesResponse2\300\r\n\014AdminS"
+  "ervice\022B\n\tCreateApp\022\033.siqi.auth.CreateAp"
+  "pRequest\032\030.siqi.auth.AdminResponse\022B\n\tUp"
+  "dateApp\022\033.siqi.auth.UpdateAppRequest\032\030.s"
+  "iqi.auth.AdminResponse\022B\n\tDeleteApp\022\033.si"
+  "qi.auth.DeleteAppRequest\032\030.siqi.auth.Adm"
+  "inResponse\022=\n\006GetApp\022\030.siqi.auth.GetAppR"
+  "equest\032\031.siqi.auth.GetAppResponse\022C\n\010Lis"
+  "tApps\022\032.siqi.auth.ListAppsRequest\032\033.siqi"
+  ".auth.ListAppsResponse\022:\n\005Login\022\027.siqi.a"
+  "uth.LoginRequest\032\030.siqi.auth.LoginRespon"
+  "se\022P\n\020CreatePermission\022\".siqi.auth.Creat"
+  "ePermissionRequest\032\030.siqi.auth.AdminResp"
+  "onse\022P\n\020UpdatePermission\022\".siqi.auth.Upd"
+  "atePermissionRequest\032\030.siqi.auth.AdminRe"
+  "sponse\022P\n\020DeletePermission\022\".siqi.auth.D"
+  "eletePermissionRequest\032\030.siqi.auth.Admin"
+  "Response\022X\n\017ListPermissions\022!.siqi.auth."
+  "ListPermissionsRequest\032\".siqi.auth.ListP"
+  "ermissionsResponse\022D\n\nCreateRole\022\034.siqi."
+  "auth.CreateRoleRequest\032\030.siqi.auth.Admin"
+  "Response\022D\n\nUpdateRole\022\034.siqi.auth.Updat"
+  "eRoleRequest\032\030.siqi.auth.AdminResponse\022D"
+  "\n\nDeleteRole\022\034.siqi.auth.DeleteRoleReque"
+  "st\032\030.siqi.auth.AdminResponse\022F\n\tListRole"
+  "s\022\033.siqi.auth.ListRolesRequest\032\034.siqi.au"
+  "th.ListRolesResponse\022V\n\023AddPermissionToR"
+  "ole\022%.siqi.auth.AddPermissionToRoleReque"
+  "st\032\030.siqi.auth.AdminResponse\022`\n\030RemovePe"
+  "rmissionFromRole\022*.siqi.auth.RemovePermi"
+  "ssionFromRoleRequest\032\030.siqi.auth.AdminRe"
+  "sponse\022a\n\022GetRolePermissions\022$.siqi.auth"
+  ".GetRolePermissionsRequest\032%.siqi.auth.G"
+  "etRolePermissionsResponse\022N\n\017GrantRoleTo"
+  "User\022!.siqi.auth.GrantRoleToUserRequest\032"
+  "\030.siqi.auth.AdminResponse\022T\n\022RevokeRoleF"
+  "romUser\022$.siqi.auth.RevokeRoleFromUserRe"
+  "quest\032\030.siqi.auth.AdminResponse\022O\n\014GetRo"
+  "leUsers\022\036.siqi.auth.GetRoleUsersRequest\032"
+  "\037.siqi.auth.GetRoleUsersResponse\022R\n\rList"
+  "UserRoles\022\037.siqi.auth.ListUserRolesReque"
+  "st\032 .siqi.auth.ListUserRolesResponse\022R\n\r"
+  "ListAuditLogs\022\037.siqi.auth.ListAuditLogsR"
+  "equest\032 .siqi.auth.ListAuditLogsResponse"
+  "B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_auth_2eproto_deps[1] = {
 };
@@ -1666,7 +1668,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_aut
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_auth_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_auth_2eproto = {
-  false, false, descriptor_table_protodef_auth_2eproto, "auth.proto", 6949,
+  false, false, descriptor_table_protodef_auth_2eproto, "auth.proto", 6973,
   &descriptor_table_auth_2eproto_once, descriptor_table_auth_2eproto_sccs, descriptor_table_auth_2eproto_deps, 47, 0,
   schemas, file_default_instances, TableStruct_auth_2eproto::offsets,
   file_level_metadata_auth_2eproto, 47, file_level_enum_descriptors_auth_2eproto, file_level_service_descriptors_auth_2eproto,
@@ -2022,9 +2024,14 @@ CheckResponse::CheckResponse(const CheckResponse& from)
     reason_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_reason(),
       GetArena());
   }
-  suggest_role_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_suggest_role().empty()) {
-    suggest_role_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_suggest_role(),
+  current_roles_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_current_roles().empty()) {
+    current_roles_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_current_roles(),
+      GetArena());
+  }
+  suggest_roles_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_suggest_roles().empty()) {
+    suggest_roles_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_suggest_roles(),
       GetArena());
   }
   allowed_ = from.allowed_;
@@ -2034,7 +2041,8 @@ CheckResponse::CheckResponse(const CheckResponse& from)
 void CheckResponse::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_CheckResponse_auth_2eproto.base);
   reason_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  suggest_role_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  current_roles_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  suggest_roles_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   allowed_ = false;
 }
 
@@ -2047,7 +2055,8 @@ CheckResponse::~CheckResponse() {
 void CheckResponse::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
   reason_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  suggest_role_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  current_roles_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  suggest_roles_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void CheckResponse::ArenaDtor(void* object) {
@@ -2072,7 +2081,8 @@ void CheckResponse::Clear() {
   (void) cached_has_bits;
 
   reason_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-  suggest_role_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  current_roles_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  suggest_roles_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   allowed_ = false;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2101,12 +2111,21 @@ const char* CheckResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string suggest_role = 3;
+      // string current_roles = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          auto str = _internal_mutable_suggest_role();
+          auto str = _internal_mutable_current_roles();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "siqi.auth.CheckResponse.suggest_role"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "siqi.auth.CheckResponse.current_roles"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string suggest_roles = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          auto str = _internal_mutable_suggest_roles();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "siqi.auth.CheckResponse.suggest_roles"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2154,14 +2173,24 @@ failure:
         2, this->_internal_reason(), target);
   }
 
-  // string suggest_role = 3;
-  if (this->suggest_role().size() > 0) {
+  // string current_roles = 3;
+  if (this->current_roles().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_suggest_role().data(), static_cast<int>(this->_internal_suggest_role().length()),
+      this->_internal_current_roles().data(), static_cast<int>(this->_internal_current_roles().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "siqi.auth.CheckResponse.suggest_role");
+      "siqi.auth.CheckResponse.current_roles");
     target = stream->WriteStringMaybeAliased(
-        3, this->_internal_suggest_role(), target);
+        3, this->_internal_current_roles(), target);
+  }
+
+  // string suggest_roles = 4;
+  if (this->suggest_roles().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_suggest_roles().data(), static_cast<int>(this->_internal_suggest_roles().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "siqi.auth.CheckResponse.suggest_roles");
+    target = stream->WriteStringMaybeAliased(
+        4, this->_internal_suggest_roles(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2187,11 +2216,18 @@ size_t CheckResponse::ByteSizeLong() const {
         this->_internal_reason());
   }
 
-  // string suggest_role = 3;
-  if (this->suggest_role().size() > 0) {
+  // string current_roles = 3;
+  if (this->current_roles().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_suggest_role());
+        this->_internal_current_roles());
+  }
+
+  // string suggest_roles = 4;
+  if (this->suggest_roles().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_suggest_roles());
   }
 
   // bool allowed = 1;
@@ -2233,8 +2269,11 @@ void CheckResponse::MergeFrom(const CheckResponse& from) {
   if (from.reason().size() > 0) {
     _internal_set_reason(from._internal_reason());
   }
-  if (from.suggest_role().size() > 0) {
-    _internal_set_suggest_role(from._internal_suggest_role());
+  if (from.current_roles().size() > 0) {
+    _internal_set_current_roles(from._internal_current_roles());
+  }
+  if (from.suggest_roles().size() > 0) {
+    _internal_set_suggest_roles(from._internal_suggest_roles());
   }
   if (from.allowed() != 0) {
     _internal_set_allowed(from._internal_allowed());
@@ -2263,7 +2302,8 @@ void CheckResponse::InternalSwap(CheckResponse* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   reason_.Swap(&other->reason_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-  suggest_role_.Swap(&other->suggest_role_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  current_roles_.Swap(&other->current_roles_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  suggest_roles_.Swap(&other->suggest_roles_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   swap(allowed_, other->allowed_);
 }
 

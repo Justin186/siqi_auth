@@ -602,7 +602,8 @@ class CheckResponse PROTOBUF_FINAL :
 
   enum : int {
     kReasonFieldNumber = 2,
-    kSuggestRoleFieldNumber = 3,
+    kCurrentRolesFieldNumber = 3,
+    kSuggestRolesFieldNumber = 4,
     kAllowedFieldNumber = 1,
   };
   // string reason = 2;
@@ -630,29 +631,54 @@ class CheckResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_reason();
   public:
 
-  // string suggest_role = 3;
-  void clear_suggest_role();
-  const std::string& suggest_role() const;
-  void set_suggest_role(const std::string& value);
-  void set_suggest_role(std::string&& value);
-  void set_suggest_role(const char* value);
-  void set_suggest_role(const char* value, size_t size);
-  std::string* mutable_suggest_role();
-  std::string* release_suggest_role();
-  void set_allocated_suggest_role(std::string* suggest_role);
+  // string current_roles = 3;
+  void clear_current_roles();
+  const std::string& current_roles() const;
+  void set_current_roles(const std::string& value);
+  void set_current_roles(std::string&& value);
+  void set_current_roles(const char* value);
+  void set_current_roles(const char* value, size_t size);
+  std::string* mutable_current_roles();
+  std::string* release_current_roles();
+  void set_allocated_current_roles(std::string* current_roles);
   GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
   "    string fields are deprecated and will be removed in a"
   "    future release.")
-  std::string* unsafe_arena_release_suggest_role();
+  std::string* unsafe_arena_release_current_roles();
   GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
   "    string fields are deprecated and will be removed in a"
   "    future release.")
-  void unsafe_arena_set_allocated_suggest_role(
-      std::string* suggest_role);
+  void unsafe_arena_set_allocated_current_roles(
+      std::string* current_roles);
   private:
-  const std::string& _internal_suggest_role() const;
-  void _internal_set_suggest_role(const std::string& value);
-  std::string* _internal_mutable_suggest_role();
+  const std::string& _internal_current_roles() const;
+  void _internal_set_current_roles(const std::string& value);
+  std::string* _internal_mutable_current_roles();
+  public:
+
+  // string suggest_roles = 4;
+  void clear_suggest_roles();
+  const std::string& suggest_roles() const;
+  void set_suggest_roles(const std::string& value);
+  void set_suggest_roles(std::string&& value);
+  void set_suggest_roles(const char* value);
+  void set_suggest_roles(const char* value, size_t size);
+  std::string* mutable_suggest_roles();
+  std::string* release_suggest_roles();
+  void set_allocated_suggest_roles(std::string* suggest_roles);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_suggest_roles();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_suggest_roles(
+      std::string* suggest_roles);
+  private:
+  const std::string& _internal_suggest_roles() const;
+  void _internal_set_suggest_roles(const std::string& value);
+  std::string* _internal_mutable_suggest_roles();
   public:
 
   // bool allowed = 1;
@@ -672,7 +698,8 @@ class CheckResponse PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr reason_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr suggest_role_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr current_roles_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr suggest_roles_;
   bool allowed_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_auth_2eproto;
@@ -10838,85 +10865,166 @@ inline void CheckResponse::unsafe_arena_set_allocated_reason(
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.CheckResponse.reason)
 }
 
-// string suggest_role = 3;
-inline void CheckResponse::clear_suggest_role() {
-  suggest_role_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+// string current_roles = 3;
+inline void CheckResponse::clear_current_roles() {
+  current_roles_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline const std::string& CheckResponse::suggest_role() const {
-  // @@protoc_insertion_point(field_get:siqi.auth.CheckResponse.suggest_role)
-  return _internal_suggest_role();
+inline const std::string& CheckResponse::current_roles() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.CheckResponse.current_roles)
+  return _internal_current_roles();
 }
-inline void CheckResponse::set_suggest_role(const std::string& value) {
-  _internal_set_suggest_role(value);
-  // @@protoc_insertion_point(field_set:siqi.auth.CheckResponse.suggest_role)
+inline void CheckResponse::set_current_roles(const std::string& value) {
+  _internal_set_current_roles(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.CheckResponse.current_roles)
 }
-inline std::string* CheckResponse::mutable_suggest_role() {
-  // @@protoc_insertion_point(field_mutable:siqi.auth.CheckResponse.suggest_role)
-  return _internal_mutable_suggest_role();
+inline std::string* CheckResponse::mutable_current_roles() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.CheckResponse.current_roles)
+  return _internal_mutable_current_roles();
 }
-inline const std::string& CheckResponse::_internal_suggest_role() const {
-  return suggest_role_.Get();
+inline const std::string& CheckResponse::_internal_current_roles() const {
+  return current_roles_.Get();
 }
-inline void CheckResponse::_internal_set_suggest_role(const std::string& value) {
+inline void CheckResponse::_internal_set_current_roles(const std::string& value) {
   
-  suggest_role_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+  current_roles_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
 }
-inline void CheckResponse::set_suggest_role(std::string&& value) {
+inline void CheckResponse::set_current_roles(std::string&& value) {
   
-  suggest_role_.Set(
+  current_roles_.Set(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.CheckResponse.suggest_role)
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.CheckResponse.current_roles)
 }
-inline void CheckResponse::set_suggest_role(const char* value) {
+inline void CheckResponse::set_current_roles(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  suggest_role_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+  current_roles_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
               GetArena());
-  // @@protoc_insertion_point(field_set_char:siqi.auth.CheckResponse.suggest_role)
+  // @@protoc_insertion_point(field_set_char:siqi.auth.CheckResponse.current_roles)
 }
-inline void CheckResponse::set_suggest_role(const char* value,
+inline void CheckResponse::set_current_roles(const char* value,
     size_t size) {
   
-  suggest_role_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+  current_roles_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:siqi.auth.CheckResponse.suggest_role)
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.CheckResponse.current_roles)
 }
-inline std::string* CheckResponse::_internal_mutable_suggest_role() {
+inline std::string* CheckResponse::_internal_mutable_current_roles() {
   
-  return suggest_role_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  return current_roles_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline std::string* CheckResponse::release_suggest_role() {
-  // @@protoc_insertion_point(field_release:siqi.auth.CheckResponse.suggest_role)
-  return suggest_role_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* CheckResponse::release_current_roles() {
+  // @@protoc_insertion_point(field_release:siqi.auth.CheckResponse.current_roles)
+  return current_roles_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void CheckResponse::set_allocated_suggest_role(std::string* suggest_role) {
-  if (suggest_role != nullptr) {
+inline void CheckResponse::set_allocated_current_roles(std::string* current_roles) {
+  if (current_roles != nullptr) {
     
   } else {
     
   }
-  suggest_role_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), suggest_role,
+  current_roles_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), current_roles,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:siqi.auth.CheckResponse.suggest_role)
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.CheckResponse.current_roles)
 }
-inline std::string* CheckResponse::unsafe_arena_release_suggest_role() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.CheckResponse.suggest_role)
+inline std::string* CheckResponse::unsafe_arena_release_current_roles() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.CheckResponse.current_roles)
   GOOGLE_DCHECK(GetArena() != nullptr);
   
-  return suggest_role_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+  return current_roles_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       GetArena());
 }
-inline void CheckResponse::unsafe_arena_set_allocated_suggest_role(
-    std::string* suggest_role) {
+inline void CheckResponse::unsafe_arena_set_allocated_current_roles(
+    std::string* current_roles) {
   GOOGLE_DCHECK(GetArena() != nullptr);
-  if (suggest_role != nullptr) {
+  if (current_roles != nullptr) {
     
   } else {
     
   }
-  suggest_role_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      suggest_role, GetArena());
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.CheckResponse.suggest_role)
+  current_roles_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      current_roles, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.CheckResponse.current_roles)
+}
+
+// string suggest_roles = 4;
+inline void CheckResponse::clear_suggest_roles() {
+  suggest_roles_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& CheckResponse::suggest_roles() const {
+  // @@protoc_insertion_point(field_get:siqi.auth.CheckResponse.suggest_roles)
+  return _internal_suggest_roles();
+}
+inline void CheckResponse::set_suggest_roles(const std::string& value) {
+  _internal_set_suggest_roles(value);
+  // @@protoc_insertion_point(field_set:siqi.auth.CheckResponse.suggest_roles)
+}
+inline std::string* CheckResponse::mutable_suggest_roles() {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.CheckResponse.suggest_roles)
+  return _internal_mutable_suggest_roles();
+}
+inline const std::string& CheckResponse::_internal_suggest_roles() const {
+  return suggest_roles_.Get();
+}
+inline void CheckResponse::_internal_set_suggest_roles(const std::string& value) {
+  
+  suggest_roles_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void CheckResponse::set_suggest_roles(std::string&& value) {
+  
+  suggest_roles_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:siqi.auth.CheckResponse.suggest_roles)
+}
+inline void CheckResponse::set_suggest_roles(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  suggest_roles_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:siqi.auth.CheckResponse.suggest_roles)
+}
+inline void CheckResponse::set_suggest_roles(const char* value,
+    size_t size) {
+  
+  suggest_roles_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.CheckResponse.suggest_roles)
+}
+inline std::string* CheckResponse::_internal_mutable_suggest_roles() {
+  
+  return suggest_roles_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* CheckResponse::release_suggest_roles() {
+  // @@protoc_insertion_point(field_release:siqi.auth.CheckResponse.suggest_roles)
+  return suggest_roles_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void CheckResponse::set_allocated_suggest_roles(std::string* suggest_roles) {
+  if (suggest_roles != nullptr) {
+    
+  } else {
+    
+  }
+  suggest_roles_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), suggest_roles,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:siqi.auth.CheckResponse.suggest_roles)
+}
+inline std::string* CheckResponse::unsafe_arena_release_suggest_roles() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:siqi.auth.CheckResponse.suggest_roles)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return suggest_roles_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void CheckResponse::unsafe_arena_set_allocated_suggest_roles(
+    std::string* suggest_roles) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (suggest_roles != nullptr) {
+    
+  } else {
+    
+  }
+  suggest_roles_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      suggest_roles, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.CheckResponse.suggest_roles)
 }
 
 // -------------------------------------------------------------------

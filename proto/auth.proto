@@ -34,7 +34,8 @@ message CheckRequest {
 message CheckResponse {
     bool allowed = 1; // 是否允许
     string reason = 2; // 原因（如果拒绝）
-    string suggest_role = 3; // 建议角色（如果需要升级）
+    string current_roles = 3; // 当前角色
+    string suggest_roles = 4; // 建议角色（如果需要升级）
 }
 
 // 批量权限检查请求

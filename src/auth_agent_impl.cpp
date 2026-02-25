@@ -59,19 +59,18 @@ void AuthAgentImpl::Check(google::protobuf::RpcController* cntl_base,
             auto current_roles = dao_->getUserRoles(app_code, user_id);
             std::string reason_prefix = current_roles.empty() ? "用户不存在或未分配任何角色" : "用户没有该权限";
             
+            std::string curr_roles_str = current_roles.empty() ? "无" : current_roles[0];
+            for (size_t i = 1; i < current_roles.size(); ++i) curr_roles_str += "," + current_roles[i];
+            response->set_current_roles(curr_roles_str);
+            
             auto required_roles = dao_->getRolesWithPermission(app_code, perm_key);
             if (!required_roles.empty()) {
                 std::string suggest = required_roles[0];
                 for (size_t i = 1; i < required_roles.size(); ++i) suggest += "," + required_roles[i];
-                response->set_suggest_role(suggest);
-                
-                std::string curr_roles_str = current_roles.empty() ? "无" : current_roles[0];
-                for (size_t i = 1; i < current_roles.size(); ++i) curr_roles_str += "," + current_roles[i];
-                
-                response->set_reason(reason_prefix + " (当前角色: " + curr_roles_str + ", 建议申请角色: " + suggest + ")");
-            } else {
-                response->set_reason(reason_prefix);
+                response->set_suggest_roles(suggest);
             }
+            
+            response->set_reason(reason_prefix);
         }
     }
     
