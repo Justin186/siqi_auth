@@ -9791,6 +9791,7 @@ class ListUserRolesResponse_UserRoleInfo PROTOBUF_FINAL :
 
   enum : int {
     kRoleKeysFieldNumber = 2,
+    kPermKeysFieldNumber = 4,
     kUserIdFieldNumber = 1,
     kCreatedAtFieldNumber = 3,
   };
@@ -9816,6 +9817,30 @@ class ListUserRolesResponse_UserRoleInfo PROTOBUF_FINAL :
   private:
   const std::string& _internal_role_keys(int index) const;
   std::string* _internal_add_role_keys();
+  public:
+
+  // repeated string perm_keys = 4;
+  int perm_keys_size() const;
+  private:
+  int _internal_perm_keys_size() const;
+  public:
+  void clear_perm_keys();
+  const std::string& perm_keys(int index) const;
+  std::string* mutable_perm_keys(int index);
+  void set_perm_keys(int index, const std::string& value);
+  void set_perm_keys(int index, std::string&& value);
+  void set_perm_keys(int index, const char* value);
+  void set_perm_keys(int index, const char* value, size_t size);
+  std::string* add_perm_keys();
+  void add_perm_keys(const std::string& value);
+  void add_perm_keys(std::string&& value);
+  void add_perm_keys(const char* value);
+  void add_perm_keys(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& perm_keys() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_perm_keys();
+  private:
+  const std::string& _internal_perm_keys(int index) const;
+  std::string* _internal_add_perm_keys();
   public:
 
   // string user_id = 1;
@@ -9876,6 +9901,7 @@ class ListUserRolesResponse_UserRoleInfo PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> role_keys_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> perm_keys_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr user_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr created_at_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -21212,6 +21238,80 @@ inline void ListUserRolesResponse_UserRoleInfo::unsafe_arena_set_allocated_creat
   created_at_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       created_at, GetArena());
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at)
+}
+
+// repeated string perm_keys = 4;
+inline int ListUserRolesResponse_UserRoleInfo::_internal_perm_keys_size() const {
+  return perm_keys_.size();
+}
+inline int ListUserRolesResponse_UserRoleInfo::perm_keys_size() const {
+  return _internal_perm_keys_size();
+}
+inline void ListUserRolesResponse_UserRoleInfo::clear_perm_keys() {
+  perm_keys_.Clear();
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::add_perm_keys() {
+  // @@protoc_insertion_point(field_add_mutable:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+  return _internal_add_perm_keys();
+}
+inline const std::string& ListUserRolesResponse_UserRoleInfo::_internal_perm_keys(int index) const {
+  return perm_keys_.Get(index);
+}
+inline const std::string& ListUserRolesResponse_UserRoleInfo::perm_keys(int index) const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+  return _internal_perm_keys(index);
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::mutable_perm_keys(int index) {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+  return perm_keys_.Mutable(index);
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_perm_keys(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+  perm_keys_.Mutable(index)->assign(value);
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_perm_keys(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+  perm_keys_.Mutable(index)->assign(std::move(value));
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_perm_keys(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  perm_keys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+}
+inline void ListUserRolesResponse_UserRoleInfo::set_perm_keys(int index, const char* value, size_t size) {
+  perm_keys_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+}
+inline std::string* ListUserRolesResponse_UserRoleInfo::_internal_add_perm_keys() {
+  return perm_keys_.Add();
+}
+inline void ListUserRolesResponse_UserRoleInfo::add_perm_keys(const std::string& value) {
+  perm_keys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+}
+inline void ListUserRolesResponse_UserRoleInfo::add_perm_keys(std::string&& value) {
+  perm_keys_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+}
+inline void ListUserRolesResponse_UserRoleInfo::add_perm_keys(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  perm_keys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+}
+inline void ListUserRolesResponse_UserRoleInfo::add_perm_keys(const char* value, size_t size) {
+  perm_keys_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+ListUserRolesResponse_UserRoleInfo::perm_keys() const {
+  // @@protoc_insertion_point(field_list:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+  return perm_keys_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+ListUserRolesResponse_UserRoleInfo::mutable_perm_keys() {
+  // @@protoc_insertion_point(field_mutable_list:siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys)
+  return &perm_keys_;
 }
 
 // -------------------------------------------------------------------

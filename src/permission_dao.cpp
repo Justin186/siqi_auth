@@ -1022,9 +1022,14 @@ std::vector<PermissionDAO::UserRoleData> PermissionDAO::listUserRoles(const std:
         int32_t offset = (page - 1) * page_size;
         std::unique_ptr<sql::PreparedStatement> pstmt(
             conn->prepareStatement(
-                "SELECT ur.app_user_id, GROUP_CONCAT(r.role_key) as role_keys, MIN(ur.created_at) as created_at "
+                "SELECT ur.app_user_id, "
+                "GROUP_CONCAT(DISTINCT r.role_key) as role_keys, "
+                "GROUP_CONCAT(DISTINCT p.perm_key) as perm_keys, "
+                "MIN(ur.created_at) as created_at "
                 "FROM sys_user_roles ur "
                 "JOIN sys_roles r ON ur.role_id = r.id "
+                "LEFT JOIN sys_role_permissions rp ON r.id = rp.role_id "
+                "LEFT JOIN sys_permissions p ON rp.perm_id = p.id "
                 "WHERE ur.app_id = ? " + 
                 (user_id && !user_id->empty() ? std::string("AND ur.app_user_id = ? ") : std::string("")) +
                 "GROUP BY ur.app_user_id "
@@ -1048,10 +1053,21 @@ std::vector<PermissionDAO::UserRoleData> PermissionDAO::listUserRoles(const std:
             data.created_at = res->getString("created_at");
             
             std::string roles_str = res->getString("role_keys");
-            std::stringstream ss(roles_str);
-            std::string item;
-            while (std::getline(ss, item, ',')) {
-                data.role_keys.push_back(item);
+            if (!roles_str.empty()) {
+                std::stringstream ss(roles_str);
+                std::string item;
+                while (std::getline(ss, item, ',')) {
+                    data.role_keys.push_back(item);
+                }
+            }
+            
+            std::string perms_str = res->getString("perm_keys");
+            if (!perms_str.empty()) {
+                std::stringstream ss(perms_str);
+                std::string item;
+                while (std::getline(ss, item, ',')) {
+                    data.perm_keys.push_back(item);
+                }
             }
             users.push_back(data);
         }

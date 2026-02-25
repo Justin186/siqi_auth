@@ -169,6 +169,7 @@ public:
     struct UserRoleData {
         std::string user_id;
         std::vector<std::string> role_keys;
+        std::vector<std::string> perm_keys;
         std::string created_at;
     };
     std::vector<UserRoleData> listUserRoles(const std::string& app_code,

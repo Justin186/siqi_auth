@@ -750,6 +750,9 @@ void AdminServiceImpl::ListUserRoles(google::protobuf::RpcController* cntl_base,
         for (const auto& r : u.role_keys) {
             user_pb->add_role_keys(r);
         }
+        for (const auto& p : u.perm_keys) {
+            user_pb->add_perm_keys(p);
+        }
     }
     
     response->set_total(total);

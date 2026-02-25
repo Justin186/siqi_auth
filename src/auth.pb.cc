@@ -1326,6 +1326,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_auth_2eproto::offsets[] PROTOB
   PROTOBUF_FIELD_OFFSET(::siqi::auth::ListUserRolesResponse_UserRoleInfo, user_id_),
   PROTOBUF_FIELD_OFFSET(::siqi::auth::ListUserRolesResponse_UserRoleInfo, role_keys_),
   PROTOBUF_FIELD_OFFSET(::siqi::auth::ListUserRolesResponse_UserRoleInfo, created_at_),
+  PROTOBUF_FIELD_OFFSET(::siqi::auth::ListUserRolesResponse_UserRoleInfo, perm_keys_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::siqi::auth::ListUserRolesResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -1383,7 +1384,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 412, -1, sizeof(::siqi::auth::LoginResponse)},
   { 420, 429, sizeof(::siqi::auth::ListUserRolesRequest)},
   { 433, -1, sizeof(::siqi::auth::ListUserRolesResponse_UserRoleInfo)},
-  { 441, -1, sizeof(::siqi::auth::ListUserRolesResponse)},
+  { 442, -1, sizeof(::siqi::auth::ListUserRolesResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -1553,64 +1554,64 @@ const char descriptor_table_protodef_auth_2eproto[] PROTOBUF_SECTION_VARIABLE(pr
   "\001(\t\022\r\n\005token\030\003 \001(\t\"k\n\024ListUserRolesReque"
   "st\022\020\n\010app_code\030\001 \001(\t\022\014\n\004page\030\002 \001(\005\022\021\n\tpa"
   "ge_size\030\003 \001(\005\022\024\n\007user_id\030\004 \001(\tH\000\210\001\001B\n\n\010_"
-  "user_id\"\315\001\n\025ListUserRolesResponse\022<\n\005use"
+  "user_id\"\340\001\n\025ListUserRolesResponse\022<\n\005use"
   "rs\030\001 \003(\0132-.siqi.auth.ListUserRolesRespon"
   "se.UserRoleInfo\022\r\n\005total\030\002 \001(\003\022\014\n\004page\030\003"
-  " \001(\005\022\021\n\tpage_size\030\004 \001(\005\032F\n\014UserRoleInfo\022"
+  " \001(\005\022\021\n\tpage_size\030\004 \001(\005\032Y\n\014UserRoleInfo\022"
   "\017\n\007user_id\030\001 \001(\t\022\021\n\trole_keys\030\002 \003(\t\022\022\n\nc"
-  "reated_at\030\003 \001(\t2\310\002\n\013AuthService\022:\n\005Check"
-  "\022\027.siqi.auth.CheckRequest\032\030.siqi.auth.Ch"
-  "eckResponse\022I\n\nBatchCheck\022\034.siqi.auth.Ba"
-  "tchCheckRequest\032\035.siqi.auth.BatchCheckRe"
-  "sponse\022a\n\022GetUserPermissions\022$.siqi.auth"
-  ".GetUserPermissionsRequest\032%.siqi.auth.G"
-  "etUserPermissionsResponse\022O\n\014GetUserRole"
-  "s\022\036.siqi.auth.GetUserRolesRequest\032\037.siqi"
-  ".auth.GetUserRolesResponse2\300\r\n\014AdminServ"
-  "ice\022B\n\tCreateApp\022\033.siqi.auth.CreateAppRe"
-  "quest\032\030.siqi.auth.AdminResponse\022B\n\tUpdat"
-  "eApp\022\033.siqi.auth.UpdateAppRequest\032\030.siqi"
-  ".auth.AdminResponse\022B\n\tDeleteApp\022\033.siqi."
-  "auth.DeleteAppRequest\032\030.siqi.auth.AdminR"
-  "esponse\022=\n\006GetApp\022\030.siqi.auth.GetAppRequ"
-  "est\032\031.siqi.auth.GetAppResponse\022C\n\010ListAp"
-  "ps\022\032.siqi.auth.ListAppsRequest\032\033.siqi.au"
-  "th.ListAppsResponse\022:\n\005Login\022\027.siqi.auth"
-  ".LoginRequest\032\030.siqi.auth.LoginResponse\022"
-  "P\n\020CreatePermission\022\".siqi.auth.CreatePe"
-  "rmissionRequest\032\030.siqi.auth.AdminRespons"
-  "e\022P\n\020UpdatePermission\022\".siqi.auth.Update"
-  "PermissionRequest\032\030.siqi.auth.AdminRespo"
-  "nse\022P\n\020DeletePermission\022\".siqi.auth.Dele"
-  "tePermissionRequest\032\030.siqi.auth.AdminRes"
-  "ponse\022X\n\017ListPermissions\022!.siqi.auth.Lis"
-  "tPermissionsRequest\032\".siqi.auth.ListPerm"
-  "issionsResponse\022D\n\nCreateRole\022\034.siqi.aut"
-  "h.CreateRoleRequest\032\030.siqi.auth.AdminRes"
-  "ponse\022D\n\nUpdateRole\022\034.siqi.auth.UpdateRo"
-  "leRequest\032\030.siqi.auth.AdminResponse\022D\n\nD"
-  "eleteRole\022\034.siqi.auth.DeleteRoleRequest\032"
-  "\030.siqi.auth.AdminResponse\022F\n\tListRoles\022\033"
-  ".siqi.auth.ListRolesRequest\032\034.siqi.auth."
-  "ListRolesResponse\022V\n\023AddPermissionToRole"
-  "\022%.siqi.auth.AddPermissionToRoleRequest\032"
-  "\030.siqi.auth.AdminResponse\022`\n\030RemovePermi"
-  "ssionFromRole\022*.siqi.auth.RemovePermissi"
-  "onFromRoleRequest\032\030.siqi.auth.AdminRespo"
-  "nse\022a\n\022GetRolePermissions\022$.siqi.auth.Ge"
-  "tRolePermissionsRequest\032%.siqi.auth.GetR"
-  "olePermissionsResponse\022N\n\017GrantRoleToUse"
-  "r\022!.siqi.auth.GrantRoleToUserRequest\032\030.s"
-  "iqi.auth.AdminResponse\022T\n\022RevokeRoleFrom"
-  "User\022$.siqi.auth.RevokeRoleFromUserReque"
-  "st\032\030.siqi.auth.AdminResponse\022O\n\014GetRoleU"
-  "sers\022\036.siqi.auth.GetRoleUsersRequest\032\037.s"
-  "iqi.auth.GetRoleUsersResponse\022R\n\rListUse"
-  "rRoles\022\037.siqi.auth.ListUserRolesRequest\032"
-  " .siqi.auth.ListUserRolesResponse\022R\n\rLis"
-  "tAuditLogs\022\037.siqi.auth.ListAuditLogsRequ"
-  "est\032 .siqi.auth.ListAuditLogsResponseB\003\200"
-  "\001\001b\006proto3"
+  "reated_at\030\003 \001(\t\022\021\n\tperm_keys\030\004 \003(\t2\310\002\n\013A"
+  "uthService\022:\n\005Check\022\027.siqi.auth.CheckReq"
+  "uest\032\030.siqi.auth.CheckResponse\022I\n\nBatchC"
+  "heck\022\034.siqi.auth.BatchCheckRequest\032\035.siq"
+  "i.auth.BatchCheckResponse\022a\n\022GetUserPerm"
+  "issions\022$.siqi.auth.GetUserPermissionsRe"
+  "quest\032%.siqi.auth.GetUserPermissionsResp"
+  "onse\022O\n\014GetUserRoles\022\036.siqi.auth.GetUser"
+  "RolesRequest\032\037.siqi.auth.GetUserRolesRes"
+  "ponse2\300\r\n\014AdminService\022B\n\tCreateApp\022\033.si"
+  "qi.auth.CreateAppRequest\032\030.siqi.auth.Adm"
+  "inResponse\022B\n\tUpdateApp\022\033.siqi.auth.Upda"
+  "teAppRequest\032\030.siqi.auth.AdminResponse\022B"
+  "\n\tDeleteApp\022\033.siqi.auth.DeleteAppRequest"
+  "\032\030.siqi.auth.AdminResponse\022=\n\006GetApp\022\030.s"
+  "iqi.auth.GetAppRequest\032\031.siqi.auth.GetAp"
+  "pResponse\022C\n\010ListApps\022\032.siqi.auth.ListAp"
+  "psRequest\032\033.siqi.auth.ListAppsResponse\022:"
+  "\n\005Login\022\027.siqi.auth.LoginRequest\032\030.siqi."
+  "auth.LoginResponse\022P\n\020CreatePermission\022\""
+  ".siqi.auth.CreatePermissionRequest\032\030.siq"
+  "i.auth.AdminResponse\022P\n\020UpdatePermission"
+  "\022\".siqi.auth.UpdatePermissionRequest\032\030.s"
+  "iqi.auth.AdminResponse\022P\n\020DeletePermissi"
+  "on\022\".siqi.auth.DeletePermissionRequest\032\030"
+  ".siqi.auth.AdminResponse\022X\n\017ListPermissi"
+  "ons\022!.siqi.auth.ListPermissionsRequest\032\""
+  ".siqi.auth.ListPermissionsResponse\022D\n\nCr"
+  "eateRole\022\034.siqi.auth.CreateRoleRequest\032\030"
+  ".siqi.auth.AdminResponse\022D\n\nUpdateRole\022\034"
+  ".siqi.auth.UpdateRoleRequest\032\030.siqi.auth"
+  ".AdminResponse\022D\n\nDeleteRole\022\034.siqi.auth"
+  ".DeleteRoleRequest\032\030.siqi.auth.AdminResp"
+  "onse\022F\n\tListRoles\022\033.siqi.auth.ListRolesR"
+  "equest\032\034.siqi.auth.ListRolesResponse\022V\n\023"
+  "AddPermissionToRole\022%.siqi.auth.AddPermi"
+  "ssionToRoleRequest\032\030.siqi.auth.AdminResp"
+  "onse\022`\n\030RemovePermissionFromRole\022*.siqi."
+  "auth.RemovePermissionFromRoleRequest\032\030.s"
+  "iqi.auth.AdminResponse\022a\n\022GetRolePermiss"
+  "ions\022$.siqi.auth.GetRolePermissionsReque"
+  "st\032%.siqi.auth.GetRolePermissionsRespons"
+  "e\022N\n\017GrantRoleToUser\022!.siqi.auth.GrantRo"
+  "leToUserRequest\032\030.siqi.auth.AdminRespons"
+  "e\022T\n\022RevokeRoleFromUser\022$.siqi.auth.Revo"
+  "keRoleFromUserRequest\032\030.siqi.auth.AdminR"
+  "esponse\022O\n\014GetRoleUsers\022\036.siqi.auth.GetR"
+  "oleUsersRequest\032\037.siqi.auth.GetRoleUsers"
+  "Response\022R\n\rListUserRoles\022\037.siqi.auth.Li"
+  "stUserRolesRequest\032 .siqi.auth.ListUserR"
+  "olesResponse\022R\n\rListAuditLogs\022\037.siqi.aut"
+  "h.ListAuditLogsRequest\032 .siqi.auth.ListA"
+  "uditLogsResponseB\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_auth_2eproto_deps[1] = {
 };
@@ -1665,7 +1666,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_aut
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_auth_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_auth_2eproto = {
-  false, false, descriptor_table_protodef_auth_2eproto, "auth.proto", 6930,
+  false, false, descriptor_table_protodef_auth_2eproto, "auth.proto", 6949,
   &descriptor_table_auth_2eproto_once, descriptor_table_auth_2eproto_sccs, descriptor_table_auth_2eproto_deps, 47, 0,
   schemas, file_default_instances, TableStruct_auth_2eproto::offsets,
   file_level_metadata_auth_2eproto, 47, file_level_enum_descriptors_auth_2eproto, file_level_service_descriptors_auth_2eproto,
@@ -15352,14 +15353,16 @@ class ListUserRolesResponse_UserRoleInfo::_Internal {
 
 ListUserRolesResponse_UserRoleInfo::ListUserRolesResponse_UserRoleInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena),
-  role_keys_(arena) {
+  role_keys_(arena),
+  perm_keys_(arena) {
   SharedCtor();
   RegisterArenaDtor(arena);
   // @@protoc_insertion_point(arena_constructor:siqi.auth.ListUserRolesResponse.UserRoleInfo)
 }
 ListUserRolesResponse_UserRoleInfo::ListUserRolesResponse_UserRoleInfo(const ListUserRolesResponse_UserRoleInfo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      role_keys_(from.role_keys_) {
+      role_keys_(from.role_keys_),
+      perm_keys_(from.perm_keys_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   user_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_user_id().empty()) {
@@ -15414,6 +15417,7 @@ void ListUserRolesResponse_UserRoleInfo::Clear() {
   (void) cached_has_bits;
 
   role_keys_.Clear();
+  perm_keys_.Clear();
   user_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   created_at_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -15457,6 +15461,20 @@ const char* ListUserRolesResponse_UserRoleInfo::_InternalParse(const char* ptr, 
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "siqi.auth.ListUserRolesResponse.UserRoleInfo.created_at"));
           CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated string perm_keys = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_perm_keys();
+            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys"));
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -15517,6 +15535,16 @@ failure:
         3, this->_internal_created_at(), target);
   }
 
+  // repeated string perm_keys = 4;
+  for (int i = 0, n = this->_internal_perm_keys_size(); i < n; i++) {
+    const auto& s = this->_internal_perm_keys(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "siqi.auth.ListUserRolesResponse.UserRoleInfo.perm_keys");
+    target = stream->WriteString(4, s, target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -15539,6 +15567,14 @@ size_t ListUserRolesResponse_UserRoleInfo::ByteSizeLong() const {
   for (int i = 0, n = role_keys_.size(); i < n; i++) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
       role_keys_.Get(i));
+  }
+
+  // repeated string perm_keys = 4;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(perm_keys_.size());
+  for (int i = 0, n = perm_keys_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      perm_keys_.Get(i));
   }
 
   // string user_id = 1;
@@ -15587,6 +15623,7 @@ void ListUserRolesResponse_UserRoleInfo::MergeFrom(const ListUserRolesResponse_U
   (void) cached_has_bits;
 
   role_keys_.MergeFrom(from.role_keys_);
+  perm_keys_.MergeFrom(from.perm_keys_);
   if (from.user_id().size() > 0) {
     _internal_set_user_id(from._internal_user_id());
   }
@@ -15617,6 +15654,7 @@ void ListUserRolesResponse_UserRoleInfo::InternalSwap(ListUserRolesResponse_User
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   role_keys_.InternalSwap(&other->role_keys_);
+  perm_keys_.InternalSwap(&other->perm_keys_);
   user_id_.Swap(&other->user_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   created_at_.Swap(&other->created_at_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
