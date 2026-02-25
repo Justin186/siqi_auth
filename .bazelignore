@@ -1,0 +1,6 @@
+bazel-bin
+bazel-out
+bazel-siqi_auth
+bazel-testlogs
+build
+
