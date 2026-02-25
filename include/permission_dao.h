@@ -157,6 +157,12 @@ public:
     std::vector<std::string> getRolePermissions(const std::string& app_code,
                                                 const std::string& role_key);
 
+    std::vector<std::string> getRolesWithPermission(const std::string& app_code,
+                                                    const std::string& perm_key);
+
+    bool appExists(const std::string& app_code);
+    bool permissionExists(const std::string& app_code, const std::string& perm_key);
+
     struct UserInfo {
         std::string user_id;
         std::string created_at;

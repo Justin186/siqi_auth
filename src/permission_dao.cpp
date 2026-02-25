@@ -935,6 +935,57 @@ std::vector<std::string> PermissionDAO::getRolePermissions(const std::string& ap
     return perms;
 }
 
+std::vector<std::string> PermissionDAO::getRolesWithPermission(const std::string& app_code,
+                                                               const std::string& perm_key) {
+    std::vector<std::string> roles;
+    ConnectionGuard conn(this); if (!conn.isValid()) return roles;
+    try {
+        int64_t app_id = getAppId(app_code);
+        if (app_id == -1) return roles;
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement(
+                "SELECT r.role_key FROM sys_roles r "
+                "JOIN sys_role_permissions rp ON r.id = rp.role_id "
+                "JOIN sys_permissions p ON rp.perm_id = p.id "
+                "WHERE r.app_id = ? AND p.perm_key = ?"
+            )
+        );
+        pstmt->setInt64(1, app_id);
+        pstmt->setString(2, perm_key);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        
+        while (res->next()) {
+            roles.push_back(res->getString("role_key"));
+        }
+    } catch (const sql::SQLException& e) {
+        std::lock_guard<std::mutex> lock(error_mutex_); last_error_ = "查询权限对应角色失败: " + std::string(e.what());
+    }
+    return roles;
+}
+
+bool PermissionDAO::appExists(const std::string& app_code) {
+    return getAppId(app_code) != -1;
+}
+
+bool PermissionDAO::permissionExists(const std::string& app_code, const std::string& perm_key) {
+    ConnectionGuard conn(this); if (!conn.isValid()) return false;
+    try {
+        int64_t app_id = getAppId(app_code);
+        if (app_id == -1) return false;
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(
+            conn->prepareStatement("SELECT id FROM sys_permissions WHERE app_id = ? AND perm_key = ?")
+        );
+        pstmt->setInt64(1, app_id);
+        pstmt->setString(2, perm_key);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        return res->next();
+    } catch (...) {
+        return false;
+    }
+}
+
 std::vector<PermissionDAO::UserInfo> PermissionDAO::getRoleUsers(const std::string& app_code,
                                                                  const std::string& role_key,
                                                                  int32_t page, int32_t page_size,

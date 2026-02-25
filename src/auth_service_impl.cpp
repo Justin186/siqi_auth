@@ -43,44 +43,56 @@ void AuthServiceImpl::Check(google::protobuf::RpcController* cntl,
         cache_hit = cache_->Get(cache_key, user_perms);
     }
     
-    if (cache_hit) {
-        // Cache Hit logic
-        bool allowed = (user_perms.count(request->perm_key()) > 0);
-        response->set_allowed(allowed);
-        if (!allowed) {
-             response->set_reason("用户没有该权限 (Cache)");
+    if (!cache_hit) {
+        // 3. Cache Miss - Load from DB
+        try {
+            // Here we assume getUserPermissions gets all effective permissions for the user
+            // This avoids complex SQL in AuthServiceImpl and leverages DAO
+            auto perms = dao_.getUserPermissions(request->app_code(), request->user_id());
+            user_perms.clear();
+            for (const auto& p : perms) {
+                user_perms.insert(p.first); // Use perm_key (first), not perm_name (second)
+            }
+        } catch (const std::exception& e) {
+             LOG(ERROR) << "DB Error: " << e.what();
+             response->set_allowed(false);
+             response->set_reason("系统错误");
+             return;
         }
-        LOG(INFO) << "Check " << request->user_id() << " -> " << request->perm_key() 
-                  << (allowed ? " [ALLOW]" : " [DENY]") << " (Hit)";
-        return;
-    }
-
-    // 3. Cache Miss - Load from DB
-    try {
-        // Here we assume getUserPermissions gets all effective permissions for the user
-        // This avoids complex SQL in AuthServiceImpl and leverages DAO
-        auto perms = dao_.getUserPermissions(request->app_code(), request->user_id());
-        user_perms.clear();
-        for (const auto& p : perms) {
-            user_perms.insert(p.first); // Use perm_key (first), not perm_name (second)
+        
+        // 4. Update Cache (TTL from config)
+        if (cache_) {
+            cache_->Put(cache_key, user_perms, cache_ttl_);
         }
-    } catch (const std::exception& e) {
-         LOG(ERROR) << "DB Error: " << e.what();
-         response->set_allowed(false);
-         response->set_reason("系统错误");
-         return;
-    }
-    
-    // 4. Update Cache (TTL from config)
-    if (cache_) {
-        cache_->Put(cache_key, user_perms, cache_ttl_);
     }
 
     // 5. Final Check
     bool allowed = (user_perms.count(request->perm_key()) > 0);
     response->set_allowed(allowed);
+    
     if (!allowed) {
-        response->set_reason("用户没有该权限");
+        if (!dao_.appExists(request->app_code())) {
+            response->set_reason("应用不存在" + std::string(cache_hit ? " (Cache)" : ""));
+        } else if (!dao_.permissionExists(request->app_code(), request->perm_key())) {
+            response->set_reason("权限不存在" + std::string(cache_hit ? " (Cache)" : ""));
+        } else {
+            auto current_roles = dao_.getUserRoles(request->app_code(), request->user_id());
+            std::string reason_prefix = current_roles.empty() ? "用户不存在或未分配任何角色" : "用户没有该权限";
+            
+            auto required_roles = dao_.getRolesWithPermission(request->app_code(), request->perm_key());
+            if (!required_roles.empty()) {
+                std::string suggest = required_roles[0];
+                for (size_t i = 1; i < required_roles.size(); ++i) suggest += "," + required_roles[i];
+                response->set_suggest_role(suggest);
+                
+                std::string curr_roles_str = current_roles.empty() ? "无" : current_roles[0];
+                for (size_t i = 1; i < current_roles.size(); ++i) curr_roles_str += "," + current_roles[i];
+                
+                response->set_reason(reason_prefix + " (当前角色: " + curr_roles_str + ", 建议申请角色: " + suggest + ")" + (cache_hit ? " (Cache)" : ""));
+            } else {
+                response->set_reason(reason_prefix + (cache_hit ? " (Cache)" : ""));
+            }
+        }
     }
     
     LOG(INFO) << "Check " << request->user_id() << " -> " << request->perm_key() 

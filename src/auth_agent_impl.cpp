@@ -51,8 +51,28 @@ void AuthAgentImpl::Check(google::protobuf::RpcController* cntl_base,
     // 3. 返回结果
     response->set_allowed(allowed);
     if (!allowed) {
-        // 可以记录下是在数据库里没查到
-        response->set_reason("Refused by Local DB Policy");
+        if (!dao_->appExists(app_code)) {
+            response->set_reason("应用不存在");
+        } else if (!dao_->permissionExists(app_code, perm_key)) {
+            response->set_reason("权限不存在");
+        } else {
+            auto current_roles = dao_->getUserRoles(app_code, user_id);
+            std::string reason_prefix = current_roles.empty() ? "用户不存在或未分配任何角色" : "用户没有该权限";
+            
+            auto required_roles = dao_->getRolesWithPermission(app_code, perm_key);
+            if (!required_roles.empty()) {
+                std::string suggest = required_roles[0];
+                for (size_t i = 1; i < required_roles.size(); ++i) suggest += "," + required_roles[i];
+                response->set_suggest_role(suggest);
+                
+                std::string curr_roles_str = current_roles.empty() ? "无" : current_roles[0];
+                for (size_t i = 1; i < current_roles.size(); ++i) curr_roles_str += "," + current_roles[i];
+                
+                response->set_reason(reason_prefix + " (当前角色: " + curr_roles_str + ", 建议申请角色: " + suggest + ")");
+            } else {
+                response->set_reason(reason_prefix);
+            }
+        }
     }
     
     // 添加 Header 标识这是本地直连查询
