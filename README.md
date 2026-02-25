@@ -171,6 +171,7 @@ sudo apt install -y libssl-dev libmysqlcppconn-dev
 ```bash
 # 通过 Bazelisk（会自动读取 .bazelversion 文件选择版本）
 # 注意：v1.19.0 存在 HTTP 下载挂起的已知 Bug，请使用 v1.22.1 或更新版本
+export https_proxy=http://127.0.0.1:7890  # 设置代理（如果需要）
 sudo wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.22.1/bazelisk-linux-amd64
 sudo chmod +x /usr/local/bin/bazel
 bazel --version  # 首次运行会自动下载 Bazel 6.4.0
@@ -390,9 +391,16 @@ Agent 接口返回标准的 JSON 对象：
 Agent 会在响应 Header 中添加 `X-Strategy` 字段：
 - `X-Strategy: Local-DB-Slave`  - 标识本次请求是由本地从库直接响应的。
 
-## CLI 管理工具
+## CLI 管理工具与 Web 后台
 
-使用 `admin_tool` 进行管理操作（如创建应用、管理用户等）。这些操作会直接写 Master 库，然后自动同步给所有 Agent。
+本项目提供了两种管理方式：
+
+### 1. Web 管理后台 (推荐)
+基于 Vue 3 开发的现代化可视化管理界面，支持应用、权限、角色、用户的全生命周期管理以及审计日志查询。
+详见前端项目：[siqi_admin_web](https://github.com/Justin186/siqi_admin_web)
+
+### 2. CLI 管理工具 (已弃用)
+使用 `admin_tool` 进行命令行管理操作。这些操作会直接写 Master 库，然后自动同步给所有 Agent。
 
 ```bash
 # 1. 管理员登录 (获取 Token)
