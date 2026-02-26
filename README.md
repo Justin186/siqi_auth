@@ -298,7 +298,7 @@ bazel build //:perf_test
 
 1.  **检查 Agent 状态**:
     ```bash
-    curl "http://127.0.0.1:8881/AuthService/Check?app_code=test&user_id=1&perm_key=test" -v
+    curl -X POST "http://127.0.0.1:8881/AuthService/Check" -H "Content-Type: application/json" -d '{"app_code":"test", "user_id":"1", "perm_key":"test"}' -v
     ```
     *Response Header 应包含 `X-Strategy: Local-DB-Slave`*
 
@@ -342,16 +342,19 @@ I0212 20:47:43.630136 20766     0 /home/justin/siqi_auth/src/server_main.cpp:37 
 ./build/auth_agent --flagfile=conf/agent.conf
 
 # 验证 Agent 是否正常工作
+# POST 方法 (通用)
+curl -X POST "http://127.0.0.1:8881/AuthService/Check" -H "Content-Type: application/json" -d '{"app_code":"test", "user_id":"1", "perm_key":"test"}'
+# GET 方法 (仅agent可用，对server不可用)
 curl "http://127.0.0.1:8881/AuthService/Check?app_code=test&user_id=1&perm_key=test"
 ```
 
-### 3. 业务代码调用示例
+### 3. 业务代码调用示例 (HTTP/JSON)
 
 **Python:**
 ```python
 import requests
 # 直接访问本机 Agent
-resp = requests.get("http://127.0.0.1:8881/AuthService/Check", params={
+resp = requests.post("http://127.0.0.1:8881/AuthService/Check", json={
     "app_code": "qq_bot",
     "user_id": "10086",
     "perm_key": "member:kick"
@@ -363,7 +366,9 @@ if resp.json().get("allowed"):
 **Curl (测试):**
 ```bash
 # 模拟一次请求
-curl "http://127.0.0.1:8881/AuthService/Check?app_code=qq_bot&user_id=123456&perm_key=member:kick"
+curl -X POST "http://127.0.0.1:8881/AuthService/Check" \
+     -H "Content-Type: application/json" \
+     -d '{"app_code":"qq_bot", "user_id":"123456", "perm_key":"member:kick"}'
 ```
 
 ### 4. 接口返回格式 (JSON)
@@ -373,14 +378,39 @@ Agent 接口返回标准的 JSON 对象：
 **成功允许 (Allowed):**
 ```json
 {
-  "allowed": true,
+  "allowed": true
 }
 ```
 
 **拒绝访问 (Denied):**
 ```json
+// 情况1：用户没有该权限，但系统能给出建议角色
 {
-  "reason": "用户没有该权限" // 或 "参数不完整", "服务端异常" 等
+  "reason": "用户没有该权限",
+  "current_roles": "member",
+  "suggest_roles": "admin"
+}
+
+// 情况2：用户不存在或未分配任何角色
+{
+  "reason": "用户不存在或未分配任何角色",
+  "current_roles": "无",
+  "suggest_roles": "admin"
+}
+
+// 情况3：应用不存在
+{
+  "reason": "应用不存在"
+}
+
+// 情况4：权限不存在
+{
+  "reason": "权限不存在"
+}
+
+// 情况5：参数不完整
+{
+  "reason": "参数不完整 (Agent)"
 }
 ```
 
