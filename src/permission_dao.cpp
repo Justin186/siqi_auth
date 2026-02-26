@@ -766,9 +766,16 @@ std::vector<PermissionDAO::RoleInfo> PermissionDAO::listRoles(const std::string&
         int64_t app_id = getAppId(app_code);
         if (app_id == -1) return roles;
 
+        // 使用 LEFT JOIN 和 GROUP_CONCAT 一次性查出角色及其权限列表，避免 N+1 查询
         std::unique_ptr<sql::PreparedStatement> pstmt(
             conn->prepareStatement(
-                "SELECT id, role_name, role_key, description, is_default FROM sys_roles WHERE app_id = ?"
+                "SELECT r.id, r.role_name, r.role_key, r.description, r.is_default, "
+                "GROUP_CONCAT(p.perm_key) as perm_keys "
+                "FROM sys_roles r "
+                "LEFT JOIN sys_role_permissions rp ON r.id = rp.role_id "
+                "LEFT JOIN sys_permissions p ON rp.perm_id = p.id "
+                "WHERE r.app_id = ? "
+                "GROUP BY r.id"
             )
         );
         pstmt->setInt64(1, app_id);
@@ -781,6 +788,16 @@ std::vector<PermissionDAO::RoleInfo> PermissionDAO::listRoles(const std::string&
             role.role_key = res->getString("role_key");
             role.description = res->getString("description");
             role.is_default = res->getBoolean("is_default");
+            
+            // 处理合并后的权限字符串
+            std::string perms_str = res->getString("perm_keys");
+            if (!perms_str.empty()) {
+                std::stringstream ss(perms_str);
+                std::string item;
+                while (std::getline(ss, item, ',')) {
+                    role.perm_keys.push_back(item);
+                }
+            }
             roles.push_back(role);
         }
     } catch (const sql::SQLException& e) {

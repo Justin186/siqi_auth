@@ -126,6 +126,7 @@ public:
         std::string role_key;
         std::string description;
         bool is_default;
+        std::vector<std::string> perm_keys; // 新增这一行
     };
     std::vector<RoleInfo> listRoles(const std::string& app_code);
 

@@ -5943,6 +5943,7 @@ class ListRolesResponse_Role PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kPermKeysFieldNumber = 8,
     kRoleNameFieldNumber = 2,
     kRoleKeyFieldNumber = 3,
     kDescriptionFieldNumber = 4,
@@ -5951,6 +5952,30 @@ class ListRolesResponse_Role PROTOBUF_FINAL :
     kIdFieldNumber = 1,
     kIsDefaultFieldNumber = 5,
   };
+  // repeated string perm_keys = 8;
+  int perm_keys_size() const;
+  private:
+  int _internal_perm_keys_size() const;
+  public:
+  void clear_perm_keys();
+  const std::string& perm_keys(int index) const;
+  std::string* mutable_perm_keys(int index);
+  void set_perm_keys(int index, const std::string& value);
+  void set_perm_keys(int index, std::string&& value);
+  void set_perm_keys(int index, const char* value);
+  void set_perm_keys(int index, const char* value, size_t size);
+  std::string* add_perm_keys();
+  void add_perm_keys(const std::string& value);
+  void add_perm_keys(std::string&& value);
+  void add_perm_keys(const char* value);
+  void add_perm_keys(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& perm_keys() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_perm_keys();
+  private:
+  const std::string& _internal_perm_keys(int index) const;
+  std::string* _internal_add_perm_keys();
+  public:
+
   // string role_name = 2;
   void clear_role_name();
   const std::string& role_name() const;
@@ -6101,6 +6126,7 @@ class ListRolesResponse_Role PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> perm_keys_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr role_key_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr description_;
@@ -17079,6 +17105,80 @@ inline void ListRolesResponse_Role::unsafe_arena_set_allocated_updated_at(
   updated_at_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       updated_at, GetArena());
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:siqi.auth.ListRolesResponse.Role.updated_at)
+}
+
+// repeated string perm_keys = 8;
+inline int ListRolesResponse_Role::_internal_perm_keys_size() const {
+  return perm_keys_.size();
+}
+inline int ListRolesResponse_Role::perm_keys_size() const {
+  return _internal_perm_keys_size();
+}
+inline void ListRolesResponse_Role::clear_perm_keys() {
+  perm_keys_.Clear();
+}
+inline std::string* ListRolesResponse_Role::add_perm_keys() {
+  // @@protoc_insertion_point(field_add_mutable:siqi.auth.ListRolesResponse.Role.perm_keys)
+  return _internal_add_perm_keys();
+}
+inline const std::string& ListRolesResponse_Role::_internal_perm_keys(int index) const {
+  return perm_keys_.Get(index);
+}
+inline const std::string& ListRolesResponse_Role::perm_keys(int index) const {
+  // @@protoc_insertion_point(field_get:siqi.auth.ListRolesResponse.Role.perm_keys)
+  return _internal_perm_keys(index);
+}
+inline std::string* ListRolesResponse_Role::mutable_perm_keys(int index) {
+  // @@protoc_insertion_point(field_mutable:siqi.auth.ListRolesResponse.Role.perm_keys)
+  return perm_keys_.Mutable(index);
+}
+inline void ListRolesResponse_Role::set_perm_keys(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:siqi.auth.ListRolesResponse.Role.perm_keys)
+  perm_keys_.Mutable(index)->assign(value);
+}
+inline void ListRolesResponse_Role::set_perm_keys(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:siqi.auth.ListRolesResponse.Role.perm_keys)
+  perm_keys_.Mutable(index)->assign(std::move(value));
+}
+inline void ListRolesResponse_Role::set_perm_keys(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  perm_keys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:siqi.auth.ListRolesResponse.Role.perm_keys)
+}
+inline void ListRolesResponse_Role::set_perm_keys(int index, const char* value, size_t size) {
+  perm_keys_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:siqi.auth.ListRolesResponse.Role.perm_keys)
+}
+inline std::string* ListRolesResponse_Role::_internal_add_perm_keys() {
+  return perm_keys_.Add();
+}
+inline void ListRolesResponse_Role::add_perm_keys(const std::string& value) {
+  perm_keys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:siqi.auth.ListRolesResponse.Role.perm_keys)
+}
+inline void ListRolesResponse_Role::add_perm_keys(std::string&& value) {
+  perm_keys_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:siqi.auth.ListRolesResponse.Role.perm_keys)
+}
+inline void ListRolesResponse_Role::add_perm_keys(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  perm_keys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:siqi.auth.ListRolesResponse.Role.perm_keys)
+}
+inline void ListRolesResponse_Role::add_perm_keys(const char* value, size_t size) {
+  perm_keys_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:siqi.auth.ListRolesResponse.Role.perm_keys)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+ListRolesResponse_Role::perm_keys() const {
+  // @@protoc_insertion_point(field_list:siqi.auth.ListRolesResponse.Role.perm_keys)
+  return perm_keys_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+ListRolesResponse_Role::mutable_perm_keys() {
+  // @@protoc_insertion_point(field_mutable_list:siqi.auth.ListRolesResponse.Role.perm_keys)
+  return &perm_keys_;
 }
 
 // -------------------------------------------------------------------

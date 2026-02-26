@@ -550,6 +550,11 @@ void AdminServiceImpl::ListRoles(google::protobuf::RpcController* cntl_base,
         role_pb->set_role_key(r.role_key);
         role_pb->set_description(r.description);
         role_pb->set_is_default(r.is_default);
+
+        // 直接从 RoleInfo 中获取权限列表，不再需要循环调用 DAO
+        for (const auto& p : r.perm_keys) {
+            role_pb->add_perm_keys(p);
+        }
     }
     response->set_total(roles.size());
 }
