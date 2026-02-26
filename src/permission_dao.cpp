@@ -39,9 +39,17 @@ PermissionDAO::~PermissionDAO() {
 sql::Connection* PermissionDAO::createConnection() {
     try {
         sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
-        std::string url = "tcp://" + config_.host + ":" + std::to_string(config_.port);
-        sql::Connection* conn = driver->connect(url, config_.user, config_.password);
-        conn->setSchema(config_.database);
+        sql::ConnectOptionsMap connection_properties;
+        connection_properties["hostName"] = config_.host;
+        connection_properties["port"] = config_.port;
+        connection_properties["userName"] = config_.user;
+        connection_properties["password"] = config_.password;
+        connection_properties["schema"] = config_.database;
+        // MYSQL_OPT_RECONNECT is deprecated in MySQL 8.0.34+
+        // We will handle reconnection manually in getConnection()
+        // connection_properties["OPT_RECONNECT"] = true; 
+        
+        sql::Connection* conn = driver->connect(connection_properties);
         return conn;
     } catch (const sql::SQLException& e) {
         std::lock_guard<std::mutex> lock(error_mutex_);
@@ -83,15 +91,18 @@ sql::Connection* PermissionDAO::getConnection() {
     sql::Connection* conn = connection_pool_.front();
     connection_pool_.pop();
     
-    // 简单检查连接有效性，失效则重连
-    if (conn->isClosed()) {
+    // 检查连接有效性 (isClosed 只能检测客户端关闭，isValid 会检测服务端断开情况)
+    bool is_valid = false;
+    try {
+        is_valid = !conn->isClosed() && conn->isValid();
+    } catch (...) {
+        is_valid = false;
+    }
+
+    if (!is_valid) {
         delete conn;
         conn = nullptr;
-        // 尝试重连一次 (RAII style in createConnection would be nice, but simple here)
-        // 注意这里持有锁，所以我们调用 createConnection (它自己不加pool锁)
-        // 但 createConnection 可能很慢，简单起见我们这里如果断了就... 实际上 driver->connect 是慢操作
-        // 理想做法是 unlock -> create -> return. 
-        // 简化处理：既然无效了，就当前线程自己负责造一个新的
+        // 尝试重连一次
         lock.unlock();
         conn = createConnection();
         if (!conn) {
