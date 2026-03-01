@@ -6,7 +6,7 @@ DB_ROOT_PASS="root123"
 DB_USER="siqi_dev"
 DB_PASS="siqi123"
 DB_NAME="siqi_auth"
-HOST_PORT=3306
+HOST_PORT=8002
 
 # 获取脚本所在目录的上一级目录 (项目根目录)
 PROJECT_ROOT=$(cd "$(dirname "$0")/.."; pwd)
@@ -25,6 +25,7 @@ docker run -d \
     -e MYSQL_DATABASE=$DB_NAME \
     -e MYSQL_USER=$DB_USER \
     -e MYSQL_PASSWORD=$DB_PASS \
+    -v "$PROJECT_ROOT/mysql_data":/var/lib/mysql \
     -v "$PROJECT_ROOT/scripts/init.sql":/docker-entrypoint-initdb.d/init.sql \
     mysql:8.0 \
     --server-id=1 \

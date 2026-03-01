@@ -211,7 +211,7 @@ bazel build //:perf_test
     ```bash
     sudo ./scripts/deploy_db.sh
     ```
-    *该脚本会创建一个名为 `siqi_mysql_prod` 的容器，Server-ID=1，账号: `siqi_dev`/`siqi123`，同步账号: `repl`/`slave123`。*
+    *此时 Master 会对外暴露 8002 端口（替代默认的 3306）。账号: `siqi_dev`/`siqi123`，同步账号: `repl`/`slave123`。*
 
 2.  **准备同步数据**:
     在中心端导出当前数据快照（包含同步坐标）：
@@ -227,12 +227,15 @@ bazel build //:perf_test
     ```bash
     ./scripts/start_server.sh
     ```
+    *Auth Server 将监听 8001 端口，并连接到 127.0.0.1:8002 的 Master 数据库。*
 
 ---
 
 ### 2. 业务节点 (Agent Node) 部署
 
 **目标**：在业务机器上部署 MySQL Slave 和 Auth Agent。
+
+> **提示：如果您的宿主机/容器已经存在旧版的数据库，并非首次安装，请跳过新建流程，直接查阅 [进阶：在已有实例上重建/对齐主从库](#3-进阶在已有实例上重建对齐主从库修复断连)**
 
 #### 方案 A: 使用 Docker 部署 Slave (推荐)
 
@@ -251,22 +254,15 @@ bazel build //:perf_test
       --log-bin=mysql-bin --binlog-format=ROW
     ```
 
-2.  **建立 SSH 隧道 (打通网络)**:
-    由于 Master 在内网或有防火墙，通过 SSH 隧道连接最安全：
-    ```bash
-    # 将远程 Master 的 3306 映射到本机的 13306
-    ssh -N -f -L 13306:127.0.0.1:3306 ubuntu@<Master_IP>
-    ```
-
-3.  **配置并启动同步**:
-    进入 Slave 容器，配置 Master 地址为宿主机刚才开启的隧道端口：
+2.  **直连 Master 同步数据**:
+    由于中心端已开放 8002 端口，不再需要建立 SSH 隧道，直接进入 Slave 容器配置：
     ```bash
     docker exec -it auth_slave_db mysql -uroot -pslave_root_123
     ```
     ```sql
     STOP SLAVE;
-    -- 172.17.0.1 是 Docker 宿主机网关 IP
-    CHANGE MASTER TO MASTER_HOST='172.17.0.1', MASTER_PORT=13306, 
+    -- <Master_IP> 替换为中心服务器的公网 IP，端口为 8002
+    CHANGE MASTER TO MASTER_HOST='<Master_IP>', MASTER_PORT=8002, 
       MASTER_USER='repl', MASTER_PASSWORD='slave123', GET_MASTER_PUBLIC_KEY=1;
     START SLAVE;
     SHOW SLAVE STATUS\G  -- 检查 Slave_IO_Running 和 Slave_SQL_Running 是否为 Yes
@@ -291,6 +287,49 @@ bazel build //:perf_test
 5.  启动 Agent。
 
 ---
+### 3. 进阶：在已有实例上重建/对齐主从库（修复断连）
+
+如果您已经在运行（Docker 或 本地物理机）节点，因为网络切换或故障导致同步完全断裂并需要推翻重置，请按照以下方案实现热覆盖（无需删除容器或重装 MySQL）：
+
+**第一步：从主库拉取带有坐标的最新单库快照**
+这里使用 `--databases siqi_auth` 而非 `--all-databases`，是为了**避免主库的系统表覆盖掉本机的用户密码权限和免密配置**。这样您原先的 `root` 密码和 `sudo mysql` 都不会被篡改。
+
+```bash
+# 从中心主库（8002 端口）抽取出业务库及其位点
+mysqldump -h <Master_IP> -P 8002 -uroot -proot123 --databases siqi_auth --master-data=1 > db_rescue.sql
+```
+
+**第二步：进入需要抢救的从库进行覆盖**
+- **如果是 Docker 从库**：
+  先拷贝文件进去：`docker cp db_rescue.sql auth_slave_db:/tmp/db_rescue.sql`
+  再切入终端：`docker exec -it auth_slave_db mysql -uroot -p<原来的密码>`
+- **如果是 本地宿主机从库**：
+  直接进控制台：`sudo mysql` 或 `mysql -uroot -p`
+
+**第三步：执行清洗、源导入和重新对齐**
+在控制台中依次粘贴：
+
+```sql
+-- 彻底扼杀旧的从库链路
+STOP SLAVE;
+RESET SLAVE ALL;
+
+-- 强制覆盖本地数据库表结构与数据
+SOURCE /路径到/db_rescue.sql;
+
+-- 可选：若担心本地 server_id 与主库冲突，强制指定本机 id
+SET GLOBAL server_id = 999;
+
+-- 重新搭建到新的 8002 桥梁
+CHANGE MASTER TO MASTER_HOST='<Master_IP>', MASTER_PORT=8002, 
+  MASTER_USER='repl', MASTER_PASSWORD='slave123', GET_MASTER_PUBLIC_KEY=1;
+
+-- 启动并验货
+START SLAVE;
+SHOW SLAVE STATUS\G
+```
+
+---
 
 ## 运行服务
 
@@ -313,10 +352,10 @@ bazel build //:perf_test
 启动输出示例：
 ```
 I0212 20:47:43.613006 20766     0 /home/justin/siqi_auth/src/auth_service_impl.cpp:15 AuthServiceImpl] 数据库连接成功
-I0212 20:47:43.629907 20766     0 /home/justin/brpc/src/brpc/server.cpp:1232 StartInternal] Server[AuthServiceImpl+AdminServiceImpl] is serving on port=8888.
-I0212 20:47:43.630029 20766     0 /home/justin/brpc/src/brpc/server.cpp:1235 StartInternal] Check out http://justin-Inspiron:8888 in web browser.
-I0212 20:47:43.630126 20766     0 /home/justin/siqi_auth/src/server_main.cpp:36 main] 司契权限系统启动成功，监听端口: 8888
-I0212 20:47:43.630136 20766     0 /home/justin/siqi_auth/src/server_main.cpp:37 main] 其他系统可以通过 brpc://localhost:8888 调用
+I0212 20:47:43.629907 20766     0 /home/justin/brpc/src/brpc/server.cpp:1232 StartInternal] Server[AuthServiceImpl+AdminServiceImpl] is serving on port=8001.
+I0212 20:47:43.630029 20766     0 /home/justin/brpc/src/brpc/server.cpp:1235 StartInternal] Check out http://justin-Inspiron:8001 in web browser.
+I0212 20:47:43.630126 20766     0 /home/justin/siqi_auth/src/server_main.cpp:36 main] 司契权限系统启动成功，监听端口: 8001
+I0212 20:47:43.630136 20766     0 /home/justin/siqi_auth/src/server_main.cpp:37 main] 其他系统可以通过 brpc://localhost:8001 调用
 ```
 
 ## 接入方式（多语言支持）
@@ -434,7 +473,7 @@ Agent 会在响应 Header 中添加 `X-Strategy` 字段：
 
 ```bash
 # 1. 管理员登录 (获取 Token)
-# 默认连接 Master (localhost:8888)
+# 默认连接 Master (localhost:8001)
 ./build/admin_tool --op=login --user=admin --password=admin123
 
 # 2. 创建一个新权限 (立即同步给所有 Slave)
