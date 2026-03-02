@@ -61,6 +61,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && 
     sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 
 # 安装运行时依赖
+# 添加了 curl 仅为了配合 docker-compose 里的 healthcheck 使用
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libprotobuf23 \
     libmysqlcppconn7v5 \
@@ -68,8 +69,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libleveldb1d \
     libgflags2.2 \
     libsnappy1v5 \
-    libmysqlclient21 \
+    libmysqlclient-dev \
     ca-certificates \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # 从构建阶段复制 brpc 共享库

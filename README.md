@@ -235,7 +235,7 @@ bazel build //:perf_test
 
 **目标**：在业务机器上部署 MySQL Slave 和 Auth Agent。
 
-### 使用docker部署 Agent与slave
+### 使用 docker 部署 Agent与slave
 
 1. 进入siqi_auth目录,运行以下命令导出快照
 ```bash
@@ -244,9 +244,9 @@ mysqldump -h <MASTER_IP> -P 8002 -uroot -proot123 \
   --master-data=1 \
   --single-transaction > slave_init.sql
 ```
-2. 在siqi_auth目录下运行以下命令进行构建
+2. 在siqi_auth目录下运行以下命令进行构建 (通过 SERVER_ID 环境变量指定这台机器的唯一节点 ID，多台部署切勿重复)
 ```bash
-docker-compose -f docker-compose.slave.yml up -d --build
+SERVER_ID=2 docker-compose -f docker-compose.slave.yml up -d --build
 ```
 3. 配置slave同步master
   等待slave初始化后，配置主从同步
@@ -255,8 +255,8 @@ docker-compose -f docker-compose.slave.yml up -d --build
 docker exec -it siqi_mysql_slave mysql -uroot -proot123
 ```
 
-  在控制台中执行
-  ```sql
+在控制台中执行
+```sql
 STOP SLAVE;
 
 -- 配置主库连接（替换 <MASTER_IP> 为实际 IP）
@@ -271,7 +271,7 @@ START SLAVE;
 
 -- 检查同步状态
 SHOW SLAVE STATUS\G
-  ```
+```
 
 4. 验证部署
   检查容器状态

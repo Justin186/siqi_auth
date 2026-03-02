@@ -26,7 +26,7 @@ services:
     ports:
       - "8002:3306"       # 映射到宿主机 8002
     command:
-      - --server-id=2                    # Slave ID，必须与 Master 不同
+      - --server-id=${SERVER_ID:-2}      # Slave ID，通过 SERVER_ID 环境变量传入，默认 2（多机器部署务必设置不同值）
       - --relay-log=relay-bin            # 中继日志
       - --log-bin=mysql-bin              # 开启 binlog
       - --binlog-format=ROW
