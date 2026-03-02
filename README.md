@@ -298,7 +298,7 @@ SHOW SLAVE STATUS\G
 5. 管理命令
 ```bash
 # 停止服务
-docker compose -f docker-compose.slave.yml down
+docker compose -f docker-compose.slave.yml stop
 
 # 停止并删除数据卷（谨慎使用！）
 docker compose -f docker-compose.slave.yml down -v
