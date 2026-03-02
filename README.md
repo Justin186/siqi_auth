@@ -235,6 +235,72 @@ bazel build //:perf_test
 
 **目标**：在业务机器上部署 MySQL Slave 和 Auth Agent。
 
+### 使用docker部署 Agent与slave
+
+1. 进入siqi_auth目录,运行以下命令导出快照
+```bash
+mysqldump -h 139.155.181.182 -P 8002 -uroot -proot123 \
+  --databases siqi_auth \
+  --master-data=1 \
+  --single-transaction > slave_init.sql
+```
+2. 在siqi_auth目录下运行以下命令进行构建
+```bash
+docker-compose -f docker-compose.slave.yml up -d --build
+```
+3. 配置slave同步master
+  等待slave初始化后，配置主从同步
+```bash
+# 进入 Slave 容器
+docker exec -it siqi_mysql_slave mysql -uroot -proot123
+```
+
+  在控制台中执行
+  ```sql
+STOP SLAVE;
+
+-- 配置主库连接（替换 <MASTER_IP> 为实际 IP）
+CHANGE MASTER TO 
+  MASTER_HOST='<MASTER_IP>',
+  MASTER_PORT=8002,
+  MASTER_USER='repl',
+  MASTER_PASSWORD='slave123',
+  GET_MASTER_PUBLIC_KEY=1;
+
+START SLAVE;
+
+-- 检查同步状态
+SHOW SLAVE STATUS\G
+  ```
+
+4. 验证部署
+  检查容器状态
+  ```bash
+  docker-compose -f docker-compose.slave.yml ps
+  ```
+
+  测试agent服务
+  ```bash
+  # 测试 Agent 是否响应
+curl http://localhost:8001/health
+  ``
+5. 管理命令
+```bash
+# 停止服务
+docker-compose -f docker-compose.slave.yml down
+
+# 停止并删除数据卷（谨慎使用！）
+docker-compose -f docker-compose.slave.yml down -v
+
+# 重启服务
+docker-compose -f docker-compose.slave.yml restart
+
+# 查看同步延迟
+docker exec -it siqi_mysql_slave mysql -uroot -proot123 -e "SHOW SLAVE STATUS\G" | grep Seconds_Behind_Master
+```
+
+
+
 > **提示：如果您的宿主机/容器已经存在旧版的数据库，并非首次安装，请跳过新建流程，直接查阅 [进阶：在已有实例上重建/对齐主从库](#3-进阶在已有实例上重建对齐主从库修复断连)**
 
 #### 方案 A: 使用 Docker 部署 Slave (推荐)
