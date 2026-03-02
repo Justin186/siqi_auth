@@ -235,7 +235,7 @@ bazel build //:perf_test
 
 **目标**：在业务机器上部署 MySQL Slave 和 Auth Agent。
 
-### 使用 docker 部署 Agent与slave
+### 使用 docker 部署 Agent 与 Slave
 
 1. 进入siqi_auth目录,运行以下命令导出快照
 ```bash
@@ -246,8 +246,19 @@ mysqldump -h <MASTER_IP> -P 8002 -uroot -proot123 \
 ```
 2. 在siqi_auth目录下运行以下命令进行构建 (通过 SERVER_ID 环境变量指定这台机器的唯一节点 ID，多台部署切勿重复)
 ```bash
-SERVER_ID=2 docker-compose -f docker-compose.slave.yml up -d --build
+SERVER_ID=2 docker compose -f docker-compose.slave.yml up -d --build
+# 如果是在国内服务器或校园网环境，如果在拉取github仓库时出现网络问题，请使用类似代理的构建方式
+# HTTP_PROXY 和 HTTPS_PROXY 替换为你宿主机代理软件的 IP 及端口
+# 代理软件记得开局域网连接
+SERVER_ID=2 docker compose -f docker-compose.slave.yml build \
+    --build-arg HTTP_PROXY="http://172.17.0.1:7897" \
+    --build-arg HTTPS_PROXY="http://172.17.0.1:7897"
+# 构建完成后再启动
+SERVER_ID=2 docker compose -f docker-compose.slave.yml up -d
 ```
+> **注意**：`SERVER_ID` 环境变量必须为每台业务节点指定一个唯一的整数值（如 2, 3, 4...），以避免 MySQL 主从复制中的 `server_id` 冲突。
+另外，新版docker使用的不再是 `docker-compose` 命令，而是 `docker compose`（空格分隔），请根据实际环境调整命令。
+如果报permission denied，请检查当前用户是否有权限访问 Docker Socket，或尝试使用 `sudo` 运行命令。
 3. 配置slave同步master
   等待slave初始化后，配置主从同步
 ```bash
@@ -276,30 +287,28 @@ SHOW SLAVE STATUS\G
 4. 验证部署
   检查容器状态
   ```bash
-  docker-compose -f docker-compose.slave.yml ps
+  docker compose -f docker-compose.slave.yml ps
   ```
 
   测试agent服务
   ```bash
   # 测试 Agent 是否响应
-curl http://localhost:8001/health
+  curl http://localhost:8001/health
   ``
 5. 管理命令
 ```bash
 # 停止服务
-docker-compose -f docker-compose.slave.yml down
+docker compose -f docker-compose.slave.yml down
 
 # 停止并删除数据卷（谨慎使用！）
-docker-compose -f docker-compose.slave.yml down -v
+docker compose -f docker-compose.slave.yml down -v
 
 # 重启服务
-docker-compose -f docker-compose.slave.yml restart
+docker compose -f docker-compose.slave.yml restart
 
 # 查看同步延迟
 docker exec -it siqi_mysql_slave mysql -uroot -proot123 -e "SHOW SLAVE STATUS\G" | grep Seconds_Behind_Master
 ```
-
-
 
 > **提示：如果您的宿主机/容器已经存在旧版的数据库，并非首次安装，请跳过新建流程，直接查阅 [进阶：在已有实例上重建/对齐主从库](#3-进阶在已有实例上重建对齐主从库修复断连)**
 
@@ -450,7 +459,8 @@ I0212 20:47:43.630136 20766     0 /home/justin/siqi_auth/src/server_main.cpp:37 
 # POST 方法 (通用)
 curl -X POST "http://127.0.0.1:8881/AuthService/Check" -H "Content-Type: application/json" -d '{"app_code":"test", "user_id":"1", "perm_key":"test"}'
 # GET 方法 (仅agent可用，对server不可用)
-curl "http://127.0.0.1:8881/AuthService/Check?app_code=test&user_id=1&perm_key=test"
+curl "http://127.0.0.1:8881/AuthService/Check?app_code=test&user_id=1&perm_key=test" -w "\n"
+# 加上 -w "\n" 是为了在输出后换行，因为默认情况下输出没有换行，可能会和后续命令行提示符混在一起。
 ```
 
 ### 3. 业务代码调用示例 (HTTP/JSON)
