@@ -31,7 +31,7 @@ services:
       - --log-bin=mysql-bin              # 开启 binlog
       - --binlog-format=ROW
       - --read-only=1                    # 从库只读
-      - --slave-skip-errors=1396         # 忽略报错 1396 (Operation CREATE USER failed) 以避免主库初始化建用户导致同步中断
+      - --slave-skip-errors=1050,1146,1396 # 忽略建表建用户等主从初始化经常冲突的特定错误
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
