@@ -1,0 +1,84 @@
+# ============================================================
+# 司契权限系统 - Auth Agent Docker 镜像
+# 功能: 编译并打包 auth_agent 服务
+# 架构: 多阶段构建 (编译阶段 + 运行阶段)
+# ============================================================
+
+# ============================================================
+# Stage 1: 编译环境 - 编译 brpc + auth_agent
+# ============================================================
+FROM ubuntu:22.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 更换国内软件源
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+
+# 安装编译依赖
+RUN apt-get update && apt-get install -y \
+    cmake g++ make git pkg-config wget \
+    libprotobuf-dev protobuf-compiler libprotoc-dev \
+    libgflags-dev libleveldb-dev \
+    libssl-dev zlib1g-dev \
+    libmysqlcppconn-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 编译 brpc (从 GitHub 源码)
+WORKDIR /opt
+RUN git clone --depth 1 --branch 1.10.0 https://github.com/apache/brpc.git && \
+    cd brpc && mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release \
+          -DWITH_GLOG=OFF \
+          -DWITH_THRIFT=OFF \
+          .. && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig
+
+# 复制 siqi_auth 源码
+WORKDIR /app
+COPY include/ /app/include/
+COPY src/ /app/src/
+COPY proto/ /app/proto/
+COPY test/ /app/test/
+COPY CMakeLists.txt /app/
+
+# 编译 auth_agent
+RUN mkdir -p build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make -j$(nproc) auth_agent
+
+# ============================================================
+# Stage 2: 运行环境 - 仅包含必要的运行时库
+# ============================================================
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 更换国内软件源
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+
+# 安装运行时依赖
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libprotobuf23 \
+    libmysqlcppconn7v5 \
+    libssl3 \
+    libleveldb1d \
+    libgflags2.2 \
+    libsnappy1v5 \
+    libmysqlclient21 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# 从构建阶段复制 brpc 共享库
+COPY --from=builder /usr/local/lib/libbrpc.so* /usr/local/lib/
+RUN ldconfig
+
+# 复制编译好的 auth_agent 二进制
+COPY --from=builder /app/build/auth_agent /usr/local/bin/auth_agent
+
+EXPOSE 8001
+
+ENTRYPOINT ["auth_agent"]

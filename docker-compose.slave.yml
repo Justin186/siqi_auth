@@ -1,0 +1,72 @@
+# ============================================================
+# 司契权限系统 - 本地 Slave 部署方案
+# 包含: MySQL Slave (从库) + Auth Agent (本地鉴权代理)
+#
+# 架构:
+#   远程 Master (端口 8002)
+#       ↓ MySQL Replication (binlog)
+#   本地 MySQL Slave (端口 8002)
+#       ↑ 直连查询 (<1ms)
+#   本地 Auth Agent (端口 8001)
+#       ↑ HTTP/RPC 调用
+#   Bot / 业务应用
+# ============================================================
+
+services:
+  # ---- MySQL Slave (从库) ----
+  mysql-slave:
+    image: mysql:8.0
+    container_name: siqi_mysql_slave
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: siqi_auth
+      MYSQL_USER: siqi_dev
+      MYSQL_PASSWORD: siqi123
+    ports:
+      - "8002:3306"       # 映射到宿主机 8002
+    command:
+      - --server-id=2                    # Slave ID，必须与 Master 不同
+      - --relay-log=relay-bin            # 中继日志
+      - --log-bin=mysql-bin              # 开启 binlog
+      - --binlog-format=ROW
+      - --read-only=1                    # 从库只读
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./slave_init.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化数据
+      - mysql_slave_data:/var/lib/mysql  # 持久化数据
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot123"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks:
+      - siqi_net
+
+  # ---- Auth Agent (本地鉴权代理) ----
+  auth-agent:
+    image: siqi/auth-agent:latest
+    container_name: siqi_auth_agent
+    restart: always
+    depends_on:
+      mysql-slave:
+        condition: service_healthy       # 等 MySQL Slave 就绪后才启动
+    ports:
+      - "8001:8001"
+    command:
+      - --port=8001
+      - --db_host=mysql-slave            # Docker 内部网络，直接用服务名
+      - --db_port=3306
+      - --db_user=siqi_dev
+      - --db_password=siqi123
+      - --db_name=siqi_auth
+    networks:
+      - siqi_net
+
+networks:
+  siqi_net:
+    driver: bridge
+
+volumes:
+  mysql_slave_data:
