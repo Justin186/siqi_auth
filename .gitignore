@@ -18,6 +18,7 @@ bazel-testlogs
 
 # === 敏感文件 ===
 .auth_token
+slave_init.sql
 
 # === OS ===
 .DS_Store
