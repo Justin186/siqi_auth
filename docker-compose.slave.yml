@@ -51,6 +51,7 @@ services:
     build:
       context: .  # 构建上下文目录为项目根目录，以便 Docker 能够读取 src/ include/ 等
       dockerfile: deploy/Dockerfile.agent  # 指定 Dockerfile 的相对路径
+      network: host                      # 使用 host 网络模式，直接映射宿主机端口
       args:
         - HTTP_PROXY
         - HTTPS_PROXY
@@ -77,3 +78,4 @@ networks:
 
 volumes:
   mysql_slave_data:
+
