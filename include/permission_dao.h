@@ -3,11 +3,11 @@
 
 #include <string>
 #include <vector>
-#include <mutex>
-#include <queue>
-#include <condition_variable>
-#include <mysql_driver.h>
-#include <mysql_connection.h>
+#include <mutex> //引入互斥锁，用于线程安全操作数据库连接池
+#include <queue>//引入队列，用于存储数据库连接
+#include <condition_variable>//引入条件变量，用于线程同步
+#include <mysql_driver.h>//引入MySQL驱动程序
+#include <mysql_connection.h>//引入MySQL连接库
 
 class PermissionDAO {
 private:
@@ -19,15 +19,15 @@ private:
         std::string database;
     } config_;
 
-    std::queue<sql::Connection*> connection_pool_;
-    std::mutex pool_mutex_;
-    std::condition_variable pool_cond_;
+    std::queue<sql::Connection*> connection_pool_;//连接池队列，用于存储可用的数据库连接
+    std::mutex pool_mutex_;//保护连接池的互斥锁，防止多个线程同时操作连接池
+    std::condition_variable pool_cond_;//条件变量，用于线程同步，当连接池为空时，阻塞线程等待连接可用
     size_t initial_pool_size_ = 5;
     size_t max_pool_size_ = 50;
     size_t current_pool_size_ = 0;
 
-    std::string last_error_;
-    mutable std::mutex error_mutex_; // 保护 last_error
+    std::string last_error_;//最后一次操作的错误信息
+    mutable std::mutex error_mutex_; // 保护 last_error_ 成员变量的互斥锁，防止多个线程同时操作 last_error_
 
     sql::Connection* getConnection();
     void releaseConnection(sql::Connection* conn);
