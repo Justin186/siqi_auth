@@ -1,12 +1,12 @@
-﻿# ============================================================
-# Siqi Auth - Auth Agent Docker 镜像
-# 功能: 编译并打包 auth_agent 服务
-# 架构: 多阶段构建（编译阶段 + 运行阶段）
+# ============================================================
+# Siqi Auth Server Docker 镜像
+# 功能: 编译并打包 auth_server
+# 架构: 多阶段构建（builder + runtime）
 # ============================================================
 
-# ============================================================
-# Stage 1: 编译环境 - 编译 brpc + auth_agent
-# ============================================================
+# =========================
+# Stage 1: 构建阶段
+# =========================
 FROM ubuntu:22.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -24,8 +24,8 @@ RUN apt-get update && apt-get install -y \
     libmysqlcppconn-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 编译 brpc（从 GitHub 拉源码）
 WORKDIR /opt
+# 编译并安装 brpc（auth_server 运行依赖）
 RUN git clone --depth 1 --branch 1.10.0 https://github.com/apache/brpc.git && \
     cd brpc && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release \
@@ -36,22 +36,21 @@ RUN git clone --depth 1 --branch 1.10.0 https://github.com/apache/brpc.git && \
     make install && \
     ldconfig
 
-# 拷贝 siqi_auth 源码
 WORKDIR /app
+# 拷贝项目源码并编译 auth_server
 COPY include/ /app/include/
 COPY src/ /app/src/
 COPY proto/ /app/proto/
 COPY test/ /app/test/
 COPY CMakeLists.txt /app/
 
-# 编译 auth_agent
 RUN mkdir -p build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
-    make -j$(nproc) auth_agent
+    make -j$(nproc) auth_server
 
-# ============================================================
-# Stage 2: 运行环境 - 只保留必要运行时依赖
-# ============================================================
+# =========================
+# Stage 2: 运行阶段
+# =========================
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -60,8 +59,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN sed -i 's|archive.ubuntu.com|mirrors.aliyun.com|g' /etc/apt/sources.list && \
     sed -i 's|security.ubuntu.com|mirrors.aliyun.com|g' /etc/apt/sources.list
 
-# 安装运行时依赖
-# 增加 curl 方便在 docker-compose 中做 healthcheck
+# 仅安装运行所需库，减小镜像体积
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libprotobuf23 \
     libmysqlcppconn7v5 \
@@ -74,14 +72,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 从构建阶段复制 brpc 动态库
+# 从 builder 拷贝 brpc 动态库和二进制
 COPY --from=builder /usr/local/lib/libbrpc.so* /usr/local/lib/
 RUN ldconfig
 
-# 复制编译好的 auth_agent 二进制
-COPY --from=builder /app/build/auth_agent /usr/local/bin/auth_agent
+COPY --from=builder /app/build/auth_server /usr/local/bin/auth_server
 
-# 暴露 agent 服务端口（实际监听端口由启动参数决定）
+# 对外暴露 auth_server 监听端口（实际端口由启动参数 --port 决定）
 EXPOSE 8001
 
-ENTRYPOINT ["auth_agent"]
+ENTRYPOINT ["auth_server"]

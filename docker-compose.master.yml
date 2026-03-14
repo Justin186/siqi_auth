@@ -1,0 +1,94 @@
+﻿# ============================================================
+# Siqi Auth - Master 节点部署编排
+# 包含:
+#   1) MySQL Master（对外端口 8002）
+#   2) Auth Server（对外端口 8001）
+#
+# 说明:
+# - 建议该文件用于中心节点/主节点部署
+# - Agent/Slave 节点请使用 docker-compose.slave.yml
+# ============================================================
+
+services:
+  # -----------------------------
+  # MySQL Master
+  # -----------------------------
+  mysql-master:
+    image: mysql:8.0
+    container_name: siqi_mysql_master
+    restart: always
+    environment:
+      # MySQL 初始化账号与默认库
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: siqi_auth
+      MYSQL_USER: siqi_dev
+      MYSQL_PASSWORD: siqi123
+    ports:
+      # 对外暴露 8002，容器内仍是 3306
+      - "8002:3306"
+    command:
+      # server-id=1 作为主库 ID（从库必须使用不同 ID）
+      - --server-id=1
+      # 开启 binlog，供从库复制
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      # 持久化数据库数据
+      - mysql_master_data:/var/lib/mysql
+      # 首次初始化时执行建库建表与初始数据
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      # 首次初始化时创建复制账号 repl
+      - ./deploy/master_repl.sql:/docker-entrypoint-initdb.d/02_repl.sql
+    healthcheck:
+      # 等待 MySQL 就绪后再让上游服务启动
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot123"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks:
+      - siqi_net
+
+  # -----------------------------
+  # Auth Server
+  # -----------------------------
+  auth-server:
+    build:
+      # 以项目根目录作为构建上下文
+      context: .
+      dockerfile: deploy/Dockerfile.server
+      # 构建阶段使用宿主机网络（便于拉依赖）
+      network: host
+      # 允许透传代理参数（按需）
+      args:
+        - HTTP_PROXY
+        - HTTPS_PROXY
+    container_name: siqi_auth_server
+    restart: always
+    depends_on:
+      # 等主库健康后再启动 server
+      mysql-master:
+        condition: service_healthy
+    ports:
+      # 对外服务端口
+      - "8001:8001"
+    command:
+      # auth_server 启动参数
+      - --port=8001
+      # 注意: 这里是容器内互联，使用服务名 mysql-master
+      - --db_host=mysql-master
+      - --db_port=3306
+      - --db_user=siqi_dev
+      - --db_password=siqi123
+      - --db_name=siqi_auth
+    networks:
+      - siqi_net
+
+networks:
+  siqi_net:
+    driver: bridge
+
+volumes:
+  # MySQL 主库数据卷
+  mysql_master_data:
