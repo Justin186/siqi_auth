@@ -44,6 +44,11 @@ COPY proto/ /app/proto/
 COPY test/ /app/test/
 COPY CMakeLists.txt /app/
 
+# 使用容器内的 protoc 重新生成 pb 代码，避免宿主机与镜像内 protobuf 版本不一致
+RUN protoc --proto_path=/app/proto --cpp_out=/app/src /app/proto/auth.proto && \
+    cp /app/src/auth.pb.h /app/include/auth.pb.h && \
+    rm -f /app/src/auth.pb.h
+
 # 编译 auth_agent
 RUN mkdir -p build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \

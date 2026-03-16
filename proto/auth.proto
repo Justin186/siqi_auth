@@ -32,7 +32,7 @@ message CheckRequest {
 
 // 权限检查响应
 message CheckResponse {
-    bool allowed = 1; // 是否允许
+    optional bool allowed = 1; // 是否允许；显式保留 false 的 presence，便于 JSON 输出
     string reason = 2; // 原因（如果拒绝）
     string current_roles = 3; // 当前角色
     string suggest_roles = 4; // 建议角色（如果需要升级）
@@ -54,7 +54,7 @@ message BatchCheckResponse {
     message ResultItem {
         string user_id = 1;
         string perm_key = 2;
-        bool allowed = 3;
+        optional bool allowed = 3;
         string reason = 4;
     }
     repeated ResultItem results = 1;
