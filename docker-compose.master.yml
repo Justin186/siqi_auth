@@ -64,6 +64,8 @@ services:
       args:
         - HTTP_PROXY
         - HTTPS_PROXY
+        - http_proxy
+        - https_proxy
     container_name: siqi_auth_server
     restart: always
     depends_on:
