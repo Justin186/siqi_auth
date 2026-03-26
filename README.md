@@ -206,6 +206,139 @@ bazel build //:perf_test
 
 **目标**：部署 MySQL Master 和 Auth Server。
 
+#### 使用 Docker Compose 部署 Master 与 Auth Server（推荐）
+
+本方案基于 `docker-compose.master.yml`，会同时启动：
+- `mysql-master`：MySQL 主库，宿主机端口 `8002`
+- `auth-server`：权限服务端，宿主机端口 `8001`
+
+其中：
+- MySQL 数据会持久化到 Docker 命名卷 `mysql_master_data`
+- 初始化建库建表脚本来自 `scripts/init.sql`
+- 主从复制账号 `repl/slave123` 会在首次初始化时通过 `deploy/master_repl.sql` 自动创建
+- `auth-server` 容器会通过 Docker 内部服务名 `mysql-master:3306` 连接数据库
+
+1.  **准备环境**:
+    确保宿主机已安装 Docker 与 Docker Compose 插件：
+    ```bash
+    docker --version
+    docker compose version
+    ```
+    如果未安装，可在 Ubuntu 上执行：
+    ```bash
+    sudo apt update
+    sudo apt install -y docker.io docker-compose-plugin
+    sudo systemctl enable --now docker
+    ```
+
+2.  **进入项目目录**:
+    ```bash
+    cd /path/to/siqi_auth
+    ```
+
+3.  **确认宿主机端口未冲突**:
+    `docker-compose.master.yml` 会占用宿主机 `8001` 和 `8002`，如果当前机器已经运行了 `docker-compose.slave.yml`，需要先停止旧服务：
+    ```bash
+    docker compose -f docker-compose.slave.yml stop
+    docker compose -f docker-compose.slave.yml down
+    ```
+    也可以先检查端口占用：
+    ```bash
+    sudo ss -lntp | grep -E '8001|8002'
+    ```
+
+4.  **启动 Master 与 Auth Server**:
+    直接构建并后台启动：
+    ```bash
+    docker compose -f docker-compose.master.yml up -d --build
+    ```
+
+5.  **如需代理拉取依赖，可透传代理环境变量**:
+    `docker-compose.master.yml` 已透传 `HTTP_PROXY`、`HTTPS_PROXY`、`http_proxy`、`https_proxy`，可按需这样构建：
+    ```bash
+    HTTP_PROXY="http://172.17.0.1:7897" \
+    HTTPS_PROXY="http://172.17.0.1:7897" \
+    http_proxy="http://172.17.0.1:7897" \
+    https_proxy="http://172.17.0.1:7897" \
+    docker compose -f docker-compose.master.yml up -d --build
+    ```
+    *请将地址替换为宿主机代理软件实际 IP 和端口。*
+
+6.  **检查容器状态**:
+    ```bash
+    docker compose -f docker-compose.master.yml ps
+    ```
+    预期应看到：
+    - `siqi_mysql_master` 处于 `healthy` 或 `running`
+    - `siqi_auth_server` 处于 `running`
+
+7.  **查看启动日志**:
+    ```bash
+    docker logs -f siqi_mysql_master
+    docker logs -f siqi_auth_server
+    ```
+    `auth_server` 正常启动时，日志中应包含监听 `8001` 的信息。
+
+8.  **验证 MySQL Master 是否可用**:
+    ```bash
+    mysql -h127.0.0.1 -P8002 -uroot -proot123 -e "SHOW DATABASES;"
+    ```
+    *此时 Master 对外暴露 `8002` 端口（替代默认的 `3306`）。业务账号为 `siqi_dev/siqi123`。*
+
+9.  **验证复制账号是否已创建**:
+    ```bash
+    mysql -h127.0.0.1 -P8002 -urepl -pslave123 -e "SHOW MASTER STATUS\G"
+    ```
+    如果可以正常返回 binlog 信息，说明从库同步使用的账号 `repl/slave123` 已创建成功。
+
+10. **验证 Auth Server 是否可用**:
+    ```bash
+    curl http://127.0.0.1:8001/
+    ```
+    如果返回 bRPC 默认页面，说明 `auth_server` 已成功启动并对外监听 `8001`。
+
+11. **导出主库快照给业务节点使用**:
+    在中心端导出包含同步坐标的快照：
+    ```bash
+    docker exec siqi_mysql_master mysqldump -uroot -proot123 \
+      --databases siqi_auth \
+      --master-data=1 \
+      --single-transaction > slave_init.sql
+    ```
+    *将生成的 `slave_init.sql` 发送到所有业务节点，用于初始化从库。*
+
+12. **查看主库数据卷位置（可选）**:
+    当前 Compose 使用的是 Docker 命名卷，不是宿主机目录直挂载。可用以下命令查看真实宿主机路径：
+    ```bash
+    docker volume ls | grep mysql_master_data
+    docker volume inspect <卷名>
+    ```
+    其中 `Mountpoint` 即为宿主机上的实际存储路径。
+
+13. **常用管理命令**:
+    ```bash
+    # 停止服务
+    docker compose -f docker-compose.master.yml stop
+
+    # 重启服务
+    docker compose -f docker-compose.master.yml restart
+
+    # 停止并删除容器（保留数据卷）
+    docker compose -f docker-compose.master.yml down
+
+    # 停止并删除容器和数据卷（危险）
+    docker compose -f docker-compose.master.yml down -v
+    ```
+
+> **注意**：
+> `deploy/master_repl.sql` 只会在 MySQL 数据卷首次初始化时自动执行一次。如果此前已经创建过 `mysql_master_data` 数据卷，后续重新 `up` 不会重复自动建复制账号；此时可手动执行：
+> ```bash
+> docker exec -i siqi_mysql_master mysql -uroot -proot123 < deploy/master_repl.sql
+> ```
+> 如果中心端还需要暴露到公网，可在宿主机进一步配合 Nginx、反向代理或 `autossh` 做穿透。
+
+#### 旧方式：脚本启动数据库 + 本机启动服务
+
 1.  **启动 MySQL Master (Docker)**:
     使用内置脚本启动并自动配置 Replication 账号：
     ```bash
