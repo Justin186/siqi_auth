@@ -1161,6 +1161,8 @@ std::vector<PermissionDAO::AuditLogInfo> PermissionDAO::listAuditLogs(int32_t pa
                                                                       const std::string* action,
                                                                       const std::string* operator_id,
                                                                       const std::string* target_id,
+                                                                      const int64_t* start_time,
+                                                                      const int64_t* end_time,
                                                                       int64_t& out_total) {
     std::vector<AuditLogInfo> logs;
     out_total = 0;
@@ -1171,6 +1173,8 @@ std::vector<PermissionDAO::AuditLogInfo> PermissionDAO::listAuditLogs(int32_t pa
         if (action && !action->empty()) base_sql += " AND action = ?";
         if (operator_id && !operator_id->empty()) base_sql += " AND operator_id = ?";
         if (target_id && !target_id->empty()) base_sql += " AND target_id = ?";
+        if (start_time) base_sql += " AND created_at >= FROM_UNIXTIME(?)";
+        if (end_time) base_sql += " AND created_at <= FROM_UNIXTIME(?)";
 
         // Get total count
         std::unique_ptr<sql::PreparedStatement> count_stmt(
@@ -1182,6 +1186,8 @@ std::vector<PermissionDAO::AuditLogInfo> PermissionDAO::listAuditLogs(int32_t pa
         if (action && !action->empty()) count_stmt->setString(idx++, *action);
         if (operator_id && !operator_id->empty()) count_stmt->setString(idx++, *operator_id);
         if (target_id && !target_id->empty()) count_stmt->setString(idx++, *target_id);
+        if (start_time) count_stmt->setInt64(idx++, *start_time);
+        if (end_time) count_stmt->setInt64(idx++, *end_time);
         
         std::unique_ptr<sql::ResultSet> count_res(count_stmt->executeQuery());
         if (count_res->next()) {
@@ -1203,6 +1209,8 @@ std::vector<PermissionDAO::AuditLogInfo> PermissionDAO::listAuditLogs(int32_t pa
         if (action && !action->empty()) pstmt->setString(idx++, *action);
         if (operator_id && !operator_id->empty()) pstmt->setString(idx++, *operator_id);
         if (target_id && !target_id->empty()) pstmt->setString(idx++, *target_id);
+        if (start_time) pstmt->setInt64(idx++, *start_time);
+        if (end_time) pstmt->setInt64(idx++, *end_time);
         pstmt->setInt(idx++, page_size);
         pstmt->setInt(idx++, offset);
         

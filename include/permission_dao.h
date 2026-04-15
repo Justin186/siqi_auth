@@ -216,6 +216,8 @@ public:
                                             const std::string* action,
                                             const std::string* operator_id,
                                             const std::string* target_id,
+                                            const int64_t* start_time,
+                                            const int64_t* end_time,
                                             int64_t& out_total);
     
     struct ConsoleUser {

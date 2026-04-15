@@ -846,9 +846,22 @@ void AdminServiceImpl::ListAuditLogs(google::protobuf::RpcController* cntl_base,
     const std::string* action = request->has_action() ? &request->action() : nullptr;
     const std::string* operator_id = request->has_operator_id() ? &request->operator_id() : nullptr;
     const std::string* target_id = request->has_target_id() ? &request->target_id() : nullptr;
+
+    int64_t start_time_value = 0;
+    int64_t end_time_value = 0;
+    const int64_t* start_time = nullptr;
+    const int64_t* end_time = nullptr;
+    if (request->has_start_time()) {
+        start_time_value = request->start_time();
+        start_time = &start_time_value;
+    }
+    if (request->has_end_time()) {
+        end_time_value = request->end_time();
+        end_time = &end_time_value;
+    }
     
     int64_t total = 0;
-    auto logs = dao_.listAuditLogs(page, page_size, app_code, action, operator_id, target_id, total);
+    auto logs = dao_.listAuditLogs(page, page_size, app_code, action, operator_id, target_id, start_time, end_time, total);
     
     for (const auto& l : logs) {
         auto* log = response->add_logs();
